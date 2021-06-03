@@ -1,5 +1,5 @@
 Levo - Beginner Demo App
-===============
+=========================
 
 Levo makes *schema conformance testing* (aka contract tests) for REST API & GraphQL super easy!
 

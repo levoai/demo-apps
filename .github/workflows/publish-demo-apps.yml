@@ -1,0 +1,29 @@
+name: Build Demo App
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/*-demo-apps.yml'
+      - 'beginner-demo/**'
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  push-demo-app-image:
+    if: ${{ github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: BeginnerDemo Dockerhub push
+        uses: aevea/action-kaniko@master
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+          image: levoai/beginner-demo
+          path: ./beginner-demo
+          tag: latest
+          cache: true
+          extra_args: "--cache-repo levoai/levo-beginner-demo-cache"
