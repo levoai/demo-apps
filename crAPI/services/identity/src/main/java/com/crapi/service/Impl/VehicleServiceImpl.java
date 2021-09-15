@@ -102,28 +102,41 @@ public class VehicleServiceImpl implements VehicleService {
      */
     @Transactional
     @Override
-    public VehicleDetails createVehicle() {
+    public VehicleDetails createVehicle(String uuidHexDigitString) {
         String vin = "";
         String pincode ="";
         List<VehicleModel> modelList =null;
         GenerateVIN generateVIN = new GenerateVIN();
         VehicleLocation vehicleLocations = null;
         Random random = new Random();
-            modelList = vehicleModelRepository.findAll();
-            vehicleLocations = getVehicleLocationList();
-            if (modelList!=null && vehicleLocations!=null){
-                vin = generateVIN.generateVIN();
-                pincode=generateVIN.generatePincode();
-                VehicleDetails vehicleDetails = new VehicleDetails(pincode,vin);
-                vehicleDetails.setModel(modelList.get(random.nextInt(modelList.size())));
-                vehicleDetails.setVehicleLocation(vehicleLocations);
-                vehicleDetailsRepository.save(vehicleDetails);
-                return vehicleDetails;
-            }
+        modelList = vehicleModelRepository.findAll();
+        vehicleLocations = getVehicleLocationList();
+            
+        if (modelList!=null && vehicleLocations!=null){
+            vin = generateVIN.generateVIN();
+            pincode=generateVIN.generatePincode();
+            VehicleDetails vehicleDetails = new VehicleDetails(pincode, vin, uuidHexDigitString);
+            vehicleDetails.setModel(modelList.get(random.nextInt(modelList.size())));
+            vehicleDetails.setVehicleLocation(vehicleLocations);
+            vehicleDetailsRepository.save(vehicleDetails);
+            return vehicleDetails;
+        }
+
         throw new CRAPIExceptionHandler(UserMessage.CUSTOM_IO_EXCEPTION,
                     UserMessage.CUSTOM_IO_EXCEPTION_UNABLE_TO_CREATE_VEHICLE,500);
     }
 
+    /**
+     * @return VehicleDetails when user get signup
+     * this code will create random vehicle for user and sent email with vin and pincode
+     * on register email
+     */
+    @Transactional
+    @Override
+    public VehicleDetails createVehicle() {
+        return createVehicle("");
+    }
+    
     /**
      * @param request
      * @return list of vehicle of user

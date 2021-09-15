@@ -59,15 +59,32 @@ public class VehicleDetails {
     @JoinColumn(name="owner_id")
     private User owner;
 
-    public VehicleDetails(String pincode,String vin){
+    private void Init(String pincode, String vin, String uuidHexDigitString) {
+        if (uuidHexDigitString != null && !uuidHexDigitString.isEmpty()) {
+
+            try {
+                this.uuid = UUID.fromString(uuidHexDigitString);
+            }
+            catch(IllegalArgumentException e) {
+                this.uuid = UUID.randomUUID();
+            }
+        }
 
         this.pincode = pincode;
         this.vin = vin;
         this.status=EStatus.ACTIVE;
         this.year = LocalDate.now().getYear();
+    } 
 
+    public VehicleDetails(String pincode, String vin, String uuidHexDigitString) {
+        this.Init(pincode, vin, uuidHexDigitString);
     }
-    public VehicleDetails(){
+
+    public VehicleDetails(String pincode, String vin) {
+        this.Init(pincode, vin, "");
+    }
+
+    public VehicleDetails() {
 
     }
 
