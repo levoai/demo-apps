@@ -35,6 +35,8 @@ public interface VehicleService {
 
     VehicleDetails createVehicle();
 
+    VehicleDetails createVehicle(String uuidHexDigitString);
+
     List<VehicleDetails> getVehicleDetails(HttpServletRequest request);
 
     VehicleLocationResponse getVehicleLocation(UUID carId);

@@ -95,26 +95,35 @@ public class InitialDataConfig {
 
     public void addUser(){
         if (CollectionUtils.isEmpty(userDetailsRepository.findAll())) {
-            boolean user1 = predefineUserData("Adam","adam007@example.com","9876895423");
-            boolean user2 = predefineUserData("Pogba", "pogba006@example.com", "9876570006");
-            boolean user3 = predefineUserData("Robot", "robot001@example.com", "9876570001");
-            if(!user1 || !user2 || !user1){
+            
+            boolean user1 = predefineUserData("Victim One", "victim.one@example.com",
+                "4156895423", "Victim1One", "649acfac-10ea-43b3-907f-752e86eff2b6");
+
+            boolean user2 = predefineUserData("Victim Two", "victim.two@example.com",
+                "9876570006", "Victim2Two", "8b9edbde-d74d-4773-8c9f-adb65c6056fc");
+
+            boolean user3 = predefineUserData("Hacker", "hacker@darkweb.com",
+                "7000070007", "Hack3r$$$", "abac4018-5a38-466c-ab7f-361908afeab6");
+            
+            if(!user1 || !user2 || !user3){
                 logger.error("Fail to create user predefine data -> Message: {}");
             }
         }
     }
 
-    public boolean predefineUserData(String name, String email, String number){
+    public boolean predefineUserData(String name, String email, String number,
+        String password, String vechicleUuidHexDigitString) {
+        
         UserData userData = new UserData();
         VehicleDetails vehicleDetails = null;
         UserDetails userDetails = null;
         try {
 
-            User loginForm = new User(email, number, encoder.encode(name), ERole.ROLE_PREDEFINE);
+            User loginForm = new User(email, number, encoder.encode(password), ERole.ROLE_USER);
             loginForm = userRepository.save(loginForm);
             userDetails = userData.getPredefineUser(name, loginForm);
             userDetailsRepository.save(userDetails);
-            vehicleDetails = vehicleService.createVehicle();
+            vehicleDetails = vehicleService.createVehicle(vechicleUuidHexDigitString);
             if (vehicleDetails != null) {
                 vehicleDetails.setOwner(loginForm);
                 vehicleDetailsRepository.save(vehicleDetails);
