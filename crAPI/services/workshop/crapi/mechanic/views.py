@@ -188,6 +188,30 @@ class GetReportView(APIView):
         return Response(response_data, status=status.HTTP_200_OK)
 
 
+class GetUserReportsView(APIView):
+    """
+    View to return all the service requests belonging to a user
+    """
+    @jwt_auth_required
+    def get(self, request, user=None):
+        """
+        fetch all service requests created by a particular user
+        :param request: http request for the view
+            method allowed: GET
+            http request should be authorised by the jwt token of the mechanic
+        :param user: User object of the requesting user
+        :returns Response object with
+            list of service request object and 200 status if no error
+            message and corresponding status if error
+        """
+        service_requests = ServiceRequest.objects.filter(vehicle__owner=user)
+        serializer = ServiceRequestSerializer(service_requests, many=True)
+        response_data = dict(
+            service_requests=serializer.data
+        )
+        return Response(response_data, status=status.HTTP_200_OK)
+
+
 class ServiceRequestsView(APIView):
     """
     View to return all the service requests

@@ -25,6 +25,9 @@ from django.db import models
 from django.db import connection, transaction
 import logging
 
+MAX_PREDEF_MECH_REPORTS:int = 6 # The maximum predefined reports to generate
+MAX_PREDEF_REPORTS_PER_USER:int = 2
+
 logger = logging.getLogger()
 
 
@@ -120,6 +123,8 @@ def create_mechanics():
             user=user
         )
 
+
+
 def create_reports():
     import random
     import sys
@@ -127,47 +132,56 @@ def create_reports():
     from user.models import User, UserDetails, Vehicle
     from crapi.mechanic.models import Mechanic, ServiceRequest
     from django.utils import timezone
-    count = ServiceRequest.objects.all().count()
-    if (count >= 5):
+    
+    if (ServiceRequest.objects.all().count() >= MAX_PREDEF_MECH_REPORTS):
         return
+    
     mechanics = Mechanic.objects.all()
-    vehicles = Vehicle.objects.all()
-    for i in range(5):
+    users = User.objects.all()
+
+    numGen:int = 0
+    for user in users:
         try:
-            mechanic = random.choice(mechanics)
-            vehicle = random.choice(vehicles)
-            status = random.choice(ServiceRequest.STATUS_CHOICES)[0]
-            logger.debug(vehicle.__dict__)
-            logger.debug(status)
-            vehicle_model = vehicle.vehicle_model
-            vehicle_company = vehicle_model.vehiclecompany
-            user = vehicle.owner
-            user_detail = UserDetails.objects.filter(user=user).first()
-            service_request = ServiceRequest.objects.create(
-                vehicle=vehicle,
-                mechanic=mechanic,
-                problem_details=textwrap.dedent("""\
-                    My car {} - {} is having issues.
-                    Can you give me a call on my mobile {},
-                    Or send me an email at {} 
-                    Thanks,
-                    {}.
-                    """.format(
-                        vehicle_company.name, 
-                        vehicle_model.model,
-                        user.number, 
-                        user.email, 
-                        user_detail.name)
-                ),
-                status=status,
-                created_on=timezone.now()
-            )
-            service_request.save()
-            logger.debug(service_request.__dict__)
+            if (numGen >= MAX_PREDEF_MECH_REPORTS): break
+
+            for i in range(MAX_PREDEF_REPORTS_PER_USER):
+                user_vehicles = Vehicle.objects.filter(owner=user)
+                vehicle = random.choice(user_vehicles)
+                mechanic = random.choice(mechanics)
+                status = random.choice(ServiceRequest.STATUS_CHOICES)[0]
+                issue = random.choice(ServiceRequest.ISSUES)
+                vehicle_model = vehicle.vehicle_model
+                vehicle_company = vehicle_model.vehiclecompany
+                user_detail = UserDetails.objects.filter(user=user).first()
+
+                service_request = ServiceRequest.objects.create(
+                    vehicle=vehicle,
+                    mechanic=mechanic,
+                    problem_details=textwrap.dedent("""\
+                        My car {} - {} is having {} issues.
+                        Can you give me a call on my mobile {},
+                        Or send me an email at {} 
+                        Thanks,
+                        {}.
+                        """.format(
+                            vehicle_company.name, 
+                            vehicle_model.model,
+                            issue,
+                            user.number, 
+                            user.email, 
+                            user_detail.name)
+                    ),
+                    status=status,
+                    created_on=timezone.now()
+                )
+                
+                service_request.save()
+                numGen += 1 # Ensure we limit the number of resports created
+
         except Exception as e:
             print(sys.exc_info()[0])
-            logger.error("Failed to create report: "+str(e))
-
+            logger.error("Failed to create report: "+str(e))   
+        
 
 class CRAPIConfig(AppConfig):
     """
