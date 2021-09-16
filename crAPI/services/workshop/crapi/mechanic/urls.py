@@ -25,6 +25,7 @@ urlpatterns = [
     url(r'signup$', mechanic_views.SignUpView.as_view()),
     url(r'receive_report$', mechanic_views.ReceiveReportView.as_view()),
     url(r'mechanic_report$', mechanic_views.GetReportView.as_view(), name="get-mechanic-report"),
+    url(r'user_reports$', mechanic_views.GetUserReportsView.as_view(), name="get-user-reports"),
     url(r'service_requests$', mechanic_views.ServiceRequestsView.as_view()),
     url(r'$', mechanic_views.MechanicView.as_view()),
 ]

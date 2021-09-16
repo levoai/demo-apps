@@ -57,6 +57,9 @@ class ServiceRequest(models.Model):
         ('PEN', "Pending", "Pending"),
         ('FIN', "Finished", "Finished")
     )
+    
+    ISSUES = ["suspension", "radiator", "engine", "brake", "headlight"]
+    
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default=STATUS_CHOICES.PEN)
 
     class Meta:
