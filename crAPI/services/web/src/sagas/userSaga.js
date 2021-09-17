@@ -355,6 +355,46 @@ export function* getServices(param) {
   }
 }
 
+
+/**
+ * get the list of service reports created by this user
+ * @param { accessToken, callback} param
+ * accessToken: access token of the user
+ * callback : callback method
+ */
+ export function* getUserReports(param) {
+  const { accessToken, callback } = param;
+  let recievedResponse = {};
+  try {
+    yield put({ type: actionTypes.FETCHING_DATA });
+    const getUrl =
+      APIService.PYTHON_MICRO_SERVICES + requestURLS.GET_USER_REPORTS;
+    const headers = {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${accessToken}`,
+    };
+
+    const ResponseJson = yield fetch(getUrl, {
+      headers,
+      method: "GET",
+    }).then((response) => {
+      recievedResponse = response;
+      return response.json();
+    });
+
+    yield put({ type: actionTypes.FETCHED_DATA, payload: recievedResponse });
+    if (recievedResponse.ok) {
+      callback(responseTypes.SUCCESS, ResponseJson.service_requests);
+    } else {
+      callback(responseTypes.FAILURE, ResponseJson.message);
+    }
+  } catch (e) {
+    yield put({ type: actionTypes.FETCHED_DATA, payload: recievedResponse });
+    callback(responseTypes.FAILURE, NO_SERVICES);
+  }
+}
+
+
 export function* userActionWatcher() {
   yield takeLatest(actionTypes.LOG_IN, logIn);
   yield takeLatest(actionTypes.SIGN_UP, signUp);
@@ -364,4 +404,5 @@ export function* userActionWatcher() {
   yield takeLatest(actionTypes.CHANGE_EMAIL, changeEmail);
   yield takeLatest(actionTypes.VERIFY_TOKEN, verifyToken);
   yield takeLatest(actionTypes.GET_SERVICES, getServices);
+  yield takeLatest(actionTypes.GET_USER_REPORTS, getUserReports);
 }

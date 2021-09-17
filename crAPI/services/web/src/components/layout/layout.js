@@ -40,6 +40,7 @@ import PastOrdersContainer from "../../containers/pastOrders/pastOrders";
 import ForumContainer from "../../containers/forum/forum";
 import NewPostContainer from "../../containers/newPost/newPost";
 import PostContainer from "../../containers/post/post";
+import UserReportsContainer from "../../containers/userReports/userReports";
 
 import { logOutUserAction } from "../../actions/userActions";
 import { isAccessTokenValid } from "../../utils";
@@ -245,6 +246,15 @@ const StyledComp = connect(
             <AfterLogin
               path="/contact-mechanic"
               component={ContactMechanicContainer}
+              isLoggedIn={props.isLoggedIn}
+              componentRole={roleTypes.ROLE_USER}
+              userRole={props.role}
+              accessToken={props.accessToken}
+              logOutUser={props.logOutUser}
+            />
+            <AfterLogin
+              path="/get-user-service-reports"
+              component={UserReportsContainer}
               isLoggedIn={props.isLoggedIn}
               componentRole={roleTypes.ROLE_USER}
               userRole={props.role}

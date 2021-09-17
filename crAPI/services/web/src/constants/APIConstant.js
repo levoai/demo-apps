@@ -50,6 +50,7 @@ export const requestURLS = {
   GET_MECHANICS: "api/mechanic",
   GET_PRODUCTS: "api/shop/products",
   GET_SERVICES: "api/mechanic/service_requests",
+  GET_USER_REPORTS: "api/mechanic/user_reports",
   BUY_PRODUCT: "api/shop/orders",
   GET_ORDERS: "api/shop/orders/all",
   RETURN_ORDER: "api/shop/orders/return_order",
