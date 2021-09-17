@@ -52,9 +52,17 @@ const vehicleCardHeader = (vehicle, history) => (
         icon={<ToolOutlined />}
         size="large"
         onClick={() => history.push(`/contact-mechanic?VIN=${vehicle.vin}`)}
-        key="add-vehicle"
-      >
+        key="add-vehicle">
         Contact Mechanic
+      </Button>,
+      <Button
+        type="primary"
+        shape="round"
+        icon={<ToolOutlined />}
+        size="large"
+        onClick={() => history.push(`/get-user-service-reports`)}
+        key="get-user-service-reports">
+        View Service Reports
       </Button>,
     ]}
   />
