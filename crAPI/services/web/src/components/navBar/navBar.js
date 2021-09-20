@@ -63,6 +63,7 @@ const Navbar = (props) => {
     if (input.key === "dashboard") history.push(`/`);
     else if (input.key === "shop") history.push(`/shop`);
     else if (input.key === "forum") history.push(`/forum`);
+    else if (input.key === "hackpad") history.push(`/hackpad`);
   };
 
 
@@ -71,6 +72,7 @@ const Navbar = (props) => {
       <Menu.Item key="dashboard">Dashboard</Menu.Item>
       <Menu.Item key="shop">Shop</Menu.Item>
       <Menu.Item key="forum">Community</Menu.Item>
+      <Menu.Item key="hackpad">Hack Pad</Menu.Item>
     </Menu>
   );
 
@@ -85,7 +87,7 @@ const Navbar = (props) => {
       </Space>
       {isLoggedIn ? (
         <Space className="top-nav-right">
-          <div>{`Good Morning, ${name}!`}</div>
+          <div>{`Hello, ${name}!`}</div>
           <Avatar
             src={profilePicData || defaultProficPic}
             className="avatar"
