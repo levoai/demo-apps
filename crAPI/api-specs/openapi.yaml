@@ -1,0 +1,1113 @@
+openapi: 3.0.1
+info:
+ title: crAPI API
+ version: '841'
+paths:
+ '/community/api/v2/community/posts/{postId}':
+  get:
+   operationId: request_jTb66Kjknt
+   summary: Get an specific post in the forum
+   responses:
+    '200':
+     content:
+      application/json:
+       schema: {}
+     description: ''
+  parameters:
+   -
+    in: path
+    name: postId
+    required: true
+    schema:
+     type: string
+ /workshop/api/shop/apply_coupon:
+  post:
+   operationId: request_veEIWVLnE4
+   summary: Apply coupon the current user
+   requestBody:
+    content:
+     application/json:
+      schema:
+       type: object
+       required:
+        - amount
+        - coupon_code
+       properties:
+        amount:
+         type: number
+        coupon_code:
+         type: string
+   responses:
+    '200':
+     content:
+      application/json:
+       schema:
+        type: object
+        required:
+         - credit
+         - message
+        properties:
+         credit:
+          type: number
+         message:
+          type: string
+     description: ''
+    '400':
+     content:
+      application/json:
+       schema:
+        type: object
+        required:
+         - message
+        properties:
+         message:
+          type: string
+     description: ''
+  parameters: []
+ /workshop/api/shop/orders/return_order:
+  post:
+   operationId: request_xWpMK4kl2k
+   summary: Return order
+   responses:
+    '200':
+     content:
+      application/json:
+       schema:
+        type: object
+        required:
+         - message
+         - order
+         - qr_code_url
+        properties:
+         message:
+          type: string
+         order:
+          type: object
+          required:
+           - created_on
+           - id
+           - product
+           - quantity
+           - status
+           - user
+          properties:
+           quantity:
+            type: number
+           id:
+            type: number
+           status:
+            type: string
+           created_on:
+            type: string
+           user:
+            type: object
+            required:
+             - email
+             - number
+            properties:
+             email:
+              type: string
+             number:
+              type: string
+           product:
+            type: object
+            required:
+             - id
+             - image_url
+             - name
+             - price
+            properties:
+             id:
+              type: number
+             image_url:
+              type: string
+             name:
+              type: string
+             price:
+              type: string
+         qr_code_url:
+          type: string
+     description: ''
+  parameters: []
+ /community/api/v2/coupon/validate-coupon:
+  post:
+   operationId: request_3Kxrq1nHPI
+   summary: Validate discount coupons for the shop
+   requestBody:
+    content:
+     application/json:
+      schema:
+       type: object
+       required:
+        - coupon_code
+       properties:
+        coupon_code:
+         type: string
+   responses:
+    '200':
+     content:
+      application/json:
+       schema:
+        type: object
+        required:
+         - CreatedAt
+         - amount
+         - coupon_code
+        properties:
+         CreatedAt:
+          type: string
+         amount:
+          type: string
+         coupon_code:
+          type: string
+     description: ''
+    '500':
+     content:
+      application/json:
+       schema:
+        type: object
+        properties: {}
+     description: ''
+  parameters: []
+ /workshop/api/shop/products:
+  get:
+   operationId: request_oByPTacKPK
+   summary: Get products for the shop
+   responses:
+    '200':
+     content:
+      application/json:
+       schema:
+        type: object
+        required:
+         - credit
+         - products
+        properties:
+         credit:
+          type: number
+         products:
+          type: array
+          items:
+           type: object
+           required:
+            - id
+            - image_url
+            - name
+            - price
+           properties:
+            id:
+             type: number
+            image_url:
+             type: string
+            name:
+             type: string
+            price:
+             type: string
+     description: ''
+  parameters: []
+ /workshop/api/mechanic:
+  get:
+   operationId: request_Bd4YBotHwj
+   summary: Get the available mechanics
+   responses:
+    '200':
+     content:
+      application/json:
+       schema:
+        type: object
+        required:
+         - mechanics
+        properties:
+         mechanics:
+          type: array
+          items:
+           type: object
+           required:
+            - id
+            - mechanic_code
+            - user
+           properties:
+            id:
+             type: number
+            mechanic_code:
+             type: string
+            user:
+             type: object
+             required:
+              - email
+              - number
+             properties:
+              email:
+               type: string
+              number:
+               type: string
+     description: ''
+    '301':
+     description: ''
+  parameters: []
+ /workshop/api/merchant/contact_mechanic:
+  post:
+   operationId: request_jZrhL5NLqx
+   summary: Contact a mechanich for user's vehicle
+   requestBody:
+    content:
+     application/json:
+      schema:
+       type: object
+       required:
+        - mechanic_api
+        - mechanic_code
+        - number_of_repeats
+        - problem_details
+        - repeat_request_if_failed
+        - vin
+       properties:
+        number_of_repeats:
+         type: number
+        mechanic_api:
+         type: string
+        vin:
+         type: string
+        repeat_request_if_failed:
+         type: boolean
+        problem_details:
+         type: string
+        mechanic_code:
+         type: string
+   responses:
+    '400':
+     content:
+      application/json:
+       schema:
+        type: object
+        required:
+         - message
+        properties:
+         message:
+          type: string
+     description: ''
+  parameters: []
+ /identity/api/auth/signup:
+  post:
+   operationId: request_U7EpWDbQ4e
+   summary: SignUp into the app
+   requestBody:
+    content:
+     application/json:
+      schema:
+       type: object
+       required:
+        - email
+        - name
+        - number
+        - password
+       properties:
+        email:
+         type: string
+        name:
+         type: string
+        number:
+         type: string
+        password:
+         type: string
+   responses:
+    '200':
+     content:
+      application/json:
+       schema:
+        type: object
+        required:
+         - message
+         - status
+        properties:
+         message:
+          type: string
+         status:
+          type: number
+     description: ''
+  parameters: []
+ /identity/api/auth/v3/check-otp:
+  post:
+   operationId: request_7VTZxXXWtY
+   summary: Validate One-Time-Password sent when forgot password
+   requestBody:
+    content:
+     application/json:
+      schema:
+       type: object
+       required:
+        - email
+        - otp
+        - password
+       properties:
+        email:
+         type: string
+        otp:
+         type: string
+        password:
+         type: string
+   responses:
+    '200':
+     content:
+      application/json:
+       schema:
+        type: object
+        required:
+         - message
+         - status
+        properties:
+         message:
+          type: string
+         status:
+          type: number
+     description: ''
+  parameters: []
+ /identity/api/v2/vehicle/vehicles:
+  get:
+   operationId: request_PcEhSNRqgZ
+   summary: Get user vehicles
+   responses:
+    '200':
+     content:
+      application/json:
+       schema:
+        type: array
+        items:
+         type: object
+         required:
+          - id
+          - model
+          - owner
+          - pincode
+          - status
+          - uuid
+          - vehicleLocation
+          - vin
+          - year
+         properties:
+          model:
+           type: object
+           required:
+            - fuel_type
+            - id
+            - model
+            - vehicle_img
+            - vehiclecompany
+           properties:
+            model:
+             type: string
+            fuel_type:
+             type: string
+            vehicle_img:
+             type: string
+            id:
+             type: number
+            vehiclecompany:
+             type: object
+             required:
+              - id
+              - name
+             properties:
+              id:
+               type: number
+              name:
+               type: string
+          uuid:
+           type: string
+          vehicleLocation:
+           type: object
+           required:
+            - id
+            - latitude
+            - longitude
+           properties:
+            id:
+             type: number
+            latitude:
+             type: string
+            longitude:
+             type: string
+          year:
+           type: number
+          id:
+           type: number
+          status:
+           type: string
+          vin:
+           type: string
+          owner: {}
+          pincode:
+           type: string
+     description: ''
+  parameters: []
+ /identity/api/v2/user/change-email:
+  post:
+   operationId: request_P1uHH61stB
+   summary: Change user email
+   requestBody:
+    content:
+     application/json:
+      schema:
+       type: object
+       required:
+        - new_email
+        - old_email
+       properties:
+        new_email:
+         type: string
+        old_email:
+         type: string
+   responses:
+    '200':
+     content:
+      application/json:
+       schema:
+        type: object
+        required:
+         - message
+         - status
+        properties:
+         message:
+          type: string
+         status:
+          type: number
+     description: ''
+  parameters: []
+ /workshop/api/shop/orders/all:
+  get:
+   operationId: request_rJnGMQWGUv
+   summary: Get user past orders
+   responses:
+    '200':
+     content:
+      application/json:
+       schema:
+        type: object
+        required:
+         - orders
+        properties:
+         orders:
+          type: array
+          items:
+           type: object
+           required:
+            - created_on
+            - id
+            - product
+            - quantity
+            - status
+            - user
+           properties:
+            quantity:
+             type: number
+            id:
+             type: number
+            status:
+             type: string
+            created_on:
+             type: string
+            user:
+             type: object
+             required:
+              - email
+              - number
+             properties:
+              email:
+               type: string
+              number:
+               type: string
+            product:
+             type: object
+             required:
+              - id
+              - image_url
+              - name
+              - price
+             properties:
+              id:
+               type: number
+              image_url:
+               type: string
+              name:
+               type: string
+              price:
+               type: string
+     description: ''
+  parameters: []
+ /identity/api/auth/forget-password:
+  post:
+   operationId: request_jkGfMymkll
+   summary: Start forgot password flow by senidng a OTP by email
+   requestBody:
+    content:
+     application/json:
+      schema:
+       type: object
+       required:
+        - email
+       properties:
+        email:
+         type: string
+   responses:
+    '200':
+     content:
+      application/json:
+       schema:
+        type: object
+        required:
+         - message
+         - status
+        properties:
+         message:
+          type: string
+         status:
+          type: number
+     description: ''
+  parameters: []
+ /identity/api/v2/user/pictures:
+  post:
+   operationId: request_pAafDxUuuK
+   summary: Update user picture
+   requestBody:
+    content:
+     multipart/form-data:
+      schema:
+       type: string
+   responses:
+    '200':
+     content:
+      application/json:
+       schema:
+        type: object
+        required:
+         - available_credit
+         - id
+         - name
+         - picture
+         - status
+         - user
+        properties:
+         name:
+          type: string
+         available_credit:
+          type: number
+         id:
+          type: number
+         status:
+          type: string
+         picture:
+          type: string
+         user: {}
+     description: ''
+  parameters: []
+ /community/api/v2/community/posts:
+  post:
+   operationId: request_hOhnaQl1Ne
+   summary: Create a new post in the forum
+   requestBody:
+    content:
+     application/json:
+      schema:
+       type: object
+       properties:
+        content:
+         type: string
+        title:
+         type: string
+   responses:
+    '200':
+     content:
+      application/json:
+       schema:
+        type: object
+        required:
+         - CreatedAt
+         - author
+         - authorid
+         - comments
+         - content
+         - id
+         - title
+        properties:
+         author:
+          type: object
+          required:
+           - created_at
+           - email
+           - nickname
+           - profile_pic_url
+           - vehicleid
+          properties:
+           vehicleid:
+            type: string
+           email:
+            type: string
+           created_at:
+            type: string
+           profile_pic_url:
+            type: string
+           nickname:
+            type: string
+         id:
+          type: string
+         authorid:
+          type: number
+         content:
+          type: string
+         CreatedAt:
+          type: string
+         title:
+          type: string
+         comments:
+          type: array
+          items: {}
+     description: ''
+  parameters: []
+ /identity/api/v2/user/verify-email-token:
+  post:
+   operationId: request_uRUGKYmJD9
+   summary: Verify token sent for changing email
+   requestBody:
+    content:
+     application/json:
+      schema:
+       type: object
+       required:
+        - new_email
+        - token
+       properties:
+        new_email:
+         type: string
+        token:
+         type: string
+   responses:
+    '200':
+     content:
+      application/json:
+       schema:
+        type: object
+        required:
+         - message
+         - status
+        properties:
+         message:
+          type: string
+         status:
+          type: number
+     description: ''
+  parameters: []
+ /identity/api/v2/user/dashboard:
+  get:
+   operationId: request_PgTyUVbqOm
+   summary: Get user dashboard data
+   responses:
+    '200':
+     content:
+      application/json:
+       schema:
+        type: object
+        required:
+         - available_credit
+         - email
+         - id
+         - name
+         - number
+         - picture_url
+         - role
+         - video_id
+         - video_name
+         - video_url
+        properties:
+         number:
+          type: string
+         name:
+          type: string
+         video_id:
+          type: number
+         video_url: {}
+         email:
+          type: string
+         role:
+          type: string
+         available_credit:
+          type: number
+         video_name: {}
+         id:
+          type: number
+         picture_url: {}
+     description: ''
+  parameters: []
+ /workshop/api/shop/orders:
+  post:
+   operationId: request_oV17vzmU2u
+   summary: Post a new order for a product
+   requestBody:
+    content:
+     application/json:
+      schema:
+       type: object
+       required:
+        - product_id
+        - quantity
+       properties:
+        product_id:
+         type: number
+        quantity:
+         type: number
+   responses:
+    '200':
+     content:
+      application/json:
+       schema:
+        type: object
+        required:
+         - credit
+         - id
+         - message
+        properties:
+         credit:
+          type: number
+         id:
+          type: number
+         message:
+          type: string
+     description: ''
+    '400':
+     content:
+      application/json:
+       schema:
+        type: object
+        properties:
+         product_id:
+          type: array
+          items:
+           type: string
+         quantity:
+          type: array
+          items:
+           type: string
+     description: ''
+  parameters: []
+ /identity/api/v2/vehicle/add_vehicle:
+  post:
+   operationId: request_bLM5VoidEC
+   summary: Ad the user vehicle
+   requestBody:
+    content:
+     application/json:
+      schema:
+       type: object
+       required:
+        - pincode
+        - vin
+       properties:
+        pincode:
+         type: string
+        vin:
+         type: string
+   responses:
+    '200':
+     content:
+      application/json:
+       schema:
+        type: object
+        required:
+         - message
+         - status
+        properties:
+         message:
+          type: string
+         status:
+          type: number
+     description: ''
+    '403':
+     content:
+      application/json:
+       schema:
+        type: object
+        required:
+         - message
+         - status
+        properties:
+         message:
+          type: string
+         status:
+          type: number
+     description: ''
+  parameters: []
+ /identity/api/v2/user/reset-password:
+  post:
+   operationId: request_3i4jeO48SM
+   summary: Reset password
+   requestBody:
+    content:
+     application/json:
+      schema:
+       type: object
+       properties:
+        password:
+         type: string
+   responses:
+    '200':
+     content:
+      application/json:
+       schema:
+        type: object
+        required:
+         - message
+         - status
+        properties:
+         message:
+          type: string
+         status:
+          type: number
+     description: ''
+    '500':
+     content:
+      text/plain:
+       schema:
+        type: string
+     description: ''
+  parameters: []
+ '/identity/api/v2/vehicle/{vehicleId}/location':
+  get:
+   operationId: request_lxk4WtKVVJ
+   summary: Get user vehicle location
+   responses:
+    '200':
+     content:
+      application/json:
+       schema:
+        type: object
+        required:
+         - carId
+         - fullName
+         - vehicleLocation
+        properties:
+         carId:
+          type: string
+         fullName:
+          type: string
+         vehicleLocation:
+          type: object
+          required:
+           - id
+           - latitude
+           - longitude
+          properties:
+           id:
+            type: number
+           latitude:
+            type: string
+           longitude:
+            type: string
+     description: ''
+    '404':
+     content:
+      application/json:
+       schema:
+        type: object
+        required:
+         - message
+         - status
+        properties:
+         message:
+          type: string
+         status:
+          type: number
+     description: ''
+  parameters:
+   -
+    in: path
+    name: vehicleId
+    required: true
+    schema:
+     type: string
+ '/community/api/v2/community/posts/{postId}/comment':
+  post:
+   operationId: request_eR7ilxIrXJ
+   summary: Ad a comment to a post
+   requestBody:
+    content:
+     application/json:
+      schema:
+       type: object
+       properties:
+        content:
+         type: string
+   responses:
+    '200':
+     content:
+      application/json:
+       schema:
+        type: object
+        required:
+         - CreatedAt
+         - author
+         - authorid
+         - comments
+         - content
+         - id
+         - title
+        properties:
+         author:
+          type: object
+          required:
+           - created_at
+           - email
+           - nickname
+           - profile_pic_url
+           - vehicleid
+          properties:
+           vehicleid:
+            type: string
+           email:
+            type: string
+           created_at:
+            type: string
+           profile_pic_url:
+            type: string
+           nickname:
+            type: string
+         id:
+          type: string
+         authorid:
+          type: number
+         content:
+          type: string
+         CreatedAt:
+          type: string
+         title:
+          type: string
+         comments:
+          type: array
+          items:
+           type: object
+           required:
+            - CreatedAt
+            - author
+            - content
+            - id
+           properties:
+            CreatedAt:
+             type: string
+            author:
+             type: object
+             required:
+              - created_at
+              - email
+              - nickname
+              - profile_pic_url
+              - vehicleid
+             properties:
+              vehicleid:
+               type: string
+              email:
+               type: string
+              created_at:
+               type: string
+              profile_pic_url:
+               type: string
+              nickname:
+               type: string
+            content:
+             type: string
+            id:
+             type: string
+     description: ''
+  parameters:
+   -
+    in: path
+    name: postId
+    required: true
+    schema:
+     type: string
+ /identity/api/v2/vehicle/resend_email:
+  post:
+   operationId: request_rrEzmjxzqb
+   summary: Resend vehicles details to be added to the user dashboard
+   responses:
+    '200':
+     content:
+      application/json:
+       schema:
+        type: object
+        required:
+         - message
+         - status
+        properties:
+         message:
+          type: string
+         status:
+          type: number
+     description: ''
+  parameters: []
+ /identity/api/auth/login:
+  post:
+   operationId: request_NxGNktg4iN
+   summary: Login
+   requestBody:
+    content:
+     application/json:
+      schema:
+       type: object
+       required:
+        - email
+        - password
+       properties:
+        email:
+         type: string
+        password:
+         type: string
+   responses:
+    '200':
+     content:
+      application/json:
+       schema:
+        type: object
+        required:
+         - message
+         - token
+         - type
+        properties:
+         message: {}
+         token:
+          type: string
+         type:
+          type: string
+     description: ''
+    '400':
+     content:
+      application/json:
+       schema:
+        type: object
+        required:
+         - details
+         - message
+        properties:
+         details:
+          type: string
+         message:
+          type: string
+     description: ''
+    '500':
+     content:
+      text/plain:
+       schema:
+        type: string
+     description: ''
+  parameters: []
+ /:
+  get:
+   operationId: request_6WNRP2CdvS
+   summary: App homepage
+   responses:
+    '200':
+     content:
+      text/html:
+       schema:
+        type: string
+     description: ''
+  parameters: []
+components:
+ schemas: {}
