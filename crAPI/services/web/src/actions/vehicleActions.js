@@ -75,3 +75,12 @@ export const getUserReportsAction = ({ callback, accessToken }) => {
     callback,
   };
 };
+
+export const getServiceReportAction = ({ accessToken, reportID, callback }) => {
+  return {
+    type: actionTypes.GET_SERVICE_REPORT,
+    accessToken,
+    reportID,
+    callback,
+  };
+};
