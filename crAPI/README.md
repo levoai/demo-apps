@@ -1,76 +1,26 @@
-crAPI
+OWASP crAPI
 =====
 
-**c**ompletely **r**idiculous **API** (crAPI) will help you to understand the
-ten most critical API security risks. crAPI is vulnerable by design, but you'll
-be able to safely run it to educate/train yourself.
+**c**ompletely **r**idiculous **API** (crAPI) is a vulnerable demo application that will showcase Levo's security testing capabilities.
 
-crAPI is modern, built on top of a microservices architecture. When time has
-come to buy your first car, sign up for an account and start your journey. To
-know more about crAPI, please check [crAPI's overview][overview].
+crAPI is modern microservices and API driven application. You can read about [crAPI's architecture here][Architecture].
 
-## QuickStart Guide
+Levo provides a hosted version of this demo that can be accessed via Levo's onboarding screens.
 
-### Docker
+Levo also provides pre-built docker images, if you prefer to run the application locally.
 
-You'll need to have Docker installed and running on your host system.
-After having crAPI running, you may want to remove unnecessary docker images
-left behind.
-
-1. Clone crAPI repository
-    ```
-    $ git clone [REPOSITORY-URL]
-    ```
-2. Build all docker images
-    ```
-    $ deploy/docker/build-all.sh
-    ```
-3. Start crAPI
-    ```
-    $ docker-compose -f deploy/docker/docker-compose.yml --compatibility up -d
-    ```
-4. Visit `http://localhost:8888`
+You also have the choice of cloning the Git repo, and building the docker images locally.
 
 
-**Note**: All emails are sent to mailhog service by default and can be checked on
-`http://localhost:8025`
-You can change the smtp configuration if required however all emails with domain **example.com** will still go to mailhog.
-
-If you would like to deploy on kubernetes we have sample k8s configs already
-created. Check [the setup instructions][setup-k8s] for more details.
-
-### Vagrant
-
-This option allows you to run crAPI within a virtual machine, thus isolated from
-your system. You'll need to have [Vagrant] and, for example [VirtualBox]
-installed.
-
-1. Clone crAPI repository
-    ```
-    $ git clone [REPOSITORY-URL]
-    ```
-2. Start crAPI Virtual Machine
-    ```
-    $ cd deploy/vagrant && vagrant up
-    ```
-3. Visit `http://192.168.33.20`
+#### [Quick Start Guide][Quick Start]
+#### [User Credentials & Assets][User & Assets Info]
+#### [crAPI's Vulnerabilities][Top Vulnerabilities]
+#### [crAPI's OpenAPI Specifications][OpenAPI Specifications]
 
 
-**Note**: All emails are sent to mailhog service and can be checked on
-`http://192.168.33.20:8025`
+[Architecture]: docs/architecture.md
+[Quick Start]: docs/quick-start.md
+[Top Vulnerabilities]: docs/challenges.md
+[User & Assets Info]: docs/user-asset-info.md
+[OpenAPI Specifications]: api-specs/openapi.json
 
-Once you're done playing with crAPI, you can remove it completely from your
-system running the following command from the repository root directory
-
-```
-$ cd deploy/vagrant && vagrant destroy
-```
-
----
-
-Copyright (c) 2020 "Traceable AI". All rights reserved.
-
-[overview]: docs/overview.md
-[setup-k8s]: docs/setup.md#kubernetes-minikube
-[Vagrant]: https://www.vagrantup.com/downloads
-[VirtualBox]: https://www.virtualbox.org/wiki/Downloads
