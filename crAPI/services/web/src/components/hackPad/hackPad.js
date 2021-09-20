@@ -28,6 +28,7 @@ import {
   Col,
 } from "antd";
 import HackLocation from "./hackLocation.js"
+import HackServiceReport from "./hackServiceReport";
 
 
 const { Content } = Layout;
@@ -63,8 +64,12 @@ const HackPad = ({history, accessToken}) => {
         </Row>
       </Content>
 
-      <Content className="hackpad_hack-location">
+      <Content className="hackpad__card">
         <HackLocation accessToken={accessToken} />
+      </Content>
+
+      <Content className="hackpad__card">
+        <HackServiceReport accessToken={accessToken} />
       </Content>
 
     </Layout>

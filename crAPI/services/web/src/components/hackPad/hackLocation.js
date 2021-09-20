@@ -12,7 +12,7 @@ import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import responseTypes from "../../constants/responseTypes";
 import { getVehiclesAction, refreshLocationAction } from "../../actions/vehicleActions";
-import "./hackLocation.css"
+import "./hackCard.css"
 
 
 const { Search } = Input;
@@ -60,10 +60,12 @@ const HackLocation = ({ accessToken, getVehicles, refreshLocation }) => {
                         GitHub page to see documented UUIDs of other vehicles.
                         <br />
                         This is a serious vulnerability that allows unauthorized
-                        location info disclosure!! Try it now!
+                        location info disclosure!!
+                        <br/> <br/>
+                        <p> Try it now! </p>
                     </span>
                 </Row>
-                <Row className="hacklocation__info" >
+                <Row className="hackcard__info" >
                     <Col span={12}>
                         <VehiclesTable vehicles={vehicles} />
                     </Col>
@@ -149,6 +151,7 @@ const VehiclesTable = ({vehicles}) => {
       ];
     
     return <Table
+        rowKey="id"
         title={() => 'The vehicles you own:'}
         columns={vehicleColumns}
         dataSource={vehicles}
