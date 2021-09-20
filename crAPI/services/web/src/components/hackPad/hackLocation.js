@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useCallback } from "react";
 import {
   Input,
   Row,
@@ -34,8 +34,8 @@ const HackLocation = ({ accessToken, getVehicles, refreshLocation }) => {
     
     const defaultLocation = {"id" : 0, "latitude" : "0", "longitude" : "0"};
     const [vehicleLocation, setLocation] = React.useState(defaultLocation);
-
-    const handleGetLocation = (carId) => {
+    
+    const handleGetLocation = useCallback((carId) => {
         const callback = (res, data) => {
             if (res === responseTypes.SUCCESS) {
                 setLocation(data)
@@ -48,7 +48,7 @@ const HackLocation = ({ accessToken, getVehicles, refreshLocation }) => {
         };
         
         refreshLocation({ callback, accessToken, carId });
-    };
+    }, [accessToken, refreshLocation, defaultLocation]);
 
     return (
         <>
