@@ -42,7 +42,10 @@ const HackServiceReport = ({ accessToken, getServiceReport }) => {
                 <Row>
                     <span>
                         You can access anyone's service report by simply enumerating the ID of the report.
-                        You can see the reports you created in the Dashboard.
+                        <br/>
+                        You can see the reports you created in the Dashboard. Other user's reports are documented <a 
+                        href="https://github.com/levoai/demo-apps/blob/main/crAPI/docs/user-asset-info.md#users-service-reports">
+                            here. </a>
                         <br />
                         This is a serious vulnerability that allows unauthorized
                         info disclosure!!

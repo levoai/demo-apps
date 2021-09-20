@@ -57,7 +57,8 @@ const HackLocation = ({ accessToken, getVehicles, refreshLocation }) => {
                     <span>
                         You can get the location info for any vehicle in crAPI,
                         if you know the UUID of the vehicle. You can refer to the
-                        GitHub page to see documented UUIDs of other vehicles.
+                        GitHub page to see <a href="https://github.com/levoai/demo-apps/blob/main/crAPI/docs/user-asset-info.md#users-vechicle-uuid">
+                            documented UUIDs</a> of other vehicles.
                         <br />
                         This is a serious vulnerability that allows unauthorized
                         location info disclosure!!
