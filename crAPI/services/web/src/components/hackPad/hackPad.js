@@ -56,7 +56,8 @@ const HackPad = ({history, accessToken}) => {
             <Card className="hackpad__header__description">
               <h1> Hack Pad allows you to actively hack crAPI. </h1>
               <span>
-                crAPI has several vulnerabilities.
+                crAPI has several <a href="https://github.com/levoai/demo-apps/blob/main/crAPI/docs/challenges.md"> 
+                 vulnerabilities. </a>
                 Below exercises demostrate on how you can exploit these vulnerabilities.
               </span>
             </Card>
