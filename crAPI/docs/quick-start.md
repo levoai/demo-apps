@@ -57,6 +57,6 @@ $ cd deploy/vagrant && vagrant destroy
 ```
 
 
-[setup-k8s]: docs/setup.md#kubernetes-minikube
+[setup-k8s]: ./setup.md#kubernetes-minikube
 [Vagrant]: https://www.vagrantup.com/downloads
 [VirtualBox]: https://www.virtualbox.org/wiki/Downloads
