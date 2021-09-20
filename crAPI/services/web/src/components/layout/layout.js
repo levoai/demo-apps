@@ -41,6 +41,7 @@ import ForumContainer from "../../containers/forum/forum";
 import NewPostContainer from "../../containers/newPost/newPost";
 import PostContainer from "../../containers/post/post";
 import UserReportsContainer from "../../containers/userReports/userReports";
+import HackPadContainer from "../../containers/hackPad/hackPad";
 
 import { logOutUserAction } from "../../actions/userActions";
 import { isAccessTokenValid } from "../../utils";
@@ -264,6 +265,15 @@ const StyledComp = connect(
             <AfterLogin
               path="/shop"
               component={ShopContainer}
+              isLoggedIn={props.isLoggedIn}
+              componentRole={roleTypes.ROLE_USER}
+              userRole={props.role}
+              accessToken={props.accessToken}
+              logOutUser={props.logOutUser}
+            />
+            <AfterLogin
+              path="/hackpad"
+              component={HackPadContainer}
               isLoggedIn={props.isLoggedIn}
               componentRole={roleTypes.ROLE_USER}
               userRole={props.role}
