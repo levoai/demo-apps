@@ -4,8 +4,6 @@ Setup | crAPI
 ## Docker
 
 You'll need to have Docker installed and running on your host system.
-After having crAPI running, you may want to remove unnecessary docker images
-left behind.
 
 1. Clone crAPI repository
     ```
@@ -17,13 +15,11 @@ left behind.
     ```
 3. Start crAPI
     ```
-    $ docker-compose -f deploy/docker/docker-compose.yml --compatibility up -d
+    $ docker-compose -f deploy/docker/docker-compose.yml up -d
     ```
 4. Visit `http://localhost:8888`
 
-
-**Note**: All emails are sent to mailhog service by default and can be checked on
-`http://localhost:8025`
+**Note**: All emails are sent to mailhog service by default and can be checked on `http://localhost:8025`.
 You can change the smtp configuration if required however all emails with domain **example.com** will still go to mailhog.
 
 ## Kubernetes 
@@ -62,8 +58,7 @@ Make sure minikube is up and running as well as the following addons:
 ## Vagrant
 
 This option allows you to run crAPI within a virtual machine, thus isolated from
-your system. You'll need to have [Vagrant] and, for example [VirtualBox]
-installed.
+your system. You'll need to have [Vagrant] and, for example [VirtualBox] installed.
 
 1. Clone crAPI repository
     ```
@@ -75,13 +70,10 @@ installed.
     ```
 3. Visit `http://192.168.33.20`
 
-
-**Note**: All emails are sent to mailhog service by default and can be checked on
-`http://192.168.33.20:8025`
+**Note**: All emails are sent to mailhog service by default and can be checked on `http://192.168.33.20:8025`.
 You can change the smtp configuration if required however all emails with domain **example.com** will still go to mailhog.
 
-Once you're done playing with crAPI, you can remove it completely from your
-system running the following command from the repository root directory
+To remove crAPI completely from your system, run the following command from the repository root directory:
 
 ```
 $ cd deploy/vagrant && vagrant destroy
