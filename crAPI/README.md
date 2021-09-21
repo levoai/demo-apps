@@ -11,7 +11,6 @@ Levo also provides pre-built docker images, if you prefer to run the application
 
 You also have the choice of cloning the Git repo, and building the docker images locally.
 
-<br/>
 
 #### [Quick Start Guide][Quick Start]
 #### [User Credentials & Assets][User & Assets Info]
