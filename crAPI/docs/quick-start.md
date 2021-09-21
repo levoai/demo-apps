@@ -77,6 +77,6 @@ If you would like to deploy on kubernetes we have sample k8s configs already cre
 
 
 
-[setup-k8s]: ./setup.md#kubernetes-minikube
+[setup-k8s]: ./setup.md#kubernetes
 [Vagrant]: https://www.vagrantup.com/downloads
 [VirtualBox]: https://www.virtualbox.org/wiki/Downloads
