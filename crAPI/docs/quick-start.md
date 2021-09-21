@@ -66,11 +66,12 @@ $ cd deploy/vagrant && vagrant destroy
 
 
 
+
 ### Kubernetes
 If you would like to deploy on kubernetes we have sample k8s configs already created. Check [the setup instructions][setup-k8s] for more details.
 
 
 
-[setup-k8s]: docs/setup.md#kubernetes-minikube
+[setup-k8s]: ./setup.md#kubernetes-minikube
 [Vagrant]: https://www.vagrantup.com/downloads
 [VirtualBox]: https://www.virtualbox.org/wiki/Downloads
