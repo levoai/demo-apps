@@ -2,7 +2,12 @@
 
 crAPI Quick Start Guide
 =====
-[TOC]
+- [Docker (pre-built images)](#docker--pre-built-images-)
+- [Docker (local build)](#docker--local-build-)
+- [Vagrant](#vagrant)
+- [Kubernetes](#kubernetes)
+
+---
 
 ### Docker (pre-built images)
 
@@ -37,7 +42,7 @@ You'll need to have Docker installed and running on your host system.
 4. Visit `http://localhost:8888`
 
 **Note**: All emails are sent to mailhog service by default and can be checked on`http://localhost:8025`.
-You can change the smtp configuration if required however all emails with domain **example.com** will still go to mailhog.
+You can change the smtp configuration if required. However all emails with domain **example.com** will still go to mailhog.
 
 
 

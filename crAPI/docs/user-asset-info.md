@@ -1,7 +1,7 @@
 crAPI | Users & Assets Info
 ================
 
-crAPI comes pre-populated with a few users, and other assets associated with the users. This info will be helpful in the Hack Pad exercises where you need to exploit several [vulnerabilities][0].
+crAPI comes pre-populated with a few users, and other assets associated with the users. This info will be helpful in the [Hack Pad][Hack Pad] exercises where you need to exploit several [vulnerabilities][0].
 
 ### User Info
 
@@ -36,3 +36,4 @@ Below are IDs of vehicle service reports filed by the users:
 
 
 [0]: ./challenges.md
+[Hack Pad]: ./hackpad.md

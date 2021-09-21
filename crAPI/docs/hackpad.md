@@ -9,8 +9,9 @@ You can access `Hack Pad` from crAPI's main menu after logging in.
 
 <div>
   <br/><br/>
-	<img src="./assets/white-hat-security-hacker.jpeg" alt="white-hat-security-hacker" align="left" style="zoom:40%;" />
-  <img src="./assets/hacker-zone.png" alt="white-hat-security-hacker" align="right" style="zoom:50%;" />
+	<img src="./assets/white-hat-security-hacker.jpeg" alt="white-hat-security-hacker" align="center" style="zoom:40%;" />
+  &nbsp &nbsp
+  <img src="./assets/hacker-zone.png" alt="white-hat-security-hacker" align="center" style="zoom:40%;" />
 </div>
 
 
