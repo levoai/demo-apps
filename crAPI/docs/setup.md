@@ -20,7 +20,8 @@ You'll need to have Docker installed and running on your host system.
 4. Visit `http://localhost:8888`
 
 **Note**: All emails are sent to mailhog service by default and can be checked on `http://localhost:8025`.
-You can change the smtp configuration if required however all emails with domain **example.com** will still go to mailhog.
+You can change the smtp configuration if required. However all emails with domain **example.com** will still go to mailhog.
+
 
 ## Kubernetes 
 
@@ -71,7 +72,7 @@ your system. You'll need to have [Vagrant] and, for example [VirtualBox] install
 3. Visit `http://192.168.33.20`
 
 **Note**: All emails are sent to mailhog service by default and can be checked on `http://192.168.33.20:8025`.
-You can change the smtp configuration if required however all emails with domain **example.com** will still go to mailhog.
+You can change the smtp configuration if required. However all emails with domain **example.com** will still go to mailhog.
 
 To remove crAPI completely from your system, run the following command from the repository root directory:
 

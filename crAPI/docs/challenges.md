@@ -1,18 +1,23 @@
-# Intro
 
-This is the crAPI challenge page.
+crAPI | Vulnerabilities
+================
 
-crAPI (Completely Ridiculous Application Programmer Interface) defines an API which is intentionally vulnerable to the OWASP API Top 10 vulnerabilities. crAPI is meant to illustrate and educate by presenting these issues for you to discover and exploit.
+crAPI defines an API which is intentionally vulnerable to the [OWASP API Top 10](https://owasp.org/www-project-api-security/) vulnerabilities. crAPI aims to educate developers about common security issues in modern applications.
 
-The crAPI challenge is for you to find and exploit as many of these vulnerabilities as you can.
+Below is a list of challenges. Each challenge is an exploit of a specific type of vulnerability.
 
-There are two approaches to hack crAPI - the first is to look at it as a complete black box test, where you get no directions, but just try to understand the app from scratch and hack it.
+There are two approaches to hack crAPI:
 
-The second approach is using this page, which will give you an idea about which vulnerabilities exist in crAPI and will direct you on how to exploit them. 
+1. Treat crAPI as complete black box test, and hack it by studying the interactions of the app from scratch.
+2. Alternatively, use the instructions below as a guide to your hacking journey.
+
+*Happy hacking!*
+
+
 
 # Challenges
 
-## BOLA Vulnerabilities
+## [BOLA Vulnerabilities](https://apisecurity.io/encyclopedia/content/owasp/api1-broken-object-level-authorization)
 
 ### Challenge 1 - Access details of another user’s vehicle
 
@@ -32,7 +37,7 @@ crAPI allows vehicle owners to contact their mechanics by submitting a "contact 
 
 * Change the report ID to access other reports
 
-## Broken User Authentication
+## [Broken User Authentication](https://apisecurity.io/encyclopedia/content/owasp/api2-broken-authentication)
 
 ### Challenge 3 - Reset the password of a different user
 
@@ -40,7 +45,7 @@ crAPI allows vehicle owners to contact their mechanics by submitting a "contact 
 
 * Brute forcing might be the answer. If you face any protection mechanisms, remember to leverage the predictable nature of REST APIs to find more similar API endpoints.
 
-## Excessive Data Exposure
+## [Excessive Data Exposure](https://apisecurity.io/encyclopedia/content/owasp/api3-excessive-data-exposure)
 
 ### Challenge 4 - Find an API endpoint that leaks sensitive information of other users
 
@@ -48,11 +53,11 @@ crAPI allows vehicle owners to contact their mechanics by submitting a "contact 
 
 In this challenge, you need to find an internal property of the video resource that shouldn’t be exposed to the user. This property name and value can help you to exploit other vulnerabilities.
 
-## Rate Limiting
+## [Rate Limiting](https://apisecurity.io/encyclopedia/content/owasp/api4-lack-of-resources-and-rate-limiting)
 
 ### Challenge 6 - Perform a layer 7 DoS using ‘contact mechanic’ feature
 
-## BFLA 
+## [BFLA](https://apisecurity.io/encyclopedia/content/owasp/api5-broken-function-level-authorization)
 
 ### Challenge 7 - Delete a video of another user
 
@@ -60,7 +65,7 @@ In this challenge, you need to find an internal property of the video resource t
 
 * Delete a video of someone else
 
-## Mass Assignment
+## [Mass Assignment](https://apisecurity.io/encyclopedia/content/owasp/api6-mass-assignment)
 
 ### Challenge 8 - Get an item for free
 
@@ -77,14 +82,14 @@ After solving the "Get an item for free" challenge, be creative and find a way t
 
 After solving the "Find an API endpoint that leaks an internal property of videos" challenge, try to find an endpoint that would allow you to change the internal property of the video. Changing the value can help you to exploit another vulnerability.
 
-## SSRF
+## [SSRF](https://owasp.org/www-community/attacks/Server_Side_Request_Forgery)
 
-### Challenge 11 - Make crAPI send an HTTP call to "[www.google.com](www.google.com)" and return the HTTP response. 
+### Challenge 11 - Make crAPI send an HTTP call to "[www.google.com](www.google.com)" and return the HTTP response.
 
-## NoSQL Injection
+## [NoSQL Injection](https://apisecurity.io/encyclopedia/content/owasp/api8-injection)
 
 ### Challenge 12 - Find a way to get free coupons without knowing the coupon code.
 
 ## << 2 secret challenges >>
 
-There are two more secret challenges in crAPI, that are pretty complex, and for now we don’t share details about them, except the fact they are really cool. 
+There are two more secret challenges in crAPI, that are pretty complex, and for now we don’t share details about them, except the fact they are really cool.
