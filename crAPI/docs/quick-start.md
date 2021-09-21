@@ -2,6 +2,7 @@
 
 crAPI Quick Start Guide
 =====
+
 - [Docker (pre-built images)](#docker--pre-built-images-)
 - [Docker (local build)](#docker--local-build-)
 - [Vagrant](#vagrant)
@@ -42,6 +43,7 @@ You'll need to have Docker installed and running on your host system.
 4. Visit `http://localhost:8888`
 
 **Note**: All emails are sent to mailhog service by default and can be checked on`http://localhost:8025`.
+
 You can change the smtp configuration if required. However all emails with domain **example.com** will still go to mailhog.
 
 
@@ -70,12 +72,11 @@ $ cd deploy/vagrant && vagrant destroy
 ```
 
 
-
 ### Kubernetes
 If you would like to deploy on kubernetes we have sample k8s configs already created. Check [the setup instructions][setup-k8s] for more details.
 
 
 
-[setup-k8s]: docs/setup.md#kubernetes-minikube
+[setup-k8s]: ./setup.md#kubernetes-minikube
 [Vagrant]: https://www.vagrantup.com/downloads
 [VirtualBox]: https://www.virtualbox.org/wiki/Downloads

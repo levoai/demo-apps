@@ -22,6 +22,7 @@ You'll need to have Docker installed and running on your host system.
 **Note**: All emails are sent to mailhog service by default and can be checked on `http://localhost:8025`.
 You can change the smtp configuration if required. However all emails with domain **example.com** will still go to mailhog.
 
+
 ## Kubernetes 
 
 ###  Minikube

@@ -13,7 +13,7 @@ Use the info below to login to crAPI
 | victim.two@example.com | Victim2Two | Victim Two | 9876570006   |
 | hacker@darkweb.com     | Hack3r$$$  | Hacker     | 7000070007   |
 
-### User's Vechicle UUID
+### User's Vehicle UUID
 
 Below are UUIDs of vechicles that belong to users:
 
