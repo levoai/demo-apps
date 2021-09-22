@@ -65,7 +65,7 @@ Use <CTRL-C> to abort, and then shutdown the application via `docker-compose`:
 
 Setup Using Source
 -----
-Setup from source requires you to clone the `beginner-demo` Git repo.
+Setup from source requires you to clone the `MalSchema` Git repo.
 
 To run the demo app, you need the recent version of `docker-compose <https://docs.docker.com/compose/install/>`_.
 
