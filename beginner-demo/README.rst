@@ -1,4 +1,4 @@
-Levo - Beginner Demo App
+MalSchema - Demo API schema non-conformance
 =========================
 
 Levo makes *schema conformance testing* (aka contract tests) for REST API & GraphQL super easy!
