@@ -4,7 +4,7 @@ on:
   pull_request:
     paths:
       - '.github/workflows/*-demo-apps.yml'
-      - 'beginner-demo/**'
+      - 'MalSchema/**'
   push:
     branches:
       - main
@@ -22,8 +22,8 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
-          image: levoai/beginner-demo
-          path: ./beginner-demo
+          image: levoai/malschema
+          path: ./MalSchema
           tag: latest
           cache: true
-          extra_args: "--cache-repo levoai/levo-beginner-demo-cache"
+          extra_args: "--cache-repo levoai/levo-malschema-cache"

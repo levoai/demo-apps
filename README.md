@@ -6,5 +6,5 @@ Below is information on (open source) Demo Applications used to demostrate Levo'
 - [crAPI - Demonstrate API security vulnerabilities][crAPI]
 
 
-[MalSchema]: beginner-demo/README.rst
+[MalSchema]: MalSchema/README.rst
 [crAPI]: crAPI/README.md
