@@ -1999,7 +1999,11 @@
       "get": {
         "summary": "Get the service report specified by the report_id query parameter",
         "operationId": "OP_WORKSHOP_MECHANIC_GET_SVC_REPORT",
-        "security": [],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [
           {
             "name": "report_id",
