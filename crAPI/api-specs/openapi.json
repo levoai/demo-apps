@@ -9,6 +9,7 @@
       "get": {
         "operationId": "OP_GET_HOME",
         "summary": "App homepage",
+        "security": [],
         "responses": {
           "200": {
             "content": {
@@ -29,6 +30,7 @@
       "post": {
         "operationId": "OP_IDENT_AUTH_SIGNUP",
         "summary": "Sign up and create an account",
+        "security": [],
         "requestBody": {
           "content": {
             "application/json": {
@@ -89,6 +91,7 @@
       "post": {
         "operationId": "OP_IDENT_AUTH_LOGIN",
         "summary": "Login",
+        "security": [],
         "requestBody": {
           "content": {
             "application/json": {
@@ -175,6 +178,7 @@
       "post": {
         "operationId": "OP_IDENT_AUTH_CHECK_OTP",
         "summary": "Validate One-Time-Password sent when using `forgot password`",
+        "security": [],
         "requestBody": {
           "content": {
             "application/json": {
@@ -230,7 +234,8 @@
     "/identity/api/auth/forget-password": {
       "post": {
         "operationId": "OP_IDENT_AUTH_FORGOT_PASSWORD",
-        "summary": "Start forgot password flow by senidng a OTP by email",
+        "summary": "Start forgot password flow by sending a OTP by email",
+        "security": [],
         "requestBody": {
           "content": {
             "application/json": {
@@ -280,6 +285,11 @@
       "post": {
         "operationId": "OP_IDENT_USR_RESET_PASSWORD",
         "summary": "Reset password",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -335,6 +345,11 @@
       "post": {
         "operationId": "OP_IDENT_USR_CHANGE_EMAIL",
         "summary": "Change user email",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -387,6 +402,11 @@
       "post": {
         "operationId": "OP_IDENT_USR_VERIFY_CHANGE_EMAIL_TOKEN",
         "summary": "Verify token sent for changing email",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -439,6 +459,11 @@
       "get": {
         "operationId": "OP_IDENT_USR_GET_DASHBOARD",
         "summary": "Get user dashboard data",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -496,6 +521,11 @@
       "post": {
         "operationId": "OP_IDENT_USR_UPDATE_PROFILE_PIC",
         "summary": "Update user profile picture",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "requestBody": {
           "content": {
             "multipart/form-data": {
@@ -551,6 +581,11 @@
       "get": {
         "operationId": "OP_IDENT_VEHICLE_GET_VEHICLES",
         "summary": "Get user vehicles",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -663,6 +698,11 @@
       "post": {
         "operationId": "OP_IDENT_VEHICLE_ADD_VEHICLE",
         "summary": "Add the user vehicle",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -737,13 +777,9 @@
       "get": {
         "operationId": "OP_IDENT_VEHICLE_GET_LOCATION",
         "summary": "Get user's vehicle location",
-        "x-restler-annotations": [
+        "security": [
           {
-            "producer_endpoint": "/identity/api/v2/vehicle/vehicles",
-            "producer_method": "GET",
-            "producer_resource_name": "id",
-            "consumer_param": "vehicleId",
-            "except": {}
+            "bearerAuth": []
           }
         ],
         "responses": {
@@ -819,7 +855,8 @@
           "name": "vehicleId",
           "required": true,
           "schema": {
-            "type": "string"
+            "type": "string",
+            "format": "uuid"
           }
         }
       ]
@@ -828,6 +865,11 @@
       "post": {
         "operationId": "OP_IDENT_VEHICLE_RESEND_EMAIL",
         "summary": "Resend vehicles details to be added to the user dashboard",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -860,6 +902,11 @@
       "get": {
         "operationId": "OP_COMMUNITY_GET_POST",
         "summary": "Get an specific post in the forum",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -886,6 +933,11 @@
       "post": {
         "operationId": "OP_COMMUNITY_CREATE_POST",
         "summary": "Create a new post in the forum",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -930,7 +982,8 @@
                       ],
                       "properties": {
                         "vehicleid": {
-                          "type": "string"
+                          "type": "string",
+                          "format": "uuid"
                         },
                         "email": {
                           "type": "string"
@@ -979,6 +1032,11 @@
       "post": {
         "operationId": "OP_COMMUNITY_POST_ADD_COMMENT",
         "summary": "Add a comment to an existing post in the forum",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -1020,7 +1078,8 @@
                       ],
                       "properties": {
                         "vehicleid": {
-                          "type": "string"
+                          "type": "string",
+                          "format": "uuid"
                         },
                         "email": {
                           "type": "string"
@@ -1076,7 +1135,8 @@
                             ],
                             "properties": {
                               "vehicleid": {
-                                "type": "string"
+                                "type": "string",
+                                "format": "uuid"
                               },
                               "email": {
                                 "type": "string"
@@ -1125,6 +1185,11 @@
       "get": {
         "operationId": "OP_WORKSHOP_SHOP_GET_PRODUCTS",
         "summary": "Get products for the shop",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -1179,6 +1244,11 @@
       "post": {
         "operationId": "OP_WORKSHOP_SHOP_CREATE_ORDER",
         "summary": "Post a new order for a product",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -1259,6 +1329,11 @@
       "get": {
         "operationId": "OP_WORKSHOP_SHOP_GET_ORDERS",
         "summary": "Get user's past orders",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -1349,6 +1424,11 @@
       "post": {
         "operationId": "OP_WORKSHOP_SHOP_RETURN_PURCHASE",
         "summary": "Return order",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -1444,6 +1524,11 @@
       "post": {
         "operationId": "OP_WORKSHOP_SHOP_APPLY_COUPON",
         "summary": "Apply the coupon for the current user",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -1515,6 +1600,11 @@
       "get": {
         "operationId": "OP_WORKSHOP_MECHANIC_GET_MECHANICS",
         "summary": "Get the available mechanics",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -1576,6 +1666,11 @@
       "post": {
         "operationId": "OP_WORKSHOP_MECHANIC_CONTACT_MECHANIC",
         "summary": "Contact a mechanic for a service request on your vehicle",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -1640,6 +1735,11 @@
       "get": {
         "summary": "Get all the service reports for the currently logged in user",
         "operationId": "OP_WORKSHOP_MECHANIC_GET_SVC_REPORTS",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [
           {
             "name": "Host",
@@ -1899,6 +1999,7 @@
       "get": {
         "summary": "Get the service report specified by the report_id query parameter",
         "operationId": "OP_WORKSHOP_MECHANIC_GET_SVC_REPORT",
+        "security": [],
         "parameters": [
           {
             "name": "report_id",
@@ -2136,6 +2237,11 @@
       "post": {
         "operationId": "OP_COMMUNITY_COUPON_VALIDATE_COUPON",
         "summary": "Validate the provided discount coupon code",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -2198,6 +2304,13 @@
 
   },
   "components": {
-    "schemas": {}
+    "schemas": {},
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
   }
 }
