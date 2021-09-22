@@ -7,8 +7,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  beginner-demo-app-dockerhub:
-    name: Build and publish BeginnerDemo container images to DockerHub
+  malschema-app-dockerhub:
+    name: Build and publish MalSchema container images to DockerHub
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
@@ -18,8 +18,8 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
-          image: levoai/beginner-demo
-          path: ./beginner-demo
+          image: levoai/malschema
+          path: ./MalSchema
           tag: stable
           cache: false
 #          extra_args: "--cache-repo levoai/levo-demoapp-cache"
@@ -29,8 +29,8 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
-          image: levoai/beginner-demo
-          path: ./beginner-demo
+          image: levoai/malschema
+          path: ./MalSchema
           cache: false
 #          extra_args: "--cache-repo levoai/levo-demoapp-cache"
           strip_tag_prefix: v
