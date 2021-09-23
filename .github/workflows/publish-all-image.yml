@@ -1,0 +1,26 @@
+name: Build and publish crapi-all image
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/*-all-image.yml'
+      - 'beginner-demo/**'
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  push-crapi-all-to-dockerhub:
+    name: Build and publish crAPI fat image to Dockerhub
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Stable
+        uses: aevea/action-kaniko@master
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+          image: levoai/crapi-all
+          cache: true
