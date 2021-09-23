@@ -57,5 +57,4 @@ jobs:
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
           image: levoai/crapi-all
           path: ./crAPI
-          skip_unchanged_digest: true
           cache: false
