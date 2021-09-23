@@ -11,16 +11,29 @@ on:
   workflow_dispatch:
 
 jobs:
-  push-crapi-all-to-dockerhub:
-    name: Build and publish crAPI fat image to Dockerhub
+  build-docker-image:
+    name: Build crapi-all Docker image
+    if: ${{ github.ref != 'refs/heads/main' }}
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
 
-      - name: Stable
+      - name: Build
+        run: docker build -t levoai/crapi-all crAPI
+
+  push-crapi-all-to-dockerhub:
+    name: Publish crAPI fat image to Dockerhub
+    # if: ${{ github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Publish
         uses: aevea/action-kaniko@master
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
           image: levoai/crapi-all
+          path: ./crAPI
           cache: true
+          extra_args: "--cache-repo levoai/crapi-all-cache"
