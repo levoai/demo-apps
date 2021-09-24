@@ -129,6 +129,7 @@ ENV BLOCK_SHELL_INJECTION=false \
     MAILHOG_HOST=localhost \
     MAILHOG_PORT=1025 \
     MAILHOG_DOMAIN=example.com \
+    MAILHOG_UI=localhost:8025 \
     SMTP_HOST=smtp.example.com \
     SMTP_PORT=587 \
     SMTP_EMAIL=user@example.com \

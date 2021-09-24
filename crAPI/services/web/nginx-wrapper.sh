@@ -15,6 +15,6 @@
 # limitations under the License.
 
 
-envsubst '${GO_SERVICE} ${JAVA_SERVICE} ${PYTHON_SERVICE}' < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf
+envsubst '${MAILHOG_UI} ${GO_SERVICE} ${JAVA_SERVICE} ${PYTHON_SERVICE}' < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf
 openresty
 exec "$@"
