@@ -1,6 +1,10 @@
 name: Build crAPI community service
 
 on:
+  pull_request:
+    paths:
+      - '.github/workflows/build-and-release-crapi-community.yml'
+      - 'crAPI/services/community/**'
   push:
     paths:
       - '.github/workflows/build-and-release-crapi-community.yml'
