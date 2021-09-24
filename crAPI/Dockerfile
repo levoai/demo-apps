@@ -69,7 +69,8 @@ ENV DB_NAME=crapi \
     POSTGRES_DB=crapi
 ENV GO_SERVICE=localhost:8087 \
     JAVA_SERVICE=localhost:8080 \
-    PYTHON_SERVICE=localhost:8000
+    PYTHON_SERVICE=localhost:8000 \
+    MAILHOG_UI=localhost:8025
 
 # Add openresty for web
 ARG RESTY_DEB_FLAVOR=""
