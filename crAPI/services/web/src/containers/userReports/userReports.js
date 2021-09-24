@@ -15,11 +15,12 @@
  */
 
 import React, { useEffect } from "react";
-import { Table, Button } from "antd";
+import { Button } from "antd";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { getUserReportsAction } from "../../actions/vehicleActions";
 import responseTypes from "../../constants/responseTypes";
+import UserReports from "../../components/userReports/userReports";
 import "./userReports.css";
 
 const UserReportsContainer = (props) => {
@@ -50,7 +51,7 @@ const UserReportsContainer = (props) => {
       </div>
 
       <div>
-      <ReportsTable userReports={userReports} />
+      <UserReports userReports={userReports} />
       </div>
     </div>
   );
@@ -75,60 +76,3 @@ export default connect(
   mapDispatchToProps
 )(UserReportsContainer);
 
-
-const ReportsTable = ({userReports}) => {
-  
-  const columns = [
-    {
-      key: "report-id",
-      render: (value, record) => record.id,
-      title: "Report ID",
-    },
-    {
-      key: "mechanic-info",
-      render: (value, record) => (
-        <div>
-          <div> Email: {record.mechanic.user.email} </div>
-          <div> Phone: {record.mechanic.user.number} </div>
-        </div>
-      ),
-      title: "Mechanic Info",
-    },
-    {
-      key: "vehicle-info",
-      render: (value, record) => (
-        <div>
-          <div> VIN: {record.vehicle.vin} </div>
-          <div> Owner Email: {record.vehicle.owner.email} </div>
-          <div> Owner Phone: {record.vehicle.owner.number} </div>
-        </div>
-      ),
-      title: "Vehicle Info",
-    },
-    {
-      key: "problem",
-      render: (value, record) => (
-        <div>
-          <div> {record.created_on} </div>
-          <div> {record.problem_details} </div>
-        </div>
-      ),
-      title: "Issues",
-    },
-    {
-      key: "status",
-      render: (value, record) => (
-        <div>
-          <div> {record.status} </div>
-        </div>
-      ),
-      title: "Status",
-    },
-  ];
-  
-  return <Table
-    columns={columns}
-    dataSource={userReports}
-    pagination={ false  }
-  />;
-};

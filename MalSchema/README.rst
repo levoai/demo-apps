@@ -1,4 +1,4 @@
-Levo - Beginner Demo App
+MalSchema - Demo API schema non-conformance
 =========================
 
 Levo makes *schema conformance testing* (aka contract tests) for REST API & GraphQL super easy!
@@ -16,7 +16,7 @@ Levo provides prebuilt Docker images that are hosted on Docker Hub.
 
 To run the demo app, you need the recent version of `docker-compose <https://docs.docker.com/compose/install/>`_.
 
-You need to download the Demo App's docker-compose config file: `docker-compose.yml <https://raw.githubusercontent.com/levoai/demo-apps/main/beginner-demo/docker-compose.yml>`_.
+You need to download the Demo App's docker-compose config file: `docker-compose.yml <https://raw.githubusercontent.com/levoai/demo-apps/main/MalSchema/docker-compose.yml>`_.
 
 Start the application via `docker-compose` in the directory where you downloaded the config file:
 
@@ -65,7 +65,7 @@ Use <CTRL-C> to abort, and then shutdown the application via `docker-compose`:
 
 Setup Using Source
 -----
-Setup from source requires you to clone the `beginner-demo` Git repo.
+Setup from source requires you to clone the `MalSchema` Git repo.
 
 To run the demo app, you need the recent version of `docker-compose <https://docs.docker.com/compose/install/>`_.
 

@@ -1,4 +1,10 @@
 # Levo's Demo Applications
-Beginner, Intermediate, and Advanced Demo Applications for Levo.ai
 
-- [Beginner Demo Application](https://github.com/levoai/demo-apps/blob/main/beginner-demo/README.rst)
+Below is information on (open source) Demo Applications used to demostrate Levo's capabilities:
+
+- [MalSchema - Demonstrate API schema non-conformance][MalSchema]
+- [crAPI - Demonstrate API security vulnerabilities][crAPI]
+
+
+[MalSchema]: MalSchema/README.rst
+[crAPI]: crAPI/README.md
