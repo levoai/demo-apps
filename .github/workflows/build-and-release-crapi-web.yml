@@ -1,14 +1,14 @@
-name: Build crAPI community service
+name: Build crAPI web service
 
 on:
   pull_request:
     paths:
-      - '.github/workflows/build-and-release-crapi-community.yml'
-      - 'crAPI/services/community/**'
+      - '.github/workflows/build-and-release-crapi-web.yml'
+      - 'crAPI/services/web/**'
   push:
     paths:
-      - '.github/workflows/build-and-release-crapi-community.yml'
-      - 'crAPI/services/community/**'
+      - '.github/workflows/build-and-release-crapi-web.yml'
+      - 'crAPI/services/web/**'
     branches:
       - main
     tags:
@@ -16,7 +16,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-community-image:
+  build-web-image:
     if: ${{ github.ref != 'refs/heads/main' }}
     runs-on: ubuntu-20.04
     steps:
@@ -27,14 +27,14 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
-          image: levoai/crapi-community
-          path: ./crAPI/services/community
+          image: levoai/crapi-web
+          path: ./crAPI/services/web
           tag: latest
           cache: true
           # Don't push the image, just build it to validate it.
-          extra_args: "--no-push --cache-repo levoai/crapi-community-cache"
+          extra_args: "--no-push --cache-repo levoai/crapi-web-cache"
 
-  push-latest-community-image:
+  push-latest-web-image:
     if: ${{ github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-20.04
     steps:
@@ -45,25 +45,28 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
-          image: levoai/crapi-community
-          path: ./crAPI/services/community
+          image: levoai/crapi-web
+          path: ./crAPI/services/web
           tag: latest
           cache: true
-          extra_args: "--cache-repo levoai/crapi-community-cache"
+          extra_args: "--cache-repo levoai/crapi-web-cache"
 
-  release-community-image:
+  release-web-image:
     if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
+      - uses: actions/setup-go@v2
+        with:
+          go-version: '^1.17.1'
 
       - name: Tagged image push
         uses: aevea/action-kaniko@master
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
-          image: levoai/crapi-community
-          path: ./crAPI/services/community
+          image: levoai/crapi-web
+          path: ./crAPI/services/web
           strip_tag_prefix: v
           cache: true
-          extra_args: "--cache-repo levoai/crapi-community-cache"
+          extra_args: "--cache-repo levoai/crapi-web-cache"
