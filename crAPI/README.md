@@ -11,33 +11,53 @@ know more about crAPI, please check [crAPI's overview][overview].
 
 ## QuickStart Guide
 
-### Docker
+### Docker with single container
 
 You'll need to have Docker installed and running on your host system.
 After having crAPI running, you may want to remove unnecessary docker images
 left behind.
 
+1. Start crAPI in single container
+    ```
+    docker run -p 80:80 levoai/crapi-all
+    ```
+2. Visit `http://localhost`
+
+If you want to build the crapi-all image locally with some modifications,
+run the following command in the root directory.
+
+```
+docker build -t levoai/crapi-all crAPI
+```
+
+### Docker Compose
+
 1. Clone crAPI repository
     ```
     $ git clone [REPOSITORY-URL]
     ```
-2. Build all docker images
+2. Start crAPI, which fetches the images from Dockerhub
     ```
-    $ deploy/docker/build-all.sh
+    $ docker-compose -f crAPI/deploy/docker/docker-compose.yml --compatibility up -d
     ```
-3. Start crAPI
-    ```
-    $ docker-compose -f deploy/docker/docker-compose.yml --compatibility up -d
-    ```
-4. Visit `http://localhost:8888`
+3. Visit `http://localhost:8888`
 
+If you want to bulid the images lcoally:
+
+4. Build all docker images
+    ```
+    $ ./crAPI/build-all.sh
+    ```
 
 **Note**: All emails are sent to mailhog service by default and can be checked on
 `http://localhost:8025`
 You can change the smtp configuration if required however all emails with domain **example.com** will still go to mailhog.
 
+### Kubernetes
+
 If you would like to deploy on kubernetes we have sample k8s configs already
 created. Check [the setup instructions][setup-k8s] for more details.
+
 
 ### Vagrant
 
@@ -51,7 +71,7 @@ installed.
     ```
 2. Start crAPI Virtual Machine
     ```
-    $ cd deploy/vagrant && vagrant up
+    $ cd crAPI/deploy/vagrant && vagrant up
     ```
 3. Visit `http://192.168.33.20`
 
@@ -63,7 +83,7 @@ Once you're done playing with crAPI, you can remove it completely from your
 system running the following command from the repository root directory
 
 ```
-$ cd deploy/vagrant && vagrant destroy
+$ cd crAPI/deploy/vagrant && vagrant destroy
 ```
 
 ---
@@ -71,6 +91,5 @@ $ cd deploy/vagrant && vagrant destroy
 Copyright (c) 2020 "Traceable AI". All rights reserved.
 
 [overview]: docs/overview.md
-[setup-k8s]: docs/setup.md#kubernetes-minikube
 [Vagrant]: https://www.vagrantup.com/downloads
 [VirtualBox]: https://www.virtualbox.org/wiki/Downloads

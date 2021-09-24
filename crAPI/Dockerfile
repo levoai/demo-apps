@@ -71,11 +71,6 @@ ENV GO_SERVICE=localhost:8087 \
     JAVA_SERVICE=localhost:8080 \
     PYTHON_SERVICE=localhost:8000
 
-# Python for Workshop service
-ENV PYTHONDONTWRITEBYTECODE 1 \
-    PYTHONUNBUFFERED 1
-RUN apt-get update && apt-get install -y libpq-dev python3-dev python3-pip python3-setuptools libffi-dev gcc
-
 # Add openresty for web
 ARG RESTY_DEB_FLAVOR=""
 ARG RESTY_DEB_VERSION="=1.19.9.1-1~buster1"
@@ -118,6 +113,14 @@ RUN echo "deb [ arch=amd64 ] https://repo.mongodb.org/apt/ubuntu bionic/mongodb-
 RUN apt-get update && apt-get install -y mongodb-org
 RUN sed -i "s,\\(^[[:blank:]]*bindIp:\\) .*,\\1 0.0.0.0," /etc/mongod.conf
 
+# Python for Workshop service
+ENV PYTHONDONTWRITEBYTECODE 1 \
+    PYTHONUNBUFFERED 1
+RUN apt-get update && apt-get install -y libpq-dev \
+    python3-dev python3-pip python3-setuptools libffi-dev gcc && \
+    # There is an issue with psycopg2 version 2.9, hence pin it to lower version. See https://stackoverflow.com/a/68025007/467969
+    pip3 install psycopg2==2.8.5
+
 # Copy Mailhog from builder image
 ENV MH_MONGO_URI=admin:crapisecretpassword@localhost:27017 \
     MH_STORAGE=mongodb
@@ -148,7 +151,7 @@ RUN ls -al /app/community
 # Add Workshop service directly, no builder image.
 WORKDIR /app/workshop
 COPY ./services/workshop/ /app/workshop
-RUN pip3 install psycopg2-binary && pip3 install -r requirements.txt
+RUN pip3 install -r requirements.txt
 
 # Copy Nginx related config form web
 COPY --from=web-build /app/build /usr/share/nginx/html
