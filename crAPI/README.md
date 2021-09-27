@@ -25,4 +25,3 @@ You also have the choice of cloning the Git repo, and building the docker images
 [User & Assets Info]: docs/user-asset-info.md
 [OpenAPI Specifications]: api-specs/openapi.json
 [Hack Pad]: docs/hackpad.md
-

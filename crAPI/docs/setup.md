@@ -1,7 +1,7 @@
 Setup | crAPI
 =============
 
-## Docker
+## Docker Compose
 
 You'll need to have Docker installed and running on your host system.
 

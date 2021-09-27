@@ -18,7 +18,7 @@ services:
 
   crapi-identity:
     container_name: crapi-identity
-    image: crapi-identity
+    image: levoai/crapi-identity
     #ports:
     #  - "127.0.0.1:8080:8080"
     environment:
@@ -58,7 +58,7 @@ services:
 
   crapi-community:
     container_name: crapi-community
-    image: crapi-community
+    image: levoai/crapi-community
     #ports:
     #  - "127.0.0.1:8087:8087"
     environment:
@@ -94,7 +94,7 @@ services:
 
   crapi-workshop:
     container_name: crapi-workshop
-    image: crapi-workshop
+    image: levoai/crapi-workshop
     #ports:
     #  - "127.0.0.1:8000:8000"
     environment:
@@ -132,7 +132,7 @@ services:
 
   crapi-web:
     container_name: crapi-web
-    image: crapi-web
+    image: levoai/crapi-web
     ports:
       - "127.0.0.1:8888:80"
     environment:

@@ -17,4 +17,4 @@
 
 set -x
 cd "$(dirname $0)"
-docker build -t crapi-identity .
+docker build -t levoai/crapi-identity .

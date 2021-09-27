@@ -1,0 +1,69 @@
+name: Build crAPI workshop service
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/build-and-release-crapi-workshop.yml'
+      - 'crAPI/services/workshop/**'
+  push:
+    paths:
+      - '.github/workflows/build-and-release-crapi-workshop.yml'
+      - 'crAPI/services/workshop/**'
+    branches:
+      - main
+    tags:
+      - v*
+  workflow_dispatch:
+
+jobs:
+  build-workshop-image:
+    if: ${{ github.ref != 'refs/heads/main' }}
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Build image
+        uses: aevea/action-kaniko@master
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+          image: levoai/crapi-workshop
+          path: ./crAPI/services/workshop
+          tag: latest
+          cache: true
+          # Don't push the image, just build it to validate it.
+          extra_args: "--no-push --cache-repo levoai/crapi-workshop-cache"
+
+  push-latest-workshop-image:
+    if: ${{ github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Latest image push
+        uses: aevea/action-kaniko@master
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+          image: levoai/crapi-workshop
+          path: ./crAPI/services/workshop
+          tag: latest
+          cache: true
+          extra_args: "--cache-repo levoai/crapi-workshop-cache"
+
+  release-workshop-image:
+    if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Tagged image push
+        uses: aevea/action-kaniko@master
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+          image: levoai/crapi-workshop
+          path: ./crAPI/services/workshop
+          strip_tag_prefix: v
+          cache: true
+          extra_args: "--cache-repo levoai/crapi-workshop-cache"
