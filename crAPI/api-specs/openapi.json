@@ -2022,7 +2022,7 @@
             "name": "Host",
             "in": "header",
             "description": "",
-            "required": true,
+            "required": false,
             "style": "simple",
             "schema": {
               "type": "string",
@@ -2033,7 +2033,7 @@
             "name": "Cache-Control",
             "in": "header",
             "description": "",
-            "required": true,
+            "required": false,
             "style": "simple",
             "schema": {
               "type": "string",
@@ -2044,7 +2044,7 @@
             "name": "Accept-Encoding",
             "in": "header",
             "description": "",
-            "required": true,
+            "required": false,
             "style": "simple",
             "schema": {
               "type": "string",
