@@ -24,6 +24,7 @@ import PropTypes from "prop-types";
 import { Layout, Spin } from "antd";
 import { connect } from "react-redux";
 import LoginContainer from "../../containers/login/login";
+import AutoLoginContainer from "../../containers/autoLogin/autoLogin";
 import SignupContainer from "../../containers/signup/signup";
 import NavBar from "../navBar/navBar";
 import ForgotPassword from "../forgotPassword/forgotPassword";
@@ -143,6 +144,35 @@ BeforeLogin.propTypes = {
   location: PropTypes.object,
 };
 
+/*
+ * Function to auto login if the user is not logged in.
+ */
+const AutoLogin = ({ component: Component, isLoggedIn, ...rest }) => {
+  const hasUserLoggedIn = isLoggedIn;
+  const queryParams = new URLSearchParams(window.location.search)
+  const route = queryParams.get("route")
+
+  return (
+    <Route
+      {...rest}
+      render={(props) =>
+        !hasUserLoggedIn ? (
+          <Component {...props} />
+        ) : (
+          <Redirect
+            to={{ pathname: route, state: { from: props.location } }}
+          />
+        )
+      }
+    />
+  );
+};
+AutoLogin.propTypes = {
+  component: PropTypes.any,
+  isLoggedIn: PropTypes.bool,
+  location: PropTypes.object,
+};
+
 const mapStateToProps = ({
   userReducer: { isLoggedIn, role, accessToken, fetchingData },
 }) => ({
@@ -181,6 +211,11 @@ const StyledComp = connect(
             <BeforeLogin
               path="/login"
               component={LoginContainer}
+              isLoggedIn={props.isLoggedIn}
+            />
+            <AutoLogin
+              path="/autologin"
+              component={AutoLoginContainer}
               isLoggedIn={props.isLoggedIn}
             />
             <BeforeLogin
