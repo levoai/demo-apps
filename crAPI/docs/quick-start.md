@@ -17,7 +17,7 @@ You'll need to have Docker installed and running on your host system.
 
 1. Start crAPI
     ```
-    $ docker run -p 8888:80 levoai/crapi-all
+    $ docker run --rm -p 8888:80 levoai/crapi-all
     ```
 2. Visit `http://localhost:8888`
 
