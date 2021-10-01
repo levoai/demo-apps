@@ -26,7 +26,7 @@ const HackServiceReport = ({ accessToken, getServiceReport }) => {
                 setReport([data])
             } else {
                 Modal.error({
-                    title: "Unable to get service report!"
+                    title: data
                 });
                 setReport([])
             }

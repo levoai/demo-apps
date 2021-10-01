@@ -15,7 +15,7 @@
  */
 
 import React, { useEffect } from "react";
-import { Button } from "antd";
+import { Button, Modal } from "antd";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { getUserReportsAction } from "../../actions/vehicleActions";
@@ -31,7 +31,10 @@ const UserReportsContainer = (props) => {
     const callback = (res, data) => {
       if (res === responseTypes.SUCCESS) {
         setUserReports(data)
-      } 
+      } else {
+        Modal.error({ title: data });
+        setUserReports([])
+      }
     };
     
     getUserReports({ callback, accessToken });
