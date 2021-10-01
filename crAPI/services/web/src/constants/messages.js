@@ -91,3 +91,5 @@ export const NO_MECHANICS = "Could not get mechanic details";
 export const SERVICE_REQUEST_SENT = "Service Request sent to the mechanic";
 export const SERVICE_REQUEST_NOT_SENT = "Could not contact mechanic";
 export const LOC_NOT_REFRESHED = "Could not refresh location";
+
+export const BACKEND_ERR = "Unable to connect to crAPI's backend services! Please ensure they are running.";

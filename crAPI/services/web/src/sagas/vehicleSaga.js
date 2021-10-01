@@ -26,6 +26,7 @@ import {
   SERVICE_REQUEST_SENT,
   SERVICE_REQUEST_NOT_SENT,
   LOC_NOT_REFRESHED,
+  BACKEND_ERR
 } from "../constants/messages";
 
 /**
@@ -289,8 +290,9 @@ export function* refreshLocation(param) {
       callback(responseTypes.FAILURE, ResponseJson.message);
     }
   } catch (e) {
+    const errMsg = (e.message === "Failed to fetch") ? BACKEND_ERR : LOC_NOT_REFRESHED
     yield put({ type: actionTypes.FETCHED_DATA, payload: recievedResponse });
-    callback(responseTypes.FAILURE, LOC_NOT_REFRESHED);
+    callback(responseTypes.FAILURE, errMsg);
   }
 }
 

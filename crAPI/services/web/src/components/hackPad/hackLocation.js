@@ -41,7 +41,7 @@ const HackLocation = ({ accessToken, getVehicles, refreshLocation }) => {
                 setLocation(data)
             } else { 
                 Modal.error({
-                    title: "Unable to get location!"
+                    title: data
                 });
                 setLocation(defaultLocation)
             }

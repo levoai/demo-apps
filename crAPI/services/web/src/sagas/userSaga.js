@@ -19,7 +19,7 @@ import { APIService, requestURLS } from "../constants/APIConstant";
 import actionTypes from "../constants/actionTypes";
 import responseTypes from "../constants/responseTypes";
 import {
-  INVALID_CREDS, SIGN_UP_SUCCESS, SIGN_UP_FAILED, OTP_SENT, OTP_NOT_SENT, OTP_VERIFIED, OTP_NOT_VERIFIED, PASSWORD_CHANGED, PASSWORD_NOT_CHANGED, TOKEN_NOT_SENT, EMAIL_CHANGED, EMAIL_NOT_CHANGED, NO_SERVICES,
+  INVALID_CREDS, SIGN_UP_SUCCESS, SIGN_UP_FAILED, OTP_SENT, OTP_NOT_SENT, OTP_VERIFIED, OTP_NOT_VERIFIED, PASSWORD_CHANGED, PASSWORD_NOT_CHANGED, TOKEN_NOT_SENT, EMAIL_CHANGED, EMAIL_NOT_CHANGED, BACKEND_ERR,
 } from "../constants/messages";
 
 /**
@@ -351,7 +351,7 @@ export function* getServices(param) {
     }
   } catch (e) {
     yield put({ type: actionTypes.FETCHED_DATA, payload: recievedResponse });
-    callback(responseTypes.FAILURE, NO_SERVICES);
+    callback(responseTypes.FAILURE, BACKEND_ERR);
   }
 }
 
@@ -390,7 +390,7 @@ export function* getServices(param) {
     }
   } catch (e) {
     yield put({ type: actionTypes.FETCHED_DATA, payload: recievedResponse });
-    callback(responseTypes.FAILURE, NO_SERVICES);
+    callback(responseTypes.FAILURE, BACKEND_ERR);
   }
 }
 
@@ -430,7 +430,7 @@ export function* getServices(param) {
     }
   } catch (e) {
     yield put({ type: actionTypes.FETCHED_DATA, payload: recievedResponse });
-    callback(responseTypes.FAILURE, NO_SERVICES);
+    callback(responseTypes.FAILURE, BACKEND_ERR);
   }
 }
 
