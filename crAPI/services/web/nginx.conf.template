@@ -65,6 +65,7 @@ server {
     proxy_pass http://${MAILHOG_UI}/;
     proxy_set_header Host ${MAILHOG_UI};
     proxy_set_header X-Forwarded-Host $http_host;
+    absolute_redirect off;
   }
 
   location /images {
