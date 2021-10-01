@@ -21,7 +21,7 @@ You'll need to have Docker installed and running on your host system.
     ```
 2. Visit `http://localhost:8888`
 
-**Note**: All emails are sent to mailhog service by default and can be checked on `http://localhost:8888/email`. 
+**Note**: All emails are sent to mailhog service by default and can be checked on `http://localhost:8888/email/`. 
 
 
 ### Docker Compose
