@@ -139,6 +139,7 @@ services:
       - GO_SERVICE=crapi-community:8087
       - JAVA_SERVICE=crapi-identity:8080
       - PYTHON_SERVICE=crapi-workshop:8000
+      - MAILHOG_UI=mailhog:8025
       - WAIT_HOSTS=crapi-community:8087,crapi-identity:8080,crapi-workshop:8000,mailhog:1025
       - WAIT_HOSTS_TIMEOUT=240
       - WAIT_SLEEP_INTERVAL=5
@@ -146,6 +147,7 @@ services:
       - crapi-community
       - crapi-identity
       - crapi-workshop
+      - mailhog
     healthcheck:
         test: curl 0.0.0.0:80/web/health
         interval: 15s
