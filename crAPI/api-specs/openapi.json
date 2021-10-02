@@ -1596,7 +1596,7 @@
       "parameters": []
     },
    
-    "/workshop/api/mechanic": {
+    "/workshop/api/mechanic/": {
       "get": {
         "operationId": "OP_WORKSHOP_MECHANIC_GET_MECHANICS",
         "summary": "Get the available mechanics",
@@ -1607,6 +1607,19 @@
         ],
         "responses": {
           "200": {
+            "description": "OK",
+            "headers": {
+              "Transfer-Encoding": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "chunked"
+                  }
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -1650,13 +1663,29 @@
                       }
                     }
                   }
+                },
+                "example": {
+                  "mechanics": [
+                    {
+                      "id": 1,
+                      "mechanic_code": "TRAC_JHN",
+                      "user": {
+                        "email": "jhon@example.com",
+                        "number": ""
+                      }
+                    },
+                    {
+                      "id": 2,
+                      "mechanic_code": "TRAC_JME",
+                      "user": {
+                        "email": "james@example.com",
+                        "number": ""
+                      }
+                    }
+                  ]
                 }
               }
-            },
-            "description": ""
-          },
-          "301": {
-            "description": ""
+            }
           }
         }
       },
