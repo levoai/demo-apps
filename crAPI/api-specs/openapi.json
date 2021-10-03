@@ -1420,6 +1420,68 @@
       },
       "parameters": []
     },
+    "/workshop/api/shop/orders/{order_id}": {
+      "get": {
+        "operationId": "shop_orders_retrieve",
+        "summary": "Get the order details for order identified by order_id.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "order_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "orders"
+                  ],
+                  "properties": {
+                    "orders": {
+                      "$ref": "#/components/schemas/Order"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "message"
+                  ],
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "You are not allowed to access this resource!'"
+                  }
+                }
+              }
+            },
+            "description": "Forbidden!"
+          }
+        }
+      }
+    },
     "/workshop/api/shop/orders/return_order": {
       "post": {
         "operationId": "OP_WORKSHOP_SHOP_RETURN_PURCHASE",
@@ -2534,7 +2596,94 @@
         }
       }
     },
+    "/workshop/api/mechanic/signup": {
+      "post": {
+        "operationId": "mechanic_signup_create",
+        "summary": "Register a new mechanic in the workshop.",
+        "security": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "number": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  },
+                  "mechanic_code": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "email",
+                  "mechanic_code",
+                  "name",
+                  "number",
+                  "password"
+                ]
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "message"
+                  ],
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "Mechanic created with email: john@workshop.com"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "message"
+                  ],
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "Mechanic code already exists!'"
+                  }
+                }
+              }
+            },
+            "description": "Bad Request!"
+          }
+        }
+      }
+    },
     
+
     "/community/api/v2/coupon/validate-coupon": {
       "post": {
         "operationId": "OP_COMMUNITY_COUPON_VALIDATE_COUPON",
@@ -2606,7 +2755,88 @@
 
   },
   "components": {
-    "schemas": {},
+    "schemas": {
+      "Order": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "readOnly": true
+          },
+          "user": {
+            "$ref": "#/components/schemas/User"
+          },
+          "product": {
+            "$ref": "#/components/schemas/Product"
+          },
+          "quantity": {
+            "type": "integer"
+          },
+          "status": {
+            "$ref": "#/components/schemas/OrderStatusEnum"
+          },
+          "created_on": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "created_on",
+          "id",
+          "product",
+          "user"
+        ]
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "number": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "email"
+        ]
+      },
+      "Product": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "readOnly": true
+          },
+          "name": {
+            "type": "string"
+          },
+          "price": {
+            "type": "string",
+            "format": "decimal",
+            "pattern": "^\\d{0,18}(\\.\\d{0,2})?$"
+          },
+          "image_url": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "image_url",
+          "name",
+          "price"
+        ]
+      },
+      "OrderStatusEnum": {
+        "enum": [
+          "delivered",
+          "return pending",
+          "returned"
+        ],
+        "type": "string"
+      }
+    },
     "securitySchemes": {
       "bearerAuth": {
         "type": "http",
