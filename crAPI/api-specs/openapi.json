@@ -1559,13 +1559,23 @@
       },
       "parameters": []
     },
-    "/workshop/api/shop/orders/return_order": {
+    "/workshop/api/shop/orders/return_order/{order_id}": {
       "post": {
         "operationId": "OP_WORKSHOP_SHOP_RETURN_PURCHASE",
-        "summary": "Return order",
+        "summary": "Return order specified by the order_id",
         "security": [
           {
             "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "order_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
           }
         ],
         "responses": {
@@ -1584,80 +1594,62 @@
                       "type": "string"
                     },
                     "order": {
-                      "type": "object",
-                      "required": [
-                        "created_on",
-                        "id",
-                        "product",
-                        "quantity",
-                        "status",
-                        "user"
-                      ],
-                      "properties": {
-                        "quantity": {
-                          "type": "number"
-                        },
-                        "id": {
-                          "type": "number"
-                        },
-                        "status": {
-                          "type": "string"
-                        },
-                        "created_on": {
-                          "type": "string"
-                        },
-                        "user": {
-                          "type": "object",
-                          "required": [
-                            "email",
-                            "number"
-                          ],
-                          "properties": {
-                            "email": {
-                              "type": "string"
-                            },
-                            "number": {
-                              "type": "string"
-                            }
-                          }
-                        },
-                        "product": {
-                          "type": "object",
-                          "required": [
-                            "id",
-                            "image_url",
-                            "name",
-                            "price"
-                          ],
-                          "properties": {
-                            "id": {
-                              "type": "number"
-                            },
-                            "image_url": {
-                              "type": "string"
-                            },
-                            "name": {
-                              "type": "string"
-                            },
-                            "price": {
-                              "type": "string"
-                            }
-                          }
-                        }
-                      }
+                      "$ref": "#/components/schemas/Order"
                     },
                     "qr_code_url": {
-                      "type": "string"
+                      "type": "string",
+                      "format": "url"
                     }
                   }
                 }
               }
             },
-            "description": ""
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "message"
+                  ],
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "This order has already been returned!"
+                  }
+                }
+              }
+            },
+            "description": "Bad Request!"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "message"
+                  ],
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "You are not allowed to access this resource!'"
+                  }
+                }
+              }
+            },
+            "description": "Forbidden!"
           }
         }
-      },
-      "parameters": []
+      }
     },
     "/workshop/api/shop/apply_coupon": {
       "post": {
@@ -2895,7 +2887,8 @@
             "pattern": "^\\d{0,18}(\\.\\d{0,2})?$"
           },
           "image_url": {
-            "type": "string"
+            "type": "string",
+            "format": "url"
           }
         },
         "required": [
