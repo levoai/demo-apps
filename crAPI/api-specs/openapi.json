@@ -1182,6 +1182,7 @@
     },
 
     "/workshop/api/shop/products": {
+      "parameters": [],
       "get": {
         "operationId": "OP_WORKSHOP_SHOP_GET_PRODUCTS",
         "summary": "Get products for the shop",
@@ -1234,11 +1235,52 @@
                 }
               }
             },
-            "description": ""
+            "description": "OK"
           }
         }
       },
-      "parameters": []
+      "post": {
+        "operationId": "OP_WORKSHOP_SHOP_CREATE_PRODUCT",
+        "summary": "Add the specified product to the product catalog.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewProduct"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Product"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request!",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        }
+      }
     },
     "/workshop/api/shop/orders": {
       "post": {
@@ -1725,6 +1767,28 @@
         }
       },
       "parameters": []
+    },
+    "/workshop/api/shop/return_qr_code": {
+      "get": {
+        "operationId": "OP_WORKSHOP_SHOP_GET_QRCODE",
+        "summary": "Get the return qr code image for UPS shipments.",
+        "security": [
+          {}
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "image/png": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            },
+            "description": "QR Code PNG Image"
+          }
+        }
+      }
     },
    
     "/workshop/api/mechanic/": {
@@ -2869,6 +2933,28 @@
         },
         "required": [
           "email"
+        ]
+      },
+      "NewProduct": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "price": {
+            "type": "string",
+            "format": "decimal",
+            "pattern": "^\\d{0,18}(\\.\\d{0,2})?$"
+          },
+          "image_url": {
+            "type": "string",
+            "format": "url"
+          }
+        },
+        "required": [
+          "image_url",
+          "name",
+          "price"
         ]
       },
       "Product": {
