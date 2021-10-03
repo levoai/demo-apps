@@ -1826,6 +1826,83 @@
       },
       "parameters": []
     },
+    "/workshop/api/mechanic/receive_report": {
+      "post": {
+        "operationId": "OP_WORKSHOP_MECHANIC_CREATE_SERVICE_REPORT",
+        "description": "Create the service report and assign to the mechanic",
+        "security": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "description": "Service report details",
+                "required": [
+                  "mechanic_code",
+                  "problem_details",
+                  "vin"
+                ],
+                "properties": {
+                  "mechanic_code": {
+                    "type": "string"
+                  },
+                  "problem_details": {
+                    "type": "string"
+                  },
+                  "vin": {
+                    "type": "string"
+                  },
+                  "owner_id": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "id",
+                    "sent",
+                    "report_link"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "sent": {
+                      "type": "string"
+                    },
+                    "report_link": {
+                      "type": "string",
+                      "format": "url"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request!",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/workshop/api/mechanic/user_reports": {
       "get": {
         "summary": "Get all the service reports for the currently logged in user",
