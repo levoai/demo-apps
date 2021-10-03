@@ -1829,7 +1829,7 @@
     "/workshop/api/mechanic/receive_report": {
       "post": {
         "operationId": "OP_WORKSHOP_MECHANIC_CREATE_SERVICE_REPORT",
-        "description": "Create the service report and assign to the mechanic",
+        "summary": "Create the service report and assign to the mechanic",
         "security": [],
         "requestBody": {
           "content": {
@@ -2400,6 +2400,131 @@
                     },
                     "created_on": {
                       "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/workshop/api/mechanic/service_requests": {
+      "get": {
+        "operationId": "OP_WORKSHOP_MECHANIC_GET_MECH_SVC_REPORTS",
+        "summary": "Fetch all service requests assigned to this specific mechanic.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Service Requests",
+                  "type": "object",
+                  "required": [
+                    "service_requests"
+                  ],
+                  "properties": {
+                    "service_requests": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "created_on",
+                          "id",
+                          "mechanic",
+                          "vehicle"
+                        ],
+                        "properties": {
+                          "id": {
+                            "type": "integer",
+                            "readOnly": true
+                          },
+                          "mechanic": {
+                            "type": "object",
+                            "required": [
+                              "id",
+                              "mechanic_code",
+                              "user"
+                            ],
+                            "properties": {
+                              "id": {
+                                "type": "integer",
+                                "readOnly": true
+                              },
+                              "mechanic_code": {
+                                "type": "string"
+                              },
+                              "user": {
+                                "type": "object",
+                                "required": [
+                                  "email"
+                                ],
+                                "properties": {
+                                  "email": {
+                                    "type": "string"
+                                  },
+                                  "number": {
+                                    "type": "string",
+                                    "nullable": true
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "vehicle": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "integer",
+                                "readOnly": true
+                              },
+                              "vin": {
+                                "type": "string"
+                              },
+                              "owner": {
+                                "type": "object",
+                                "properties": {
+                                  "email": {
+                                    "type": "string"
+                                  },
+                                  "number": {
+                                    "type": "string",
+                                    "nullable": true
+                                  }
+                                },
+                                "required": [
+                                  "email"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "owner",
+                              "vin"
+                            ]
+                          },
+                          "problem_details": {
+                            "type": "string"
+                          },
+                          "status": {
+                            "enum": [
+                              "Pending",
+                              "Finished"
+                            ],
+                            "type": "string"
+                          },
+                          "created_on": {
+                            "type": "string",
+                            "format": "date-time"
+                          }
+                        }
+                      }
                     }
                   }
                 }
