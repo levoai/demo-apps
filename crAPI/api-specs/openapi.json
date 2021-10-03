@@ -1243,7 +1243,7 @@
     "/workshop/api/shop/orders": {
       "post": {
         "operationId": "OP_WORKSHOP_SHOP_CREATE_ORDER",
-        "summary": "Post a new order for a product",
+        "summary": "Create a new order for a product in the shop.",
         "security": [
           {
             "bearerAuth": []
@@ -1253,22 +1253,11 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "required": [
-                  "product_id",
-                  "quantity"
-                ],
-                "properties": {
-                  "product_id": {
-                    "type": "number"
-                  },
-                  "quantity": {
-                    "type": "number"
-                  }
-                }
+                "$ref": "#/components/schemas/ProductQuantity"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "200": {
@@ -1277,53 +1266,203 @@
                 "schema": {
                   "type": "object",
                   "required": [
-                    "credit",
                     "id",
-                    "message"
+                    "message",
+                    "credit"
                   ],
                   "properties": {
-                    "credit": {
-                      "type": "number"
-                    },
                     "id": {
-                      "type": "number"
+                      "type": "integer"
                     },
                     "message": {
                       "type": "string"
+                    },
+                    "credit": {
+                      "type": "number",
+                      "format": "float"
                     }
                   }
                 }
               }
             },
-            "description": ""
+            "description": "OK"
           },
           "400": {
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
+                  "required": [
+                    "message"
+                  ],
                   "properties": {
-                    "product_id": {
-                      "type": "array",
-                      "items": {
-                        "type": "string"
-                      }
-                    },
-                    "quantity": {
-                      "type": "array",
-                      "items": {
-                        "type": "string"
-                      }
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "Insufficient Balance. Please apply coupons to get more\nbalance!"
+                  }
+                }
+              }
+            },
+            "description": "Bad Request!"
+          }
+        }
+      }
+    },
+    "/workshop/api/shop/orders/{order_id}": {
+      "put": {
+        "operationId": "OP_WORKSHOP_SHOP_UPDATE_ORDER",
+        "summary": "Update the order specified by the order_id.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "order_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductQuantity"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "orders"
+                  ],
+                  "properties": {
+                    "orders": {
+                      "$ref": "#/components/schemas/Order"
                     }
                   }
                 }
               }
             },
-            "description": ""
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "message"
+                  ],
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "The value of 'status' has to be 'delivered', 'return pending' or 'returned'"
+                  }
+                }
+              }
+            },
+            "description": "Bad Request!"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "message"
+                  ],
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "You are not allowed to access this resource!'"
+                  }
+                }
+              }
+            },
+            "description": "Forbidden!"
           }
         }
       },
-      "parameters": []
+      "get": {
+        "operationId": "OP_WORKSHOP_SHOP_GET_ORDER_ID",
+        "summary": "Get the order details for order identified by order_id.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "order_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "orders"
+                  ],
+                  "properties": {
+                    "orders": {
+                      "$ref": "#/components/schemas/Order"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "message"
+                  ],
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "You are not allowed to access this resource!'"
+                  }
+                }
+              }
+            },
+            "description": "Forbidden!"
+          }
+        }
+      }
     },
     "/workshop/api/shop/orders/all": {
       "get": {
@@ -1419,68 +1558,6 @@
         }
       },
       "parameters": []
-    },
-    "/workshop/api/shop/orders/{order_id}": {
-      "get": {
-        "operationId": "shop_orders_retrieve",
-        "summary": "Get the order details for order identified by order_id.",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "in": "path",
-            "name": "order_id",
-            "schema": {
-              "type": "integer"
-            },
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "orders"
-                  ],
-                  "properties": {
-                    "orders": {
-                      "$ref": "#/components/schemas/Order"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "403": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "message"
-                  ],
-                  "properties": {
-                    "message": {
-                      "type": "string"
-                    }
-                  },
-                  "example": {
-                    "message": "You are not allowed to access this resource!'"
-                  }
-                }
-              }
-            },
-            "description": "Forbidden!"
-          }
-        }
-      }
     },
     "/workshop/api/shop/orders/return_order": {
       "post": {
@@ -2598,7 +2675,7 @@
     },
     "/workshop/api/mechanic/signup": {
       "post": {
-        "operationId": "mechanic_signup_create",
+        "operationId": "OP_WORKSHOP_MECHANIC_SIGNUP",
         "summary": "Register a new mechanic in the workshop.",
         "security": [],
         "requestBody": {
@@ -2835,6 +2912,21 @@
           "returned"
         ],
         "type": "string"
+      },
+      "ProductQuantity": {
+        "type": "object",
+        "properties": {
+          "product_id": {
+            "type": "integer"
+          },
+          "quantity": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "product_id",
+          "quantity"
+        ]
       }
     },
     "securitySchemes": {
