@@ -1180,6 +1180,126 @@
         }
       ]
     },
+    "/community/api/v2/community/posts/recent": {
+      "get": {
+        "summary": "Fetch the most recent posts in the forum.",
+        "operationId": "OP_COMMUNITY_GET_RECENT_POSTS",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "Transfer-Encoding": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string",
+                      "example": "chunked"
+                    },
+                    "example": "chunked"
+                  }
+                }
+              },
+              "Access-Control-Allow-Headers": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string",
+                      "example": "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization"
+                    },
+                    "example": "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization"
+                  }
+                }
+              },
+              "Access-Control-Allow-Methods": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string",
+                      "example": "POST, GET, OPTIONS, PUT, DELETE"
+                    },
+                    "example": "POST, GET, OPTIONS, PUT, DELETE"
+                  }
+                }
+              },
+              "Access-Control-Allow-Origin": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string",
+                      "example": "*"
+                    },
+                    "example": "*"
+                  }
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Post"
+                  },
+                  "description": "Array of forum posts"
+                },
+                "example": [
+                  {
+                    "id": "ConZLXacq3MqhbLQDrbNLf",
+                    "title": "Title 3",
+                    "content": "Hello world 3",
+                    "author": {
+                      "nickname": "Hacker",
+                      "email": "hacker@darkweb.com",
+                      "vehicleid": "abac4018-5a38-466c-ab7f-361908afeab6",
+                      "profile_pic_url": "",
+                      "created_at": "2021-09-16T01:46:32.432Z"
+                    },
+                    "comments": [],
+                    "authorid": 3,
+                    "CreatedAt": "2021-09-16T01:46:32.432Z"
+                  },
+                  {
+                    "id": "rj2md2VVDBjYUGNG6LmQ9e",
+                    "title": "Title 2",
+                    "content": "Hello world 2",
+                    "author": {
+                      "nickname": "Victim Two",
+                      "email": "victim.two@example.com",
+                      "vehicleid": "8b9edbde-d74d-4773-8c9f-adb65c6056fc",
+                      "profile_pic_url": "",
+                      "created_at": "2021-09-16T01:46:32.429Z"
+                    },
+                    "comments": [],
+                    "authorid": 2,
+                    "CreatedAt": "2021-09-16T01:46:32.429Z"
+                  },
+                  {
+                    "id": "C68Hgjaow2jieF59LWzqTH",
+                    "title": "Title 1",
+                    "content": "Hello world 1",
+                    "author": {
+                      "nickname": "Victim One",
+                      "email": "victim.one@example.com",
+                      "vehicleid": "649acfac-10ea-43b3-907f-752e86eff2b6",
+                      "profile_pic_url": "",
+                      "created_at": "2021-09-16T01:46:32.413Z"
+                    },
+                    "comments": [],
+                    "authorid": 1,
+                    "CreatedAt": "2021-09-16T01:46:32.413Z"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
 
     "/workshop/api/shop/products": {
       "parameters": [],
@@ -3006,6 +3126,97 @@
           "product_id",
           "quantity"
         ]
+      },
+      "Post": {
+        "title": "Post",
+        "required": [
+          "id",
+          "title",
+          "content",
+          "author",
+          "comments",
+          "authorid",
+          "CreatedAt"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "content": {
+            "type": "string"
+          },
+          "author": {
+            "$ref": "#/components/schemas/Author"
+          },
+          "comments": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": ""
+          },
+          "authorid": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "CreatedAt": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "id": "ConZLXacq3MqhbLQDrbNLf",
+          "title": "Title 3",
+          "content": "Hello world 3",
+          "author": {
+            "nickname": "Hacker",
+            "email": "hacker@darkweb.com",
+            "vehicleid": "abac4018-5a38-466c-ab7f-361908afeab6",
+            "profile_pic_url": "",
+            "created_at": "2021-09-16T01:46:32.432Z"
+          },
+          "comments": [],
+          "authorid": 3,
+          "CreatedAt": "2021-09-16T01:46:32.432Z"
+        }
+      },
+      "Author": {
+        "title": "Author",
+        "required": [
+          "nickname",
+          "email",
+          "vehicleid",
+          "profile_pic_url",
+          "created_at"
+        ],
+        "type": "object",
+        "properties": {
+          "nickname": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "vehicleid": {
+            "type": "string"
+          },
+          "profile_pic_url": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "nickname": "Hacker",
+          "email": "hacker@darkweb.com",
+          "vehicleid": "abac4018-5a38-466c-ab7f-361908afeab6",
+          "profile_pic_url": "",
+          "created_at": "2021-09-16T01:46:32.432Z"
+        }
       }
     },
     "securitySchemes": {
