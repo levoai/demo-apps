@@ -25,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import io.swagger.v3.oas.annotations.security.*;
 
 import javax.validation.Valid;
 import java.io.UnsupportedEncodingException;
@@ -33,7 +34,7 @@ import java.io.UnsupportedEncodingException;
 /**
  * @author Traceable AI
  */
-
+@SecurityRequirements
 @CrossOrigin
 @RestController
 @RequestMapping("/identity/api/auth")
