@@ -23,5 +23,5 @@ You also have the choice of cloning the Git repo, and building the docker images
 [Quick Start]: docs/quick-start.md
 [Top Vulnerabilities]: docs/challenges.md
 [User & Assets Info]: docs/user-asset-info.md
-[OpenAPI Specifications]: api-specs/openapi.json
+[OpenAPI Specifications]: api-specs/
 [Hack Pad]: docs/hackpad.md
