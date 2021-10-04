@@ -1,0 +1,228 @@
+definitions:
+  models.Author:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      nickname:
+        type: string
+      profile_pic_url:
+        type: string
+      vehicleid:
+        type: string
+    type: object
+  models.Comments:
+    properties:
+      author:
+        $ref: '#/definitions/models.Author'
+      content:
+        type: string
+      createdAt:
+        type: string
+      id:
+        type: string
+    type: object
+  models.Coupon:
+    properties:
+      amount:
+        type: string
+      coupon_code:
+        type: string
+      createdAt:
+        type: string
+    type: object
+  models.Post:
+    properties:
+      author:
+        $ref: '#/definitions/models.Author'
+      authorid:
+        type: integer
+      comments:
+        items:
+          $ref: '#/definitions/models.Comments'
+        type: array
+      content:
+        type: string
+      createdAt:
+        type: string
+      id:
+        type: string
+      title:
+        type: string
+    type: object
+info:
+  contact:
+    email: support@levo.ai
+    name: Levo Support
+  description: Community & forum API endpoints for crAPI.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  title: crAPI Commmunity Service API
+  version: "1.0"
+paths:
+  /community/api/v2/community/posts:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: New Post
+        in: body
+        name: new_post
+        required: true
+        schema:
+          $ref: '#/definitions/models.Post'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Post'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Add a new post to the user forum.
+  /community/api/v2/community/posts/{postID}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: postID
+        in: path
+        name: postID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Post'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      summary: Fetch the post identified by the "postID".
+  /community/api/v2/community/posts/{postID}/comment:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: postID
+        in: path
+        name: postID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Post'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Add a new comment to the post identified by the "postID".
+  /community/api/v2/community/posts/recent:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Post'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Get the most recent posts in the forum.
+  /community/api/v2/coupon/new-coupon:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Coupon
+        in: body
+        name: coupon
+        required: true
+        schema:
+          $ref: '#/definitions/models.Coupon'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Coupon Added in database
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Add a new coupon to the shop database
+  /community/api/v2/coupon/validate-coupon:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Coupon Code
+        in: body
+        name: coupon_code
+        required: true
+        schema:
+          type: primitive
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Coupon'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "422":
+          description: Unprocessable Entity
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Check the validity of the coupon in the shop database.
+  /community/home:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: Welcome To This crAPI API
+          schema:
+            type: string
+      summary: Health check API endpoint
+swagger: "2.0"

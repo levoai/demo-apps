@@ -1,0 +1,353 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "Community \u0026 forum API endpoints for crAPI.",
+        "title": "crAPI Commmunity Service API",
+        "contact": {
+            "name": "Levo Support",
+            "email": "support@levo.ai"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        },
+        "version": "1.0"
+    },
+    "paths": {
+        "/community/api/v2/community/posts": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Add a new post to the user forum.",
+                "parameters": [
+                    {
+                        "description": "New Post",
+                        "name": "new_post",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Post"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Post"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/community/api/v2/community/posts/recent": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get the most recent posts in the forum.",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Post"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/community/api/v2/community/posts/{postID}": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Fetch the post identified by the \"postID\".",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "postID",
+                        "name": "postID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Post"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/community/api/v2/community/posts/{postID}/comment": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Add a new comment to the post identified by the \"postID\".",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "postID",
+                        "name": "postID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Post"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/community/api/v2/coupon/new-coupon": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Add a new coupon to the shop database",
+                "parameters": [
+                    {
+                        "description": "Coupon",
+                        "name": "coupon",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Coupon"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Coupon Added in database",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/community/api/v2/coupon/validate-coupon": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Check the validity of the coupon in the shop database.",
+                "parameters": [
+                    {
+                        "description": "Coupon Code",
+                        "name": "coupon_code",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "primitive"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Coupon"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/community/home": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "text/plain"
+                ],
+                "summary": "Health check API endpoint",
+                "responses": {
+                    "200": {
+                        "description": "Welcome To This crAPI API",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "models.Author": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "nickname": {
+                    "type": "string"
+                },
+                "profile_pic_url": {
+                    "type": "string"
+                },
+                "vehicleid": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Comments": {
+            "type": "object",
+            "properties": {
+                "author": {
+                    "$ref": "#/definitions/models.Author"
+                },
+                "content": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Coupon": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "string"
+                },
+                "coupon_code": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Post": {
+            "type": "object",
+            "properties": {
+                "author": {
+                    "$ref": "#/definitions/models.Author"
+                },
+                "authorid": {
+                    "type": "integer"
+                },
+                "comments": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Comments"
+                    }
+                },
+                "content": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

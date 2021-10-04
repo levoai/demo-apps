@@ -21,15 +21,26 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/gorilla/mux"
 	"crapi.proj/goservice/api/models"
 	"crapi.proj/goservice/api/responses"
+	"github.com/gorilla/mux"
 )
 
 //AddNewPost add post in database,
 //@return HTTP Status
 //@params ResponseWriter, Request
 //Server have database connection
+//
+// Below are swagger annotations for: https://github.com/swaggo/swag
+// @Summary Add a new post to the user forum.
+// @Accept json
+// @Produce json
+// @Param new_post body models.Post true "New Post"
+// @Success 200 {object} models.Post
+// @Failure 400 {object} string
+// @Failure 500 {object} string
+// @Router /community/api/v2/community/posts [post]
+//
 func (s *Server) AddNewPost(w http.ResponseWriter, r *http.Request) {
 
 	body, err := ioutil.ReadAll(r.Body)
@@ -58,6 +69,16 @@ func (s *Server) AddNewPost(w http.ResponseWriter, r *http.Request) {
 //@return HTTP Status
 //@params ResponseWriter, Request
 //Server have database connection
+//
+// Below are swagger annotations for: https://github.com/swaggo/swag
+// @Summary Fetch the post identified by the "postID".
+// @Accept json
+// @Produce json
+// @Param postID path int true "postID"
+// @Success 200 {object} models.Post
+// @Failure 400 {object} string
+// @Router /community/api/v2/community/posts/{postID} [get]
+//
 func (s *Server) GetPostByID(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
@@ -72,6 +93,15 @@ func (s *Server) GetPostByID(w http.ResponseWriter, r *http.Request) {
 }
 
 //GetPost Vulnerabilities
+//
+// Below are swagger annotations for: https://github.com/swaggo/swag
+// @Summary Get the most recent posts in the forum.
+// @Accept json
+// @Produce json
+// @Success 200 {array} models.Post
+// @Failure 500 {object} string
+// @Router /community/api/v2/community/posts/recent [get]
+//
 func (s *Server) GetPost(w http.ResponseWriter, r *http.Request) {
 	//post := models.Post{}
 
@@ -87,6 +117,17 @@ func (s *Server) GetPost(w http.ResponseWriter, r *http.Request) {
 //@return HTTP Post Object
 //@params ResponseWriter, Request
 //Server have database connection
+//
+// Below are swagger annotations for: https://github.com/swaggo/swag
+// @Summary Add a new comment to the post identified by the "postID".
+// @Accept json
+// @Produce json
+// @Param postID path int true "postID"
+// @Success 200 {object} models.Post
+// @Failure 400 {object} string
+// @Failure 500 {object} string
+// @Router /community/api/v2/community/posts/{postID}/comment [post]
+//
 func (s *Server) Comment(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)

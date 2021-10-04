@@ -1,0 +1,484 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "crAPI Commmunity Service API",
+    "description": "Community & forum API endpoints for crAPI.",
+    "contact": {
+      "name": "Levo Support",
+      "email": "support@levo.ai"
+    },
+    "license": {
+      "name": "Apache 2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+    },
+    "version": "1.0"
+  },
+  "paths": {
+    "/community/api/v2/community/posts": {
+      "post": {
+        "summary": "Add a new post to the user forum.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "description": "New Post",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/models.NewPost"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.Post"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "new_post"
+      }
+    },
+    "/community/api/v2/community/posts/{postID}": {
+      "get": {
+        "summary": "Fetch the post identified by the \"postID\".",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "postID",
+            "in": "path",
+            "description": "postID",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.Post"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/community/api/v2/community/posts/{postID}/comment": {
+      "post": {
+        "summary": "Add a new comment to the post identified by the \"postID\".",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "postID",
+            "in": "path",
+            "description": "postID",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "New Comment",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "content": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "content"
+                ]
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.Post"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/community/api/v2/community/posts/recent": {
+      "get": {
+        "summary": "Get the most recent posts in the forum.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/models.Post"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "/community/api/v2/coupon/new-coupon": {
+      "post": {
+        "summary": "Add a new coupon to the shop database",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "description": "Coupon",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/models.Coupon"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Coupon Added in database",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/community/api/v2/coupon/validate-coupon": {
+      "post": {
+        "summary": "Check the validity of the coupon in the shop database.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "description": "Coupon Code",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "coupon_code"
+                ],
+                "properties": {
+                  "coupon_code": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.Coupon"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    
+    "/community/home": {
+      "get": {
+        "summary": "Health check API endpoint",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Welcome To This crAPI API",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "models.Author": {
+        "type": "object",
+        "properties": {
+          "created_at": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "nickname": {
+            "type": "string"
+          },
+          "profile_pic_url": {
+            "type": "string"
+          },
+          "vehicleid": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "email",
+          "nickname",
+          "vehicleid"
+        ]
+      },
+      "models.Comments": {
+        "type": "object",
+        "properties": {
+          "author": {
+            "$ref": "#/components/schemas/models.Author"
+          },
+          "content": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "content"
+        ]
+      },
+      "models.Coupon": {
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "string"
+          },
+          "coupon_code": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "amount",
+          "coupon_code"
+        ]
+      },
+      "models.Post": {
+        "type": "object",
+        "properties": {
+          "author": {
+            "$ref": "#/components/schemas/models.Author"
+          },
+          "authorid": {
+            "type": "integer"
+          },
+          "comments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/models.Comments"
+            }
+          },
+          "content": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          }
+        }
+      },
+      "models.NewPost": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "title",
+          "content"
+        ]
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}

@@ -18,9 +18,9 @@ package controllers
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
-	"fmt"
 
 	"crapi.proj/goservice/api/models"
 	"crapi.proj/goservice/api/responses"
@@ -30,6 +30,17 @@ import (
 //AddNewCoupon Coupon add coupon in database
 //@params ResponseWriter, Request
 //Server have database connection
+//
+// Below are swagger annotations for: https://github.com/swaggo/swag
+// @Summary Add a new coupon to the shop database
+// @Accept json
+// @Produce json
+// @Param coupon body models.Coupon true "Coupon"
+// @Success 200 {string} string "Coupon Added in database"
+// @Failure 400 {object} string
+// @Failure 500 {object} string
+// @Router /community/api/v2/coupon/new-coupon [post]
+//
 func (s *Server) AddNewCoupon(w http.ResponseWriter, r *http.Request) {
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -57,8 +68,20 @@ func (s *Server) AddNewCoupon(w http.ResponseWriter, r *http.Request) {
 //@return
 //@params ResponseWriter, Request
 //Server have database connection
+//
+// Below are swagger annotations for: https://github.com/swaggo/swag
+// @Summary Check the validity of the coupon in the shop database.
+// @Accept json
+// @Produce json
+// @Param coupon_code body string true "Coupon Code"
+// @Success 200 {object} models.Coupon
+// @Failure 400 {object} string
+// @Failure 422 {object} string
+// @Failure 500 {object} string
+// @Router /community/api/v2/coupon/validate-coupon [post]
+//
 func (s *Server) ValidateCoupon(w http.ResponseWriter, r *http.Request) {
-	
+
 	//coupon := models.CouponBody{}
 	var bsonMap bson.M
 
