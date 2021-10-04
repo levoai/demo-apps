@@ -1,9 +1,14 @@
 {
     "openapi": "3.0.1",
     "info": {
-        "title": "crAPI Identity Service OpenAPI definition",
+        "title": "crAPI Identity Service APIs",
         "version": "1.0"
     },
+    "security": [
+        {
+            "JWT": []
+        }
+    ],
     "paths": {
         "/identity/api/v2/user/videos/{video_id}": {
             "get": {
@@ -164,6 +169,9 @@
                     "content": {
                         "application/json": {
                             "schema": {
+                                "required": [
+                                    "file"
+                                ],
                                 "type": "object",
                                 "properties": {
                                     "file": {
@@ -259,6 +267,9 @@
                     "content": {
                         "application/json": {
                             "schema": {
+                                "required": [
+                                    "file"
+                                ],
                                 "type": "object",
                                 "properties": {
                                     "file": {
@@ -341,7 +352,8 @@
                             }
                         }
                     }
-                }
+                },
+                "security": []
             }
         },
         "/identity/api/auth/v3/check-otp": {
@@ -371,7 +383,8 @@
                             }
                         }
                     }
-                }
+                },
+                "security": []
             }
         },
         "/identity/api/auth/v2/check-otp": {
@@ -401,7 +414,8 @@
                             }
                         }
                     }
-                }
+                },
+                "security": []
             }
         },
         "/identity/api/auth/v2.7/user/login-with-token": {
@@ -431,7 +445,8 @@
                             }
                         }
                     }
-                }
+                },
+                "security": []
             }
         },
         "/identity/api/auth/signup": {
@@ -461,7 +476,8 @@
                             }
                         }
                     }
-                }
+                },
+                "security": []
             }
         },
         "/identity/api/auth/login": {
@@ -491,7 +507,8 @@
                             }
                         }
                     }
-                }
+                },
+                "security": []
             }
         },
         "/identity/api/auth/forget-password": {
@@ -521,7 +538,8 @@
                             }
                         }
                     }
-                }
+                },
+                "security": []
             }
         },
         "/identity/health_check": {
@@ -541,7 +559,8 @@
                             }
                         }
                     }
-                }
+                },
+                "security": []
             }
         },
         "/identity/api/v2/vehicle/{carId}/location": {
@@ -878,6 +897,15 @@
                         "type": "string"
                     }
                 }
+            }
+        },
+        "securitySchemes": {
+            "JWT": {
+                "type": "http",
+                "name": "Authorization",
+                "in": "header",
+                "scheme": "bearer",
+                "bearerFormat": "JWT"
             }
         }
     }
