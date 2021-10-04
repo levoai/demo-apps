@@ -25,7 +25,13 @@ import (
 
 type Server config.Server
 
-//Home API is for testing without token
+// Home API is for testing without token
+// Below are swagger annotations for: https://github.com/swaggo/swag
+// @Summary Health check API endpoint
+// @Accept json
+// @Produce text/plain
+// @Success 200 {string} string "Welcome To This crAPI API"
+// @Router /community/home [get]
 func (server *Server) Home(w http.ResponseWriter, r *http.Request) {
 	responses.JSON(w, http.StatusOK, "Welcome To This crAPI API")
 

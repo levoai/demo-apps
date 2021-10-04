@@ -20,6 +20,15 @@ import (
 	"crapi.proj/goservice/api"
 )
 
+// Below are swagger annotations for: https://github.com/swaggo/swag
+// @title crAPI Commmunity Service API
+// @version 1.0
+// @description Community & forum API endpoints for crAPI.
+// @contact.name Levo Support
+// @contact.email support@levo.ai
+// @license.name Apache 2.0
+// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
+// @query.collection.format multi
 func main() {
 	api.Run()
 }
