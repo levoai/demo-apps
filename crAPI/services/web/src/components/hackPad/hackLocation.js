@@ -76,7 +76,7 @@ const HackLocation = ({ accessToken, getVehicles, refreshLocation }) => {
                             style={{ width: 350 }}
                             placeholder="Enter vehicle UUID?"
                             allowClear
-                            bordered={ true }
+                            bordered="true"
                             enterButton
                             onSearch={value => {
                                 if (value) { handleGetLocation(value) }
