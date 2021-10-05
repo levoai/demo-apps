@@ -299,6 +299,102 @@
       },
       "parameters": []
     },
+    "/identity/api/auth/v4.0/user/login-with-token": {
+      "post": {
+        "operationId": "OP_IDENT_AUTH_TOKEN_LOGIN",
+        "summary": "Login with token.",
+        "tags": [
+          "Identity / Auth"
+        ],
+        "security": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginWithEmailToken"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CRAPIResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/identity/api/auth/v2.7/user/login-with-token": {
+      "post": {
+        "operationId": "OP_IDENT_AUTH_TOKEN_LOGINv27",
+        "summary": "Login with token - v2.7.",
+        "tags": [
+          "Identity / Auth"
+        ],
+        "security": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginWithEmailToken"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/JwtResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/identity/api/auth/v2/check-otp": {
+      "post": {
+        "operationId": "OP_IDENT_AUTH_CHECK_OTPV2",
+        "summary": "Validate One-Time-Password sent when using `forgot password` - Version 2",
+        "tags": [
+          "Identity / Auth"
+        ],
+        "security": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OtpForm"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CRAPIResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
 
     "/identity/api/v2/user/reset-password": {
       "post": {
@@ -609,6 +705,167 @@
         }
       },
       "parameters": []
+    },
+    "/identity/api/v2/user/videos": {
+      "post": {
+        "summary": "Add a video to this user's profile.",
+        "operationId": "OP_IDENT_USR_ADD_PROFILE_VIDEO",
+        "tags": [
+          "Identity / User"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "required": [
+                  "file"
+                ],
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/identity/api/v2/user/videos/{video_id}": {
+      "get": {
+        "summary": "Get the video associated with the user's profile.",
+        "operationId": "OP_IDENT_USR_GET_PROFILE_VIDEO",
+        "tags": [
+          "Identity / User"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "video_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update the video identified by video_id in this user's profile.",
+        "operationId": "OP_IDENT_USR_MOD_PROFILE_VIDEO",
+        "tags": [
+          "Identity / User"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "video_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VideoForm"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete the video identified by video_id from this user's profile.",
+        "operationId": "OP_IDENT_USR_DEL_PROFILE_VIDEO",
+        "tags": [
+          "Identity / User"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "video_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
     },
 
     "/identity/api/v2/vehicle/vehicles": {
@@ -3327,6 +3584,94 @@
           "vehicleid": "abac4018-5a38-466c-ab7f-361908afeab6",
           "profile_pic_url": "",
           "created_at": "2021-09-16T01:46:32.432Z"
+        }
+      },
+      "VideoForm": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "videoName": {
+            "type": "string"
+          },
+          "video_url": {
+            "type": "string"
+          },
+          "conversion_params": {
+            "type": "string"
+          }
+        }
+      },
+      "CRAPIResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "status": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "OtpForm": {
+        "required": [
+          "email",
+          "otp",
+          "password"
+        ],
+        "type": "object",
+        "properties": {
+          "otp": {
+            "maxLength": 4,
+            "minLength": 3,
+            "type": "string"
+          },
+          "password": {
+            "maxLength": 30,
+            "minLength": 5,
+            "type": "string"
+          },
+          "email": {
+            "maxLength": 30,
+            "minLength": 5,
+            "type": "string"
+          }
+        }
+      },
+      "JwtResponse": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "LoginWithEmailToken": {
+        "required": [
+          "email",
+          "token"
+        ],
+        "type": "object",
+        "properties": {
+          "email": {
+            "maxLength": 60,
+            "minLength": 3,
+            "type": "string"
+          },
+          "token": {
+            "maxLength": 60,
+            "minLength": 3,
+            "type": "string"
+          }
         }
       }
     },
