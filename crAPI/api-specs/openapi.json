@@ -2441,6 +2441,19 @@
         "security": [
           {}
         ],
+        "parameters": [
+          {
+            "name": "Accept",
+            "in": "header",
+            "description": "The server doesn't like image/png in accept!",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "string",
+              "example": "*/*"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
