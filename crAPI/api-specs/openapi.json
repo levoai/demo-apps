@@ -867,6 +867,81 @@
         }
       }
     },
+    "/identity/api/v2/user/videos/convert_video": {
+      "get": {
+        "summary": "Convert the format for the specified video.",
+        "operationId": "OP_IDENT_USR_CONVERT_PROFILE_VIDEO",
+        "tags": [
+          "Identity / User"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "video_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "/identity/api/v2/admin/videos/{video_id}": {
+      "delete": {
+        "summary": "As admin, delete the video identified by video_id.",
+        "operationId": "OP_IDENT_ADMIN_DEL_PROFILE_VIDEO",
+        "tags": [
+          "Identity / Admin"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "video_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CRAPIResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
 
     "/identity/api/v2/vehicle/vehicles": {
       "get": {
