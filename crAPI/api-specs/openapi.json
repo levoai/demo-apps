@@ -1691,6 +1691,63 @@
       }
     },
 
+    "/community/api/v2/coupon/new-coupon": {
+      "post": {
+        "operationId": "OP_COMMUNITY_COUPON_ADD_COUPON",
+        "summary": "Add a new coupon to the shop database",
+        "tags": [
+          "Community / Coupon"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "description": "Coupon",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Coupon"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Coupon Added in database",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/community/api/v2/coupon/validate-coupon": {
       "post": {
         "operationId": "OP_COMMUNITY_COUPON_VALIDATE_COUPON",
@@ -3748,6 +3805,24 @@
             "type": "string"
           }
         }
+      },
+      "Coupon": {
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "string"
+          },
+          "coupon_code": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "amount",
+          "coupon_code"
+        ]
       }
     },
     "securitySchemes": {
