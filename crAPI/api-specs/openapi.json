@@ -1,14 +1,21 @@
 {
   "openapi": "3.0.1",
   "info": {
-    "title": "crAPI API",
+    "title": "OWASP crAPI API",
     "version": "1.0"
+  },
+  "externalDocs": {
+    "description": "Completely Ridiculous API - Highly Vulnerable Demo App",
+    "url": "https://github.com/levoai/demo-apps/tree/main/crAPI"
   },
   "paths": {
     "/": {
       "get": {
         "operationId": "OP_GET_HOME",
         "summary": "App homepage",
+        "tags": [
+          "Home"
+        ],
         "security": [],
         "responses": {
           "200": {
@@ -30,6 +37,9 @@
       "post": {
         "operationId": "OP_IDENT_AUTH_SIGNUP",
         "summary": "Sign up and create an account",
+        "tags": [
+          "Identity / Auth"
+        ],
         "security": [],
         "requestBody": {
           "content": {
@@ -91,6 +101,9 @@
       "post": {
         "operationId": "OP_IDENT_AUTH_LOGIN",
         "summary": "Login",
+        "tags": [
+          "Identity / Auth"
+        ],
         "security": [],
         "requestBody": {
           "content": {
@@ -178,6 +191,9 @@
       "post": {
         "operationId": "OP_IDENT_AUTH_CHECK_OTP",
         "summary": "Validate One-Time-Password sent when using `forgot password`",
+        "tags": [
+          "Identity / Auth"
+        ],
         "security": [],
         "requestBody": {
           "content": {
@@ -235,6 +251,9 @@
       "post": {
         "operationId": "OP_IDENT_AUTH_FORGOT_PASSWORD",
         "summary": "Start forgot password flow by sending a OTP by email",
+        "tags": [
+          "Identity / Auth"
+        ],
         "security": [],
         "requestBody": {
           "content": {
@@ -285,6 +304,9 @@
       "post": {
         "operationId": "OP_IDENT_USR_RESET_PASSWORD",
         "summary": "Reset password",
+        "tags": [
+          "Identity / User"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -345,6 +367,9 @@
       "post": {
         "operationId": "OP_IDENT_USR_CHANGE_EMAIL",
         "summary": "Change user email",
+        "tags": [
+          "Identity / User"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -402,6 +427,9 @@
       "post": {
         "operationId": "OP_IDENT_USR_VERIFY_CHANGE_EMAIL_TOKEN",
         "summary": "Verify token sent for changing email",
+        "tags": [
+          "Identity / User"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -459,6 +487,9 @@
       "get": {
         "operationId": "OP_IDENT_USR_GET_DASHBOARD",
         "summary": "Get user dashboard data",
+        "tags": [
+          "Identity / User"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -521,6 +552,9 @@
       "post": {
         "operationId": "OP_IDENT_USR_UPDATE_PROFILE_PIC",
         "summary": "Update user profile picture",
+        "tags": [
+          "Identity / User"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -581,6 +615,9 @@
       "get": {
         "operationId": "OP_IDENT_VEHICLE_GET_VEHICLES",
         "summary": "Get user vehicles",
+        "tags": [
+          "Identity / Vehicle"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -698,6 +735,9 @@
       "post": {
         "operationId": "OP_IDENT_VEHICLE_ADD_VEHICLE",
         "summary": "Add the user vehicle",
+        "tags": [
+          "Identity / Vehicle"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -777,6 +817,9 @@
       "get": {
         "operationId": "OP_IDENT_VEHICLE_GET_LOCATION",
         "summary": "Get user's vehicle location",
+        "tags": [
+          "Identity / Vehicle"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -865,6 +908,9 @@
       "post": {
         "operationId": "OP_IDENT_VEHICLE_RESEND_EMAIL",
         "summary": "Resend vehicles details to be added to the user dashboard",
+        "tags": [
+          "Identity / Vehicle"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -902,6 +948,9 @@
       "get": {
         "operationId": "OP_COMMUNITY_GET_POST",
         "summary": "Get an specific post in the forum",
+        "tags": [
+          "Community / Posts"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -933,6 +982,9 @@
       "post": {
         "operationId": "OP_COMMUNITY_CREATE_POST",
         "summary": "Create a new post in the forum",
+        "tags": [
+          "Community / Posts"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -1032,6 +1084,9 @@
       "post": {
         "operationId": "OP_COMMUNITY_POST_ADD_COMMENT",
         "summary": "Add a comment to an existing post in the forum",
+        "tags": [
+          "Community / Posts"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -1184,6 +1239,9 @@
       "get": {
         "summary": "Fetch the most recent posts in the forum.",
         "operationId": "OP_COMMUNITY_GET_RECENT_POSTS",
+        "tags": [
+          "Community / Posts"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -1301,11 +1359,86 @@
       }
     },
 
+    "/community/api/v2/coupon/validate-coupon": {
+      "post": {
+        "operationId": "OP_COMMUNITY_COUPON_VALIDATE_COUPON",
+        "summary": "Validate the provided discount coupon code",
+        "tags": [
+          "Community / Coupon"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "coupon_code"
+                ],
+                "properties": {
+                  "coupon_code": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "CreatedAt",
+                    "amount",
+                    "coupon_code"
+                  ],
+                  "properties": {
+                    "CreatedAt": {
+                      "type": "string"
+                    },
+                    "amount": {
+                      "type": "string"
+                    },
+                    "coupon_code": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "description": ""
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {}
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      },
+      "parameters": []
+    },
+
     "/workshop/api/shop/products": {
       "parameters": [],
       "get": {
         "operationId": "OP_WORKSHOP_SHOP_GET_PRODUCTS",
         "summary": "Get products for the shop",
+        "tags": [
+          "Workshop / Shop"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -1362,6 +1495,9 @@
       "post": {
         "operationId": "OP_WORKSHOP_SHOP_CREATE_PRODUCT",
         "summary": "Add the specified product to the product catalog.",
+        "tags": [
+          "Workshop / Shop"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -1406,6 +1542,9 @@
       "post": {
         "operationId": "OP_WORKSHOP_SHOP_CREATE_ORDER",
         "summary": "Create a new order for a product in the shop.",
+        "tags": [
+          "Workshop / Shop"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -1477,6 +1616,9 @@
       "put": {
         "operationId": "OP_WORKSHOP_SHOP_UPDATE_ORDER",
         "summary": "Update the order specified by the order_id.",
+        "tags": [
+          "Workshop / Shop"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -1568,6 +1710,9 @@
       "get": {
         "operationId": "OP_WORKSHOP_SHOP_GET_ORDER_ID",
         "summary": "Get the order details for order identified by order_id.",
+        "tags": [
+          "Workshop / Shop"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -1630,6 +1775,9 @@
       "get": {
         "operationId": "OP_WORKSHOP_SHOP_GET_ORDERS",
         "summary": "Get user's past orders",
+        "tags": [
+          "Workshop / Shop"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -1725,6 +1873,9 @@
       "post": {
         "operationId": "OP_WORKSHOP_SHOP_RETURN_PURCHASE",
         "summary": "Return order specified by the order_id",
+        "tags": [
+          "Workshop / Shop"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -1817,6 +1968,9 @@
       "post": {
         "operationId": "OP_WORKSHOP_SHOP_APPLY_COUPON",
         "summary": "Apply the coupon for the current user",
+        "tags": [
+          "Workshop / Shop"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -1892,6 +2046,9 @@
       "get": {
         "operationId": "OP_WORKSHOP_SHOP_GET_QRCODE",
         "summary": "Get the return qr code image for UPS shipments.",
+        "tags": [
+          "Workshop / Shop"
+        ],
         "security": [
           {}
         ],
@@ -1915,6 +2072,9 @@
       "get": {
         "operationId": "OP_WORKSHOP_MECHANIC_GET_MECHANICS",
         "summary": "Get the available mechanics",
+        "tags": [
+          "Workshop / Mechanic"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -2010,6 +2170,9 @@
       "post": {
         "operationId": "OP_WORKSHOP_MECHANIC_CONTACT_MECHANIC",
         "summary": "Contact a mechanic for a service request on your vehicle",
+        "tags": [
+          "Workshop / Mechanic"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -2145,6 +2308,9 @@
       "post": {
         "operationId": "OP_WORKSHOP_MECHANIC_CREATE_SERVICE_REPORT",
         "summary": "Create the service report and assign to the mechanic",
+        "tags": [
+          "Workshop / Mechanic"
+        ],
         "security": [],
         "requestBody": {
           "content": {
@@ -2222,6 +2388,9 @@
       "get": {
         "summary": "Get all the service reports for the currently logged in user",
         "operationId": "OP_WORKSHOP_MECHANIC_GET_SVC_REPORTS",
+        "tags": [
+          "Workshop / Mechanic"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -2464,7 +2633,10 @@
                               "type": "string"
                             },
                             "status": {
-                              "enum": ["Pending", "Finished"],
+                              "enum": [
+                                "Pending",
+                                "Finished"
+                              ],
                               "type": "string"
                             },
                             "created_on": {
@@ -2487,6 +2659,9 @@
       "get": {
         "summary": "Get the service report specified by the report_id query parameter",
         "operationId": "OP_WORKSHOP_MECHANIC_GET_SVC_REPORT",
+        "tags": [
+          "Workshop / Mechanic"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -2728,6 +2903,9 @@
       "get": {
         "operationId": "OP_WORKSHOP_MECHANIC_GET_MECH_SVC_REPORTS",
         "summary": "Fetch all service requests assigned to this specific mechanic.",
+        "tags": [
+          "Workshop / Mechanic"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -2853,6 +3031,9 @@
       "post": {
         "operationId": "OP_WORKSHOP_MECHANIC_SIGNUP",
         "summary": "Register a new mechanic in the workshop.",
+        "tags": [
+          "Workshop / Mechanic"
+        ],
         "security": [],
         "requestBody": {
           "content": {
@@ -2934,76 +3115,6 @@
           }
         }
       }
-    },
-    
-
-    "/community/api/v2/coupon/validate-coupon": {
-      "post": {
-        "operationId": "OP_COMMUNITY_COUPON_VALIDATE_COUPON",
-        "summary": "Validate the provided discount coupon code",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "required": [
-                  "coupon_code"
-                ],
-                "properties": {
-                  "coupon_code": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "CreatedAt",
-                    "amount",
-                    "coupon_code"
-                  ],
-                  "properties": {
-                    "CreatedAt": {
-                      "type": "string"
-                    },
-                    "amount": {
-                      "type": "string"
-                    },
-                    "coupon_code": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            },
-            "description": ""
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {}
-                }
-              }
-            },
-            "description": ""
-          }
-        }
-      },
-      "parameters": []
     }
 
   },
