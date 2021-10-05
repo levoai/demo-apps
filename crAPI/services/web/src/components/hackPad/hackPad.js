@@ -26,17 +26,21 @@ import {
   Row,
   Layout,
   Col,
+  Tabs
 } from "antd";
+import ClipboardCopy from "../clipboardCopy/clipboardCopy";
 import HackLocation from "./hackLocation.js"
 import HackServiceReport from "./hackServiceReport";
+import ApiExplorer from "../apiExplorer/apiExplorer";
 
 
 const { Content } = Layout;
+const { TabPane } = Tabs;
 
 const HackPad = ({history, accessToken}) => {
 
   return (
-    <Layout className="hackpad__page-container">
+    <div>
       <PageHeader
         className="hackpad__header"
         title="Welcome to Hack Pad!"
@@ -50,30 +54,42 @@ const HackPad = ({history, accessToken}) => {
         ]}
       />
 
-      <Content>
-        <Row gutter={[40, 40]}>
-          <Col span={24} key="description">
-            <Card className="hackpad__header__description">
-              <h1> Hack Pad allows you to actively hack crAPI. </h1>
-              <span>
-                crAPI has several <a href="https://github.com/levoai/demo-apps/blob/main/crAPI/docs/challenges.md"> 
-                 vulnerabilities. </a>
-                Below exercises demostrate on how you can exploit these vulnerabilities.
-              </span>
-            </Card>
-          </Col>
-        </Row>
-      </Content>
+      <Tabs defaultActiveKey="1" className="hackpad__tabs">
+        <TabPane tab="Hacking Exercises" key="1">
+          <Content>
+            <Row gutter={[40, 40]}>
+              <Col span={24} key="description">
+                <Card className="hackpad__header__description">
+                  <h1> Hack Pad allows you to actively hack crAPI. </h1>
+                  <h4>
+                    crAPI has several <a href="https://github.com/levoai/demo-apps/blob/main/crAPI/docs/challenges.md">
+                      vulnerabilities. </a>
+                    Below exercises demostrate on how you can exploit these vulnerabilities.
+                  </h4>
+                  <div className="hackpad__header__token">
+                    <span className="hackpad__header__token__text"> This is your access token: </span>
+                    <ClipboardCopy copyText={accessToken} />
+                  </div>
+                </Card>
+              </Col>
+            </Row>
+          </Content>
 
-      <Content className="hackpad__card">
-        <HackLocation accessToken={accessToken} />
-      </Content>
+          <Content className="hackpad__card">
+            <HackLocation accessToken={accessToken} />
+          </Content>
 
-      <Content className="hackpad__card">
-        <HackServiceReport accessToken={accessToken} />
-      </Content>
+          <Content className="hackpad__card">
+            <HackServiceReport accessToken={accessToken} />
+          </Content>
 
-    </Layout>
+        </TabPane>
+        
+        <TabPane tab="API Explorer" key="2">
+          <ApiExplorer accessToken={accessToken} />
+        </TabPane>
+      </Tabs>
+    </div>
   );
 };
 

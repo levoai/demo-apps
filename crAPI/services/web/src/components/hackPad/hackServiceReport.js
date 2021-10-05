@@ -60,7 +60,7 @@ const HackServiceReport = ({ accessToken, getServiceReport }) => {
                             style={{ width: 250 }}
                             placeholder="Enter service report ID?"
                             allowClear
-                            bordered={ true }
+                            bordered="true"
                             enterButton
                             onSearch={value => {
                                 if (value) { handleGetReport(value) }
