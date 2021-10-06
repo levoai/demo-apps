@@ -7,7 +7,7 @@ RUN npm install --silent
 COPY ./services/web/src /app/src
 COPY ./services/web/public /app/public
 RUN cp /app/src/config.js.template /app/src/config.js
-RUN NODE_OPTIONS=--max_old_space_size=1024 npm run build
+RUN NODE_OPTIONS=--max_old_space_size=2048 npm run build
 RUN ls /app/build
 
 # Build image for identity service

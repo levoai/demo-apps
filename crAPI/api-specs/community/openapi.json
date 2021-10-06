@@ -68,9 +68,9 @@
         "x-codegen-request-body-name": "new_post"
       }
     },
-    "/community/api/v2/community/posts/{postID}": {
+    "/community/api/v2/community/posts/{postId}": {
       "get": {
-        "summary": "Fetch the post identified by the \"postID\".",
+        "summary": "Fetch the post identified by the \"postId\".",
         "security": [
           {
             "bearerAuth": []
@@ -78,9 +78,9 @@
         ],
         "parameters": [
           {
-            "name": "postID",
+            "name": "postId",
             "in": "path",
-            "description": "postID",
+            "description": "postId",
             "required": true,
             "schema": {
               "type": "integer"
@@ -111,9 +111,9 @@
         }
       }
     },
-    "/community/api/v2/community/posts/{postID}/comment": {
+    "/community/api/v2/community/posts/{postId}/comment": {
       "post": {
-        "summary": "Add a new comment to the post identified by the \"postID\".",
+        "summary": "Add a new comment to the post identified by the \"postId\".",
         "security": [
           {
             "bearerAuth": []
@@ -121,9 +121,9 @@
         ],
         "parameters": [
           {
-            "name": "postID",
+            "name": "postId",
             "in": "path",
-            "description": "postID",
+            "description": "postId",
             "required": true,
             "schema": {
               "type": "integer"
