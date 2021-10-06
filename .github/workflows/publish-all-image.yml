@@ -4,7 +4,7 @@ on:
   pull_request:
     paths:
       - '.github/workflows/*-all-image.yml'
-      - 'beginner-demo/**'
+      - 'crAPI/**'
   push:
     branches:
       - main
