@@ -50,16 +50,16 @@ var coupons = []models.Coupon{
 //initialize Post data
 var posts = []models.Post{
 	models.Post{
-		Title:   "Title 1",
-		Content: "Hello world 1",
+		Title:   "I love the crAPI forum!",
+		Content: "CrAPI's forum allows me to socialize with like minded auto enthusiasts.",
 	},
 	models.Post{
-		Title:   "Title 2",
-		Content: "Hello world 2",
+		Title:   "The discussions are awesome!",
+		Content: "I learn a lot about cars from these discussions!",
 	},
 	models.Post{
-		Title:   "Title 3",
-		Content: "Hello world 3",
+		Title:   "The forum makes crAPI more engaging.",
+		Content: "Lively discussions with fellow enthusiasts make the forum a joy to hang out!",
 	},
 }
 var emails = [3]string{"victim.one@example.com", "victim.two@example.com", "hacker@darkweb.com"}
