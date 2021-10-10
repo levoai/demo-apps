@@ -19,13 +19,12 @@ import { APIService, requestURLS } from "../constants/APIConstant";
 import actionTypes from "../constants/actionTypes";
 import responseTypes from "../constants/responseTypes";
 import {
-  NO_PRODUCTS,
   PRODUCT_NOT_BOUGHT,
-  NO_ORDERS,
   ORDER_NOT_RETURNED,
   INVALID_COUPON_CODE,
   COUPON_APPLIED,
   COUPON_NOT_APPLIED,
+  BACKEND_ERR
 } from "../constants/messages";
 
 /**
@@ -69,7 +68,7 @@ export function* getProducts(param) {
     }
   } catch (e) {
     yield put({ type: actionTypes.FETCHED_DATA, payload: recievedResponse });
-    callback(responseTypes.FAILURE, NO_PRODUCTS);
+    callback(responseTypes.FAILURE, BACKEND_ERR);
   }
 }
 
@@ -152,7 +151,7 @@ export function* getOrders(param) {
     }
   } catch (e) {
     yield put({ type: actionTypes.FETCHED_DATA, payload: recievedResponse });
-    callback(responseTypes.FAILURE, NO_ORDERS);
+    callback(responseTypes.FAILURE, BACKEND_ERR);
   }
 }
 
