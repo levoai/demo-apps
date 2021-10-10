@@ -183,6 +183,43 @@ def create_reports():
             logger.error("Failed to create report: "+str(e))   
         
 
+def create_orders_for_user(user: str):
+    """Create two orders for the specified user"""
+    from .shop.models import Order, Product
+    from user.models import User
+
+    user = User.objects.get(email=user)
+
+    userOrders = Order.objects.filter(user=user)
+    if userOrders.exists():
+        return
+
+    Order.objects.create(
+        user=user,
+        product=Product.objects.get(id=1),
+        quantity=1,
+        created_on=timezone.now(),
+    )
+
+    Order.objects.create(
+        user=user,
+        product=Product.objects.get(id=2),
+        quantity=1,
+        created_on=timezone.now(),
+    )
+
+    return
+
+
+
+def create_orders():
+    """Pre-populuate orders for the two pre-defined users"""
+    users = ["victim.one@example.com", "victim.two@example.com"]
+    create_orders_for_user(user=users[0])
+    create_orders_for_user(user=users[1])
+
+
+
 class CRAPIConfig(AppConfig):
     """
     Stores all meta data of crapi application
@@ -208,3 +245,8 @@ class CRAPIConfig(AppConfig):
             create_reports()
         except Exception as e:
             logger.error("Cannot Pre Populate Reports: "+str(e))
+
+        try:
+            create_orders()
+        except Exception as e:
+            logger.error("Cannot Pre Populate Orders: " + str(e))

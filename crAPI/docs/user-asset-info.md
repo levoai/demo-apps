@@ -33,7 +33,17 @@ Below are IDs of vehicle service reports filed by the users:
 | victim.two@example.com | 3, & 4             |
 | hacker@darkweb.com     | 5, & 6             |
 
+### User's Previous Shop Orders
 
+Below are IDs of shop orders placed by the users:
+
+| UserID                 | Service Report IDs |
+| ---------------------- | ------------------ |
+| victim.one@example.com | 1, & 2             |
+| victim.two@example.com | 3, & 4             |
+| hacker@darkweb.com     | No Orders          |
+
+Please note that these orders are pre-poluated on the first start of crAPI. If you manipulate these orders via the shop API endpoints, these order IDs may not be consistent.
 
 [0]: ./challenges.md
 [Hack Pad]: ./hackpad.md
