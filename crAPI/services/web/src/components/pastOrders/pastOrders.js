@@ -18,7 +18,7 @@ import "./styles.css";
 
 import React from "react";
 import PropTypes from "prop-types";
-import { PageHeader, Row, Col, Layout, Card, Button, Avatar } from "antd";
+import { PageHeader, Row, Col, Layout, Card, Button, Avatar, Descriptions } from "antd";
 import { RollbackOutlined } from "@ant-design/icons";
 import { connect } from "react-redux";
 import { formatDateFromIso } from "../../utils";
@@ -36,9 +36,7 @@ const PastOrders = (props) => {
   const renderOrderDescription = (order) => (
     <>
       <PageHeader
-        title={`${formatDateFromIso(order.created_on)}, ${
-          order.product.name
-        }, $${order.product.price * order.quantity}`}
+        title={`${order.product.name}`}
         extra={[
           <Button
             type="primary"
@@ -52,7 +50,15 @@ const PastOrders = (props) => {
             {order.status === "delivered" ? "Return" : order.status}
           </Button>,
         ]}
-      />
+      >
+        <Descriptions size="small" column={3}>
+          <Descriptions.Item label="Order ID"> {order.id} </Descriptions.Item>
+          <Descriptions.Item label="Quantity"> {order.quantity}  </Descriptions.Item>
+          <Descriptions.Item label="Total Price"> ${order.product.price * order.quantity} </Descriptions.Item>
+          <Descriptions.Item label="Status"> {order.status }</Descriptions.Item>
+          <Descriptions.Item label="Order Date"> {formatDateFromIso(order.created_on)} </Descriptions.Item>
+        </Descriptions>
+      </PageHeader>
     </>
   );
 
