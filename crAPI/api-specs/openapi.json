@@ -3082,39 +3082,6 @@
               "format": "int32",
               "example": 2
             }
-          },
-          {
-            "name": "Host",
-            "in": "header",
-            "description": "",
-            "required": false,
-            "style": "simple",
-            "schema": {
-              "type": "string",
-              "example": "localhost:8888"
-            }
-          },
-          {
-            "name": "Cache-Control",
-            "in": "header",
-            "description": "",
-            "required": false,
-            "style": "simple",
-            "schema": {
-              "type": "string",
-              "example": "max-age=0"
-            }
-          },
-          {
-            "name": "Accept-Encoding",
-            "in": "header",
-            "description": "",
-            "required": false,
-            "style": "simple",
-            "schema": {
-              "type": "string",
-              "example": "gzip, deflate, br"
-            }
           }
         ],
         "responses": {
