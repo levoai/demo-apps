@@ -1,5 +1,5 @@
 MalSchema - Demo API schema non-conformance
-=========================
+============================================
 
 Levo makes *schema conformance testing* (aka contract tests) for REST API & GraphQL super easy!
 
@@ -46,14 +46,13 @@ Adapt these instructions if running on Windows Powershell.
     # Login into the Levo SaaS portal
     levo login
 
-    # Default config. Runs unit tests for all API operations with `not_a_server_error` check
-    levo test --schema $SCHEMA_URL --target-url $TARGET_URL
+    # Runs all schema conformance tests for all API operations
+    levo test-conformance --schema $SCHEMA_URL --target-url $TARGET_URL
 
-    # Select what to test. Only `POST` operations that have `booking` in their path
-    levo test --schema $SCHEMA_URL --target-url $TARGET_URL -E booking -M POST
+    # Provide custom headers (e.g. Authorization)
+    levo test-conformance --schema $SCHEMA_URL --target-url $TARGET_URL -H "Authorization: Bearer <token>"
 
-    # Provide custom headers
-    levo test --schema $SCHEMA_URL --target-url $TARGET_URL -H "Authorization: Bearer <token>"
+Now you can view the test results in the https://levo.ai SaaS console.
 
 Shutdown
 ------------
@@ -64,7 +63,7 @@ Use <CTRL-C> to abort, and then shutdown the application via `docker-compose`:
     docker-compose down
 
 Setup Using Source
------
+------------------
 Setup from source requires you to clone the `MalSchema` Git repo.
 
 To run the demo app, you need the recent version of `docker-compose <https://docs.docker.com/compose/install/>`_.
@@ -78,7 +77,7 @@ Start the application via `docker-compose` and specifying an alternate compose c
 Now follow rest of the 'Quick Setup' instructions after the `docker-compose` step.
 
 Troubleshooting FAQ
-------------
+-------------------
 1. If `docker-compose up` results in apt-get errors as shown below, use the instructions below to clean the image store, and try again.
 
 .. code::
