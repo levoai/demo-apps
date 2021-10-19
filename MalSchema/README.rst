@@ -29,13 +29,13 @@ Note, the app will run in the current terminal.
 
 You can download the demo app's OAS file at http://0.0.0.0:5000/api/openapi.json
 
-**Install Levo's CLI** by following the onboarding instructions in the Levo SaaS portal.
+If not already installed, **Install Levo's CLI** by following the onboarding instructions in the Levo SaaS portal.
 
 
 Command-line
 ------------
 
-Below are examples of how you can run Levo CLI. Instructions assume a Mac OSX or Linux environment.
+Below are examples of running schema conformance tests using Levo CLI. Instructions assume a Mac OSX or Linux environment.
 Adapt these instructions if running on Windows Powershell.
 
 .. code:: bash
@@ -49,7 +49,7 @@ Adapt these instructions if running on Windows Powershell.
     # Runs all schema conformance tests for all API operations
     levo test-conformance --schema $SCHEMA_URL --target-url $TARGET_URL
 
-    # Provide custom headers (e.g. Authorization)
+    # Provide custom headers (e.g. Authorization if required)
     levo test-conformance --schema $SCHEMA_URL --target-url $TARGET_URL -H "Authorization: Bearer <token>"
 
 Now you can view the test results in the https://levo.ai SaaS console.
