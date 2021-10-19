@@ -1,5 +1,5 @@
 MalSchema - Demo API schema non-conformance
-=========================
+============================================
 
 Levo makes *schema conformance testing* (aka contract tests) for REST API & GraphQL super easy!
 
@@ -29,13 +29,13 @@ Note, the app will run in the current terminal.
 
 You can download the demo app's OAS file at http://0.0.0.0:5000/api/openapi.json
 
-**Install Levo's CLI** by following the onboarding instructions in the Levo SaaS portal.
+If not already installed, **Install Levo's CLI** by following the onboarding instructions in the Levo SaaS portal.
 
 
 Command-line
 ------------
 
-Below are examples of how you can run Levo CLI. Instructions assume a Mac OSX or Linux environment.
+Below are examples of running schema conformance tests using Levo CLI. Instructions assume a Mac OSX or Linux environment.
 Adapt these instructions if running on Windows Powershell.
 
 .. code:: bash
@@ -46,14 +46,13 @@ Adapt these instructions if running on Windows Powershell.
     # Login into the Levo SaaS portal
     levo login
 
-    # Default config. Runs unit tests for all API operations with `not_a_server_error` check
-    levo test --schema $SCHEMA_URL --target-url $TARGET_URL
+    # Runs all schema conformance tests for all API operations
+    levo test-conformance --schema $SCHEMA_URL --target-url $TARGET_URL
 
-    # Select what to test. Only `POST` operations that have `booking` in their path
-    levo test --schema $SCHEMA_URL --target-url $TARGET_URL -E booking -M POST
+    # Provide custom headers (e.g. Authorization if required)
+    levo test-conformance --schema $SCHEMA_URL --target-url $TARGET_URL -H "Authorization: Bearer <token>"
 
-    # Provide custom headers
-    levo test --schema $SCHEMA_URL --target-url $TARGET_URL -H "Authorization: Bearer <token>"
+Now you can view the test results in the https://levo.ai SaaS console.
 
 Shutdown
 ------------
@@ -64,7 +63,7 @@ Use <CTRL-C> to abort, and then shutdown the application via `docker-compose`:
     docker-compose down
 
 Setup Using Source
------
+------------------
 Setup from source requires you to clone the `MalSchema` Git repo.
 
 To run the demo app, you need the recent version of `docker-compose <https://docs.docker.com/compose/install/>`_.
@@ -78,7 +77,7 @@ Start the application via `docker-compose` and specifying an alternate compose c
 Now follow rest of the 'Quick Setup' instructions after the `docker-compose` step.
 
 Troubleshooting FAQ
-------------
+-------------------
 1. If `docker-compose up` results in apt-get errors as shown below, use the instructions below to clean the image store, and try again.
 
 .. code::
