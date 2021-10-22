@@ -1,6 +1,6 @@
 # Dev Env Setup
 
-## Install & start instuctions
+## Install & start instructions
 
 - Install python venv 
 - Activate the venv
