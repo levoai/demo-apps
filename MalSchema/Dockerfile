@@ -13,4 +13,6 @@ RUN apt-get update \
 COPY app/ /example/app/
 COPY main.py /example
 
+EXPOSE 5000
+
 CMD [ "python", "/example/main.py" ]
