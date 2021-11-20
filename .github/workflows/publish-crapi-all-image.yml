@@ -3,7 +3,7 @@ name: Build and publish crapi-all image
 on:
   pull_request:
     paths:
-      - '.github/workflows/*-all-image.yml'
+      - '.github/workflows/*-crapi-all-image.yml'
       - 'crAPI/**'
   push:
     branches:

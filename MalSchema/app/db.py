@@ -1,5 +1,6 @@
 # type: ignore
 import asyncio
+import os
 from typing import Generator, List, Optional
 
 import asyncpg
@@ -10,7 +11,9 @@ from . import models
 
 async def init_db(app: web.Application) -> Generator[None, None, None]:
     sub_app = app._subapps[0]  # Connexion adds a subapp
-    sub_app["db"] = await asyncpg.create_pool(app["config"]["DB_URL"])
+    db_url = os.environ.get("DATABASE_URL", app["config"]["DB_URL"])
+    print(f"Connecting to {db_url}")
+    sub_app["db"] = await asyncpg.create_pool(db_url)
     yield
     await sub_app["db"].close()
 

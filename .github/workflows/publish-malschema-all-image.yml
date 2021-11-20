@@ -1,0 +1,48 @@
+name: Build and publish malschema-all image
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/*-malschema-all-image.yml'
+      - 'MalSchema/**'
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-docker-image:
+    name: Build malschema-all image
+    if: ${{ github.ref != 'refs/heads/main' }}
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: latest
+        uses: aevea/action-kaniko@master
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+          image: levoai/malschema
+          path: ./MalSchema
+          tag: latest
+          cache: false
+          extra_args: "--no-push"
+
+  publish-docker-image:
+    name: Publish malschema-all latest image
+    if: ${{ github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: latest
+        uses: aevea/action-kaniko@master
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+          image: levoai/malschema
+          path: ./MalSchema
+          tag: latest
+          cache: false
+
