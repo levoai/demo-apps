@@ -56,7 +56,7 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
           image: levoai/malschema-all
-          build_file: ./MalSchema/Dockerfile-all
+          build_file: ./Dockerfile-all
           path: ./MalSchema
           tag: latest
           extra_args: "--no-push"
@@ -74,6 +74,6 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
           image: levoai/malschema-all
-          build_file: ./MalSchema/Dockerfile-all
+          build_file: ./Dockerfile-all
           path: ./MalSchema
           tag: latest
