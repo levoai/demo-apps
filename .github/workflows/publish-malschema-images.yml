@@ -1,0 +1,84 @@
+name: Build and publish malschema images
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/*-malschema-images.yml'
+      - 'MalSchema/**'
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-malschema-image:
+    name: Build malschema image
+    if: ${{ github.ref != 'refs/heads/main' }}
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: latest
+        uses: aevea/action-kaniko@master
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+          image: levoai/malschema
+          path: ./MalSchema
+          tag: latest
+          cache: false
+          extra_args: "--no-push"
+
+  publish-malschema-image:
+    if: ${{ github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: MalSchema Dockerhub push
+        uses: aevea/action-kaniko@master
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+          image: levoai/malschema
+          path: ./MalSchema
+          tag: latest
+          cache: false
+
+  build-malschema-all-image:
+    name: Build malschema-all image
+    if: ${{ github.ref != 'refs/heads/main' }}
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: latest
+        uses: aevea/action-kaniko@master
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+          image: levoai/malschema-all
+          build_file: ./MalSchema/Dockerfile-all
+          path: ./MalSchema
+          tag: latest
+          cache: false
+          extra_args: "--no-push"
+
+  publish-malschema-all-image:
+    name: Publish malschema-all latest image
+    if: ${{ github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: latest
+        uses: aevea/action-kaniko@master
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+          image: levoai/malschema-all
+          build_file: ./MalSchema/Dockerfile-all
+          path: ./MalSchema
+          tag: latest
+          cache: false
+
