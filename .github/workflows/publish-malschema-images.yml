@@ -26,7 +26,6 @@ jobs:
           image: levoai/malschema
           path: ./MalSchema
           tag: latest
-          cache: false
           extra_args: "--no-push"
 
   publish-malschema-image:
@@ -43,7 +42,6 @@ jobs:
           image: levoai/malschema
           path: ./MalSchema
           tag: latest
-          cache: false
 
   build-malschema-all-image:
     name: Build malschema-all image
@@ -61,7 +59,6 @@ jobs:
           build_file: ./MalSchema/Dockerfile-all
           path: ./MalSchema
           tag: latest
-          cache: false
           extra_args: "--no-push"
 
   publish-malschema-all-image:
@@ -80,5 +77,3 @@ jobs:
           build_file: ./MalSchema/Dockerfile-all
           path: ./MalSchema
           tag: latest
-          cache: false
-
