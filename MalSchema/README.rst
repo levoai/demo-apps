@@ -24,10 +24,10 @@ Start the application via `docker-compose` in the directory where you downloaded
 
     docker-compose up
 
-It will spin up a web server available at ``http://0.0.0.0:5000``. You can take a look at API documentation at ``http://0.0.0.0:5000/api/ui/``.
+It will spin up a web server available at ``http://0.0.0.0:9000``. You can take a look at API documentation at ``http://0.0.0.0:9000/api/ui/``.
 Note, the app will run in the current terminal.
 
-You can download the demo app's OAS file at http://0.0.0.0:5000/api/openapi.json
+You can download the demo app's OAS file at http://0.0.0.0:9000/api/openapi.json
 
 If not already installed, **Install Levo's CLI** by following the onboarding instructions in the Levo SaaS portal.
 
@@ -40,8 +40,8 @@ Adapt these instructions if running on Windows Powershell.
 
 .. code:: bash
 
-    export SCHEMA_URL="http://host.docker.internal:5000/api/openapi.json"
-    export TARGET_URL="http://host.docker.internal:5000/"
+    export SCHEMA_URL="http://host.docker.internal:9000/api/openapi.json"
+    export TARGET_URL="http://host.docker.internal:9000/"
 
     # Login into the Levo SaaS portal
     levo login

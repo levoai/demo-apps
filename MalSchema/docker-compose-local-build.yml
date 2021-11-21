@@ -5,7 +5,7 @@ services:
     image: levoai/malschema:latest
     build: .
     ports:
-      - "5000:5000"
+      - "9000:9000"
     environment:
       - PYTHONUNBUFFERED=0
     depends_on:

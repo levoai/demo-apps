@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-waitport() {
+wait_port() {
   while ! nc -z localhost $1 ; do sleep 0.3 ; done
 }
 
@@ -20,6 +20,8 @@ print_banner "Starting Postgres"
 /usr/local/bin/docker-entrypoint.sh postgres &
 
 # Wait for Postgres to come up fully
-waitport 5432
+wait_port 5432
+
+psql test -h localhost -d schemathesis-example -f database/schema.sql || true
 
 python3 /example/main.py
