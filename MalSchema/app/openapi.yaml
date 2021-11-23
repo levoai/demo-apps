@@ -4,7 +4,7 @@ info:
   description: A flights booking system.
   version: 1.0.0
 servers:
-  - url: http://127.0.0.1:5000/api
+  - url: http://127.0.0.1:9000/api
 paths:
   /bookings/{booking_id}:
     parameters:

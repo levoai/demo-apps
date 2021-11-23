@@ -16,6 +16,7 @@ COPY requirements.txt /example
 
 RUN pip3 install -r /example/requirements.txt
 COPY app/ /example/app/
+COPY database/ /example/database/
 COPY main.py /example
 
 ENV PORT 80

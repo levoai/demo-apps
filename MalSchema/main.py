@@ -15,4 +15,4 @@ def main(config_path, port):
 
 
 if __name__ == "__main__":
-    main("config.json", port=os.getenv("PORT", 5000))
+    main("config.json", port=os.getenv("PORT", 9000))
