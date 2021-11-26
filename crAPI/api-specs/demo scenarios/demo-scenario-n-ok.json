@@ -1,0 +1,943 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "OWASP crAPI API - Demo Scenario N-OK",
+    "version": "1.0"
+  },
+  "externalDocs": {
+    "description": "Completely Ridiculous API - Highly Vulnerable Demo App",
+    "url": "https://github.com/levoai/demo-apps/tree/main/crAPI"
+  },
+  "paths": {
+    
+    "/identity/api/v2/vehicle/{vehicleId}/location": {
+      "get": {
+        "operationId": "OP_IDENT_VEHICLE_GET_LOCATION",
+        "summary": "Get user's vehicle location",
+        "tags": [
+          "Identity / Vehicle"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "carId",
+                    "fullName",
+                    "vehicleLocation"
+                  ],
+                  "properties": {
+                    "carId": {
+                      "type": "string"
+                    },
+                    "fullName": {
+                      "type": "string"
+                    },
+                    "vehicleLocation": {
+                      "type": "object",
+                      "required": [
+                        "id",
+                        "latitude",
+                        "longitude"
+                      ],
+                      "properties": {
+                        "id": {
+                          "type": "number"
+                        },
+                        "latitude": {
+                          "type": "string"
+                        },
+                        "longitude": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "description": ""
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "message",
+                    "status"
+                  ],
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "number"
+                    }
+                  }
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "vehicleId",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ]
+    },
+
+    "/workshop/api/mechanic/mechanic_report": {
+      "get": {
+        "summary": "Get the service report specified by the report_id query parameter",
+        "operationId": "OP_WORKSHOP_MECHANIC_GET_SVC_REPORT",
+        "tags": [
+          "Workshop / Mechanic"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "report_id",
+            "in": "query",
+            "description": "",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "example": 2
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "Server": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "openresty/1.17.8.2"
+                  }
+                }
+              },
+              "Date": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "Tue, 21 Sep 2021 22:33:37 GMT"
+                  }
+                }
+              },
+              "Transfer-Encoding": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "chunked"
+                  }
+                }
+              },
+              "Allow": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "GET, HEAD, OPTIONS"
+                  }
+                }
+              },
+              "Vary": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "Origin, Cookie"
+                  }
+                }
+              },
+              "X-Frame-Options": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "SAMEORIGIN"
+                  }
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Service Request",
+                  "required": [
+                    "id",
+                    "mechanic",
+                    "vehicle",
+                    "problem_details",
+                    "status",
+                    "created_on"
+                  ],
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer",
+                      "format": "int32"
+                    },
+                    "mechanic": {
+                      "title": "Mechanic",
+                      "required": [
+                        "id",
+                        "mechanic_code",
+                        "user"
+                      ],
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer",
+                          "format": "int32"
+                        },
+                        "mechanic_code": {
+                          "type": "string"
+                        },
+                        "user": {
+                          "title": "user",
+                          "required": [
+                            "email",
+                            "number"
+                          ],
+                          "type": "object",
+                          "properties": {
+                            "email": {
+                              "type": "string"
+                            },
+                            "number": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      },
+                      "example": {
+                        "id": 1,
+                        "mechanic_code": "TRAC_JHN",
+                        "user": {
+                          "email": "jhon@example.com",
+                          "number": "415-654-3212"
+                        }
+                      }
+                    },
+                    "vehicle": {
+                      "title": "vehicle",
+                      "required": [
+                        "id",
+                        "vin",
+                        "owner"
+                      ],
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer",
+                          "format": "int32"
+                        },
+                        "vin": {
+                          "type": "string"
+                        },
+                        "owner": {
+                          "title": "owner",
+                          "required": [
+                            "email",
+                            "number"
+                          ],
+                          "type": "object",
+                          "properties": {
+                            "email": {
+                              "type": "string"
+                            },
+                            "number": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      },
+                      "example": {
+                        "id": 23,
+                        "vin": "0FOPP90TFEE927859",
+                        "owner": {
+                          "email": "victim.one@example.com",
+                          "number": "4156895423"
+                        }
+                      }
+                    },
+                    "problem_details": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string"
+                    },
+                    "created_on": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    
+    "/workshop/api/shop/orders/{order_id}": {
+      "put": {
+        "operationId": "OP_WORKSHOP_SHOP_UPDATE_ORDER",
+        "summary": "Update the order specified by the order_id.",
+        "tags": [
+          "Workshop / Shop"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "order_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductQuantity"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "orders"
+                  ],
+                  "properties": {
+                    "orders": {
+                      "$ref": "#/components/schemas/Order"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "message"
+                  ],
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "The value of 'status' has to be 'delivered', 'return pending' or 'returned'"
+                  }
+                }
+              }
+            },
+            "description": "Bad Request!"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "message"
+                  ],
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "You are not allowed to access this resource!'"
+                  }
+                }
+              }
+            },
+            "description": "Forbidden!"
+          }
+        }
+      },
+      "get": {
+        "operationId": "OP_WORKSHOP_SHOP_GET_ORDER_ID",
+        "summary": "Get the order details for order identified by order_id.",
+        "tags": [
+          "Workshop / Shop"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "order_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "orders"
+                  ],
+                  "properties": {
+                    "orders": {
+                      "$ref": "#/components/schemas/Order"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "message"
+                  ],
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "You are not allowed to access this resource!'"
+                  }
+                }
+              }
+            },
+            "description": "Forbidden!"
+          }
+        }
+      }
+    },
+    
+    "/workshop/api/merchant/contact_mechanic": {
+      "post": {
+        "operationId": "OP_WORKSHOP_MECHANIC_CONTACT_MECHANIC",
+        "summary": "Contact a mechanic for a service request on your vehicle",
+        "tags": [
+          "Workshop / Mechanic"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "mechanic_api",
+                  "mechanic_code",
+                  "number_of_repeats",
+                  "problem_details",
+                  "repeat_request_if_failed",
+                  "vin"
+                ],
+                "properties": {
+                  "number_of_repeats": {
+                    "type": "number"
+                  },
+                  "mechanic_api": {
+                    "type": "string"
+                  },
+                  "vin": {
+                    "type": "string"
+                  },
+                  "repeat_request_if_failed": {
+                    "type": "boolean"
+                  },
+                  "problem_details": {
+                    "type": "string"
+                  },
+                  "mechanic_code": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "response_from_mechanic_api",
+                    "status"
+                  ],
+                  "properties": {
+                    "response_from_mechanic_api": {
+                      "type": "object",
+                      "required": [
+                        "id",
+                        "sent",
+                        "report_link"
+                      ],
+                      "properties": {
+                        "id": {
+                          "type": "integer",
+                          "format": "int32"
+                        },
+                        "sent": {
+                          "type": "boolean"
+                        },
+                        "report_link": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "status": {
+                      "type": "integer",
+                      "format": "int32"
+                    }
+                  }
+                },
+                "example": {
+                  "response_from_mechanic_api": {
+                    "id": 17,
+                    "sent": true,
+                    "report_link": "http://localhost:8888/workshop/api/mechanic/mechanic_report?report_id=17"
+                  },
+                  "status": 200
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "message"
+                  ],
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "Bad Request!"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "message"
+                  ],
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      },
+      "parameters": []
+    }
+
+  },
+  "components": {
+    "schemas": {
+      "Order": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "readOnly": true
+          },
+          "user": {
+            "$ref": "#/components/schemas/User"
+          },
+          "product": {
+            "$ref": "#/components/schemas/Product"
+          },
+          "quantity": {
+            "type": "integer"
+          },
+          "status": {
+            "$ref": "#/components/schemas/OrderStatusEnum"
+          },
+          "created_on": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "created_on",
+          "id",
+          "product",
+          "user"
+        ]
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "number": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "email"
+        ]
+      },
+      "NewProduct": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "price": {
+            "type": "string",
+            "format": "decimal",
+            "pattern": "^\\d{0,18}(\\.\\d{0,2})?$"
+          },
+          "image_url": {
+            "type": "string",
+            "format": "url"
+          }
+        },
+        "required": [
+          "image_url",
+          "name",
+          "price"
+        ]
+      },
+      "Product": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "readOnly": true
+          },
+          "name": {
+            "type": "string"
+          },
+          "price": {
+            "type": "string",
+            "format": "decimal",
+            "pattern": "^\\d{0,18}(\\.\\d{0,2})?$"
+          },
+          "image_url": {
+            "type": "string",
+            "format": "url"
+          }
+        },
+        "required": [
+          "id",
+          "image_url",
+          "name",
+          "price"
+        ]
+      },
+      "OrderStatusEnum": {
+        "enum": [
+          "delivered",
+          "return pending",
+          "returned"
+        ],
+        "type": "string"
+      },
+      "ProductQuantity": {
+        "type": "object",
+        "properties": {
+          "product_id": {
+            "type": "integer"
+          },
+          "quantity": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "product_id",
+          "quantity"
+        ]
+      },
+      "Post": {
+        "title": "Post",
+        "required": [
+          "id",
+          "title",
+          "content",
+          "author",
+          "comments",
+          "authorid",
+          "CreatedAt"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "content": {
+            "type": "string"
+          },
+          "author": {
+            "$ref": "#/components/schemas/Author"
+          },
+          "comments": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": ""
+          },
+          "authorid": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "CreatedAt": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "id": "ConZLXacq3MqhbLQDrbNLf",
+          "title": "Title 3",
+          "content": "Hello world 3",
+          "author": {
+            "nickname": "Hacker",
+            "email": "hacker@darkweb.com",
+            "vehicleid": "abac4018-5a38-466c-ab7f-361908afeab6",
+            "profile_pic_url": "",
+            "created_at": "2021-09-16T01:46:32.432Z"
+          },
+          "comments": [],
+          "authorid": 3,
+          "CreatedAt": "2021-09-16T01:46:32.432Z"
+        }
+      },
+      "Author": {
+        "title": "Author",
+        "required": [
+          "nickname",
+          "email",
+          "vehicleid",
+          "profile_pic_url",
+          "created_at"
+        ],
+        "type": "object",
+        "properties": {
+          "nickname": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "vehicleid": {
+            "type": "string"
+          },
+          "profile_pic_url": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "nickname": "Hacker",
+          "email": "hacker@darkweb.com",
+          "vehicleid": "abac4018-5a38-466c-ab7f-361908afeab6",
+          "profile_pic_url": "",
+          "created_at": "2021-09-16T01:46:32.432Z"
+        }
+      },
+      "VideoForm": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "videoName": {
+            "type": "string"
+          },
+          "video_url": {
+            "type": "string"
+          },
+          "conversion_params": {
+            "type": "string"
+          }
+        }
+      },
+      "CRAPIResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "status": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "OtpForm": {
+        "required": [
+          "email",
+          "otp",
+          "password"
+        ],
+        "type": "object",
+        "properties": {
+          "otp": {
+            "maxLength": 4,
+            "minLength": 3,
+            "type": "string"
+          },
+          "password": {
+            "maxLength": 30,
+            "minLength": 5,
+            "type": "string"
+          },
+          "email": {
+            "maxLength": 30,
+            "minLength": 5,
+            "type": "string"
+          }
+        }
+      },
+      "JwtResponse": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "LoginWithEmailToken": {
+        "required": [
+          "email",
+          "token"
+        ],
+        "type": "object",
+        "properties": {
+          "email": {
+            "maxLength": 60,
+            "minLength": 3,
+            "type": "string"
+          },
+          "token": {
+            "maxLength": 60,
+            "minLength": 3,
+            "type": "string"
+          }
+        }
+      },
+      "Coupon": {
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "string"
+          },
+          "coupon_code": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "amount",
+          "coupon_code"
+        ]
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}
