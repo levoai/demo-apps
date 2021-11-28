@@ -11,7 +11,7 @@ import { getMapUrl } from "../../utils";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import responseTypes from "../../constants/responseTypes";
-import { getVehiclesAction, refreshLocationAction } from "../../actions/vehicleActions";
+import { getVehiclesAction, refreshLocationActionV2 } from "../../actions/vehicleActions";
 import "./hackCard.css"
 
 
@@ -32,7 +32,7 @@ const HackLocation = ({ accessToken, getVehicles, refreshLocation }) => {
         getVehicles({ callback, accessToken });
     }, [accessToken, getVehicles]);
     
-    const defaultLocation = {"id" : 0, "latitude" : "0", "longitude" : "0"};
+    const defaultLocation = {"carId" : 0, "fullName" : "", "vehicleLocation" : {"id" : 0, "latitude" : "0", "longitude" : "0"} };
     const [vehicleLocation, setLocation] = React.useState(defaultLocation);
     
     const handleGetLocation = useCallback((carId) => {
@@ -57,7 +57,8 @@ const HackLocation = ({ accessToken, getVehicles, refreshLocation }) => {
                     <span>
                         You can get the location info for any vehicle in crAPI,
                         if you know the UUID of the vehicle. You can refer to the
-                        GitHub page to see <a href="https://github.com/levoai/demo-apps/blob/main/crAPI/docs/user-asset-info.md#users-vechicle-uuid">
+                        GitHub page to see <a href="https://github.com/levoai/demo-apps/blob/main/crAPI/docs/user-asset-info.md#users-vechicle-uuid"
+                            target="_blank" rel="noopener noreferrer">
                             documented UUIDs</a> of other vehicles.
                         <br />
                         This is a serious vulnerability that allows unauthorized
@@ -84,13 +85,14 @@ const HackLocation = ({ accessToken, getVehicles, refreshLocation }) => {
                             }
                         />
                         <br/> <br/>
+                        <p> Vehicle Owner Name: <b>{vehicleLocation.fullName}</b> </p>
                         <iframe
                             className="map-iframe"
                             height="360"
                             width="350"
                             src={getMapUrl(
-                                vehicleLocation.latitude,
-                                vehicleLocation.longitude
+                                vehicleLocation.vehicleLocation.latitude,
+                                vehicleLocation.vehicleLocation.longitude
                             )}
                             title="Map"
                         />
@@ -109,7 +111,7 @@ const mapStateToProps = ({ userReducer: { accessToken } }) => {
 };
 
 const mapDispatchToProps = {
-    refreshLocation: refreshLocationAction,
+    refreshLocation: refreshLocationActionV2,
     getVehicles: getVehiclesAction,
 };
 

@@ -296,6 +296,49 @@ export function* refreshLocation(param) {
   }
 }
 
+/**
+ * change location of the vehicle
+ * @param { accessToken, callback, vehicle_id } param
+ * accessToken: access token of the user
+ * callback : callback method
+ * vehicle_id: vehicle_id of the vehicle whose location is to be changed
+ */
+ export function* refreshLocationV2(param) {
+  const { accessToken, callback, carId } = param;
+  let recievedResponse = {};
+  try {
+    yield put({ type: actionTypes.FETCHING_DATA });
+    const getUrl =
+      APIService.JAVA_MICRO_SERVICES + requestURLS.REFRESH_LOCATION;
+    const headers = {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${accessToken}`,
+    };
+    const ResponseJson = yield fetch(getUrl.replace("<carId>", carId), {
+      headers,
+      method: "GET",
+    }).then((response) => {
+      recievedResponse = response;
+      return response.json();
+    });
+
+    yield put({ type: actionTypes.FETCHED_DATA, payload: recievedResponse });
+    if (recievedResponse.ok) {
+      yield put({
+        type: actionTypes.REFRESHED_LOCATION,
+        payload: { carId, location: ResponseJson },
+      });
+      callback(responseTypes.SUCCESS, ResponseJson);
+    } else {
+      callback(responseTypes.FAILURE, ResponseJson.message);
+    }
+  } catch (e) {
+    const errMsg = (e.message === "Failed to fetch") ? BACKEND_ERR : LOC_NOT_REFRESHED
+    yield put({ type: actionTypes.FETCHED_DATA, payload: recievedResponse });
+    callback(responseTypes.FAILURE, errMsg);
+  }
+}
+
 export function* vehicleActionWatcher() {
   yield takeLatest(actionTypes.RESEND_MAIL, resendMail);
   yield takeLatest(actionTypes.VERIFY_VEHICLE, verifyVehicle);
@@ -303,4 +346,5 @@ export function* vehicleActionWatcher() {
   yield takeLatest(actionTypes.GET_MECHANICS, getMechanics);
   yield takeLatest(actionTypes.CONTACT_MECHANIC, contactMechanic);
   yield takeLatest(actionTypes.REFRESH_LOCATION, refreshLocation);
+  yield takeLatest(actionTypes.REFRESH_LOCATION_V2, refreshLocationV2);
 }
