@@ -425,6 +425,14 @@
                     "type": "string"
                   }
                 }
+              },
+              "example": {
+                "mechanic_api": "http://localhost:8000/workshop/api/mechanic/receive_report",
+                "mechanic_code": "TRAC_JHN",
+                "number_of_repeats": 0,
+                "repeat_request_if_failed": false,
+                "problem_details": "My car has engine trouble, and I need urgent help!",
+                "vin": "0BZCX25UTBJ987271"
               }
             }
           }
