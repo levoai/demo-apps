@@ -76,11 +76,11 @@ const HackPad = ({history, accessToken}) => {
           </Content>
 
           <Content className="hackpad__card">
-            <HackLocation accessToken={accessToken} />
+            <HackServiceReport accessToken={accessToken} />
           </Content>
 
           <Content className="hackpad__card">
-            <HackServiceReport accessToken={accessToken} />
+            <HackLocation accessToken={accessToken} />
           </Content>
 
         </TabPane>

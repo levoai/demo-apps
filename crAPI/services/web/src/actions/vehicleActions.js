@@ -68,6 +68,15 @@ export const refreshLocationAction = ({ accessToken, callback, ...data }) => {
   };
 };
 
+export const refreshLocationActionV2 = ({ accessToken, callback, ...data }) => {
+  return {
+    type: actionTypes.REFRESH_LOCATION_V2,
+    accessToken,
+    callback,
+    ...data,
+  };
+};
+
 export const getUserReportsAction = ({ callback, accessToken }) => {
   return {
     type: actionTypes.GET_USER_REPORTS,
