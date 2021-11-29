@@ -31,6 +31,7 @@ import {
 import ClipboardCopy from "../clipboardCopy/clipboardCopy";
 import HackLocation from "./hackLocation.js"
 import HackServiceReport from "./hackServiceReport";
+import HackSSRF from "./hackSSRF";
 import ApiExplorer from "../apiExplorer/apiExplorer";
 
 
@@ -83,8 +84,12 @@ const HackPad = ({history, accessToken}) => {
             <HackLocation accessToken={accessToken} />
           </Content>
 
+          <Content className="hackpad__card">
+            <HackSSRF accessToken={accessToken} />
+          </Content>
+
         </TabPane>
-        
+
         <TabPane tab="API Explorer" key="2">
           <ApiExplorer accessToken={accessToken} />
         </TabPane>
