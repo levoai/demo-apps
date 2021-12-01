@@ -1,7 +1,7 @@
 {
   "openapi": "3.0.1",
   "info": {
-    "title": "OWASP crAPI API - Demo Scenario N-OK",
+    "title": "OWASP crAPI API - Demo Scenario A-OK",
     "version": "1.0"
   },
   "externalDocs": {
@@ -9,7 +9,169 @@
     "url": "https://github.com/levoai/demo-apps/tree/main/crAPI"
   },
   "paths": {
-    
+
+    "/": {
+      "get": {
+        "operationId": "OP_GET_HOME",
+        "summary": "App homepage",
+        "tags": [
+          "Home"
+        ],
+        "security": [],
+        "responses": {
+          "200": {
+            "content": {
+              "text/html": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      },
+      "parameters": []
+    },
+
+    "/workshop/api/shop/orders/all": {
+      "get": {
+        "operationId": "OP_WORKSHOP_SHOP_GET_ORDERS",
+        "summary": "Get user's past orders",
+        "tags": [
+          "Workshop / Shop"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "orders"
+                  ],
+                  "properties": {
+                    "orders": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "created_on",
+                          "id",
+                          "product",
+                          "quantity",
+                          "status",
+                          "user"
+                        ],
+                        "properties": {
+                          "quantity": {
+                            "type": "number"
+                          },
+                          "id": {
+                            "type": "number"
+                          },
+                          "status": {
+                            "type": "string"
+                          },
+                          "created_on": {
+                            "type": "string"
+                          },
+                          "user": {
+                            "type": "object",
+                            "required": [
+                              "email",
+                              "number"
+                            ],
+                            "properties": {
+                              "email": {
+                                "type": "string"
+                              },
+                              "number": {
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "product": {
+                            "type": "object",
+                            "required": [
+                              "id",
+                              "image_url",
+                              "name",
+                              "price"
+                            ],
+                            "properties": {
+                              "id": {
+                                "type": "number"
+                              },
+                              "image_url": {
+                                "type": "string"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "price": {
+                                "type": "string"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      },
+      "parameters": []
+    },
+
+    "/workshop/api/shop/return_qr_code": {
+      "get": {
+        "operationId": "OP_WORKSHOP_SHOP_GET_QRCODE",
+        "summary": "Get the return qr code image for UPS shipments.",
+        "tags": [
+          "Workshop / Shop"
+        ],
+        "security": [
+          {}
+        ],
+        "parameters": [
+          {
+            "name": "Accept",
+            "in": "header",
+            "description": "The server doesn't like image/png in accept!",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "string",
+              "example": "*/*"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            },
+            "description": "QR Code PNG Image"
+          }
+        }
+      }
+    },
+
     "/identity/api/v2/vehicle/{vehicleId}/location": {
       "get": {
         "operationId": "OP_IDENT_VEHICLE_GET_LOCATION",
