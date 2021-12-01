@@ -125,9 +125,9 @@
             "explode": true,
             "schema": {
               "type": "integer",
-              "format": "int32",
-              "example": 1
-            }
+              "format": "int32"
+            },
+            "example": 1
           }
         ],
         "responses": {
