@@ -15,6 +15,9 @@ print_banner() {
   echo ""
 }
 
+user=`whoami`
+echo "Running as $user"
+
 # Start postgres
 print_banner "Starting Postgres"
 /usr/local/bin/docker-entrypoint.sh postgres &
@@ -75,5 +78,7 @@ wait_endpoint 0.0.0.0:8000/workshop/health_check/
 cd "$(dirname "${BASH_SOURCE[0]}")"
 
 # Start Nginx to start web at the end
+# Change the /var/run/openresty directory to be owned by the nobody user
+chown nobody:nobody /var/run/openresty
 print_banner "Starting Nginx"
 /etc/nginx/nginx-wrapper.sh
