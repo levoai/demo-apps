@@ -26,14 +26,16 @@ waitport 5432
 print_banner "Starting MongoDB"
 /usr/bin/mongod -f /etc/mongod.conf --auth --fork --quiet --logpath /var/log/mongodb.log --logappend
 
-# Wait until mongo logs that it's ready (or timeout after 60s)
+# Wait until mongo logs that it's ready (or timeout after 10s)
 COUNTER=0
 grep -q 'waiting for connections on port' /var/log/mongodb.log
-while [[ $? -ne 0 && $COUNTER -lt 60 ]] ; do
-    sleep 2
-    let COUNTER+=2
+while [[ $? -ne 0 && $COUNTER -lt 10 ]] ; do
+    sleep 1
+    let COUNTER+=1
     echo "Waiting for mongo to initialize... ($COUNTER seconds so far)"
     grep -q 'waiting for connections on port' /var/log/mongodb.log
+    ls /var/log/mongodb.log
+    cat /var/log/mongodb.log
 done
 
 # Initialize the MongoDB with init users.
