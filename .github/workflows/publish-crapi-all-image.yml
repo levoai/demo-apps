@@ -100,5 +100,6 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
           image: levoai/crapi-all
+          tag: latest
           path: ./crAPI
           cache: false
