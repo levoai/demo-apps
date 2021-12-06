@@ -91,6 +91,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update \
         netcat \
         vim \
         dumb-init \
+        procps \
     && wget -qO /tmp/pubkey.gpg ${RESTY_APT_PGP} \
     && DEBIAN_FRONTEND=noninteractive apt-key add /tmp/pubkey.gpg \
     && rm /tmp/pubkey.gpg \
