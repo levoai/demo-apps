@@ -29,16 +29,6 @@ waitport 5432
 print_banner "Starting MongoDB"
 /usr/bin/mongod -f /etc/mongod.conf --auth --fork --quiet --logpath /var/log/mongodb.log --logappend
 
-# Wait until mongo logs that it's ready (or timeout after 10s)
-COUNTER=0
-grep -q 'waiting for connections on port' /var/log/mongodb.log
-while [[ $? -ne 0 && $COUNTER -lt 10 ]] ; do
-    sleep 1
-    let COUNTER+=1
-    echo "Waiting for mongo to initialize... ($COUNTER seconds so far)"
-    grep -q 'waiting for connections on port' /var/log/mongodb.log
-done
-
 # Initialize the MongoDB with init users.
 mongo --authenticationDatabase admin <<EOF
 use admin;
@@ -55,7 +45,8 @@ waitport 8025
 
 # Start identity service
 print_banner "Starting Identity Service"
-java -jar /app/identity/user-microservices-1.0-SNAPSHOT.jar &
+IDENTITY_SERVICE_HEAP="${IDENTITY_SERVICE_HEAP:-128m}"
+java -Xms"${IDENTITY_SERVICE_HEAP}" -Xmx"${IDENTITY_SERVICE_HEAP}" -jar /app/identity/user-microservices-1.0-SNAPSHOT.jar &
 
 # Wait for identity service to fully come up
 wait_endpoint 0.0.0.0:8080/identity/health_check
