@@ -265,6 +265,53 @@
       ]
     },
 
+    "/identity/privacy/user_agent": {
+      "get": {
+        "tags": [
+          "Identity / Privacy"
+        ],
+        "operationId": "OP_IDENT_PRIVACY_USERAGENT",
+        "summary": "Get the value of the user agent request header. This data is logged. crAPI is committed to your privacy and being transparent about all your data that is processed.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "message",
+                    "status"
+                  ],
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "number"
+                    }
+                  }
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "security": []
+      },
+      "parameters": [
+        {
+          "name": "User-Agent",
+          "in": "header",
+          "description": "Information used to identify your browser.",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "example": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36"
+          }
+        }
+      ]
+    },
+
     "/workshop/api/mechanic/mechanic_report": {
       "get": {
         "summary": "Get the service report specified by the report_id query parameter",
