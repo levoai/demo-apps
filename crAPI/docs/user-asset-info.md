@@ -17,11 +17,11 @@ Use the info below to login to crAPI
 
 Below are UUIDs of vechicles that belong to users:
 
-| UserID                 | Vehicle UUID                         |
-| ---------------------- | ------------------------------------ |
-| victim.one@example.com | 649acfac-10ea-43b3-907f-752e86eff2b6 |
-| victim.two@example.com | 8b9edbde-d74d-4773-8c9f-adb65c6056fc |
-| hacker@darkweb.com     | abac4018-5a38-466c-ab7f-361908afeab6 |
+| UserID                 | Vehicle UUID                         | VIN               |
+| ---------------------- | ------------------------------------ | ----------------- |
+| victim.one@example.com | 649acfac-10ea-43b3-907f-752e86eff2b6 | 0BZCX25UTBJ987271 |
+| victim.two@example.com | 8b9edbde-d74d-4773-8c9f-adb65c6056fc | 4NGPB83BRXL720409 |
+| hacker@darkweb.com     | abac4018-5a38-466c-ab7f-361908afeab6 | 5JTGZ48TPYP220157 |
 
 ### User's Service Reports
 

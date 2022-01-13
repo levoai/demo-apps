@@ -35,7 +35,7 @@ public interface VehicleService {
 
     VehicleDetails createVehicle();
 
-    VehicleDetails createVehicle(String uuidHexDigitString);
+    VehicleDetails createVehicle(String uuidHexDigitString, String VIN);
 
     List<VehicleDetails> getVehicleDetails(HttpServletRequest request);
 

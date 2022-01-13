@@ -102,8 +102,8 @@ public class VehicleServiceImpl implements VehicleService {
      */
     @Transactional
     @Override
-    public VehicleDetails createVehicle(String uuidHexDigitString) {
-        String vin = "";
+    public VehicleDetails createVehicle(String uuidHexDigitString, String VIN) {
+        String vin = VIN;
         String pincode ="";
         List<VehicleModel> modelList =null;
         GenerateVIN generateVIN = new GenerateVIN();
@@ -112,8 +112,13 @@ public class VehicleServiceImpl implements VehicleService {
         modelList = vehicleModelRepository.findAll();
         vehicleLocations = getVehicleLocationList();
             
-        if (modelList!=null && vehicleLocations!=null){
-            vin = generateVIN.generateVIN();
+        if (modelList!=null && vehicleLocations!=null) {
+            
+            // Generate random VIN if NULL or empty string
+            if ( (vin == null) || (vin != null && vin.isEmpty()) ) {
+                vin = generateVIN.generateVIN();
+            }
+            
             pincode=generateVIN.generatePincode();
             VehicleDetails vehicleDetails = new VehicleDetails(pincode, vin, uuidHexDigitString);
             vehicleDetails.setModel(modelList.get(random.nextInt(modelList.size())));
@@ -134,7 +139,7 @@ public class VehicleServiceImpl implements VehicleService {
     @Transactional
     @Override
     public VehicleDetails createVehicle() {
-        return createVehicle("");
+        return createVehicle("", "");
     }
     
     /**

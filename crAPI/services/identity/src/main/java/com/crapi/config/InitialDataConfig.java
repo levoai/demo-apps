@@ -97,13 +97,16 @@ public class InitialDataConfig {
         if (CollectionUtils.isEmpty(userDetailsRepository.findAll())) {
             
             boolean user1 = predefineUserData("Victim One", "victim.one@example.com",
-                "4156895423", "Victim1One", "649acfac-10ea-43b3-907f-752e86eff2b6");
+                "4156895423", "Victim1One",
+                "649acfac-10ea-43b3-907f-752e86eff2b6", "0BZCX25UTBJ987271");
 
             boolean user2 = predefineUserData("Victim Two", "victim.two@example.com",
-                "9876570006", "Victim2Two", "8b9edbde-d74d-4773-8c9f-adb65c6056fc");
+                "9876570006", "Victim2Two",
+                "8b9edbde-d74d-4773-8c9f-adb65c6056fc", "4NGPB83BRXL720409");
 
             boolean user3 = predefineUserData("Hacker", "hacker@darkweb.com",
-                "7000070007", "Hack3r$$$", "abac4018-5a38-466c-ab7f-361908afeab6");
+                "7000070007", "Hack3r$$$",
+                "abac4018-5a38-466c-ab7f-361908afeab6", "5JTGZ48TPYP220157");
             
             if(!user1 || !user2 || !user3){
                 logger.error("Fail to create user predefine data -> Message: {}");
@@ -112,7 +115,7 @@ public class InitialDataConfig {
     }
 
     public boolean predefineUserData(String name, String email, String number,
-        String password, String vechicleUuidHexDigitString) {
+        String password, String vehicleUuidHexDigitString, String VIN) {
         
         UserData userData = new UserData();
         VehicleDetails vehicleDetails = null;
@@ -123,7 +126,7 @@ public class InitialDataConfig {
             loginForm = userRepository.save(loginForm);
             userDetails = userData.getPredefineUser(name, loginForm);
             userDetailsRepository.save(userDetails);
-            vehicleDetails = vehicleService.createVehicle(vechicleUuidHexDigitString);
+            vehicleDetails = vehicleService.createVehicle(vehicleUuidHexDigitString, VIN);
             if (vehicleDetails != null) {
                 vehicleDetails.setOwner(loginForm);
                 vehicleDetailsRepository.save(vehicleDetails);
