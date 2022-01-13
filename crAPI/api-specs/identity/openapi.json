@@ -563,6 +563,27 @@
                 "security": []
             }
         },
+        "/identity/privacy/user_agent": {
+            "get": {
+                "tags": [
+                    "privacy-controller"
+                ],
+                "operationId": "userAgent",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": []
+            }
+        },
         "/identity/api/v2/vehicle/{carId}/location": {
             "get": {
                 "tags": [
