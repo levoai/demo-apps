@@ -49,4 +49,6 @@ public interface UserService {
     JwtResponse authenticateUserLogin(LoginForm loginForm) throws UnsupportedEncodingException;
 
     public UserDetails createUserDetails(String name, User user);
+
+    public String getUserByNumber(String number);
 }

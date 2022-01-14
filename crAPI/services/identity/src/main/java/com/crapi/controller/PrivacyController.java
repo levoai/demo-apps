@@ -16,7 +16,10 @@
 
 package com.crapi.controller;
 
+import com.crapi.exception.EntityNotFoundException;
 import com.crapi.model.CRAPIResponse;
+import com.crapi.service.UserService;
+
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -26,7 +29,9 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author Levo AI
@@ -39,6 +44,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class PrivacyController {
     private static final Logger LOGGER = LogManager.getLogger(PrivacyController.class);
 
+    @Autowired
+    UserService userService;
+
     /**
      * @return the user-agent header value
      */
@@ -47,4 +55,20 @@ public class PrivacyController {
         LOGGER.info("User agent is {}", userAgent);
         return ResponseEntity.status(HttpStatus.OK).body(new CRAPIResponse(userAgent,200));
     }
+
+    /**
+     * @param number Phone number of User being looked up
+     * @return User details on success or error message.
+     */
+    @GetMapping("/user/find")
+    public ResponseEntity<?> getUserByNumber(@RequestParam String number) {
+        try {
+            String user = userService.getUserByNumber(number);
+            return ResponseEntity.status(HttpStatus.OK).body(user);
+        }
+        catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new CRAPIResponse(e.getMessage()));
+        }
+    }
+
 }

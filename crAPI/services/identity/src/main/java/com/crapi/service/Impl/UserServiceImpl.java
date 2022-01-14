@@ -57,6 +57,7 @@ import java.util.Date;
 public class UserServiceImpl implements UserService {
 
     private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
+    private final NativeUserRepository nativeUserRepository = new NativeUserRepository();
 
     @Autowired
     ChangeEmailRepository changeEmailRepository;
@@ -75,7 +76,6 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     ProfileVideoRepository profileVideoRepository;
-
 
     @Autowired
     UserDetailsRepository userDetailsRepository;
@@ -402,6 +402,26 @@ public class UserServiceImpl implements UserService {
                 .setExpiration(new Date((new Date()).getTime() + jwtExpiration))
                 .signWith(SignatureAlgorithm.HS512, jwtSecret.getBytes(StandardCharsets.UTF_8))
                 .compact();
+    }
+
+    /**
+     * @param number Phone number from query parameter to use for finding a user
+     * @return User object formatted as JSON string if the number is found in the
+     *         database
+     *         Throw entity not found if user not found.
+     */
+    @Transactional
+    @Override
+    public String getUserByNumber(String number) throws EntityNotFoundException {
+        try {
+            String response = nativeUserRepository.findUserByNumber(number);
+            if (response != null && response.isEmpty()) {
+                throw new EntityNotFoundException(User.class, "userNumber", number);
+            }
+            return response;
+        } catch (Exception e) {
+            throw new EntityNotFoundException(User.class, "userNumber", number);
+        }
     }
 
 }

@@ -24,8 +24,10 @@ import org.springframework.stereotype.Repository;
  * @author Traceable AI
  */
 @Repository
-public interface UserRepository extends JpaRepository<User,Long> {
+public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsByNumber(String number);
+
     boolean existsByEmail(String email);
+
     User findByEmail(String s);
 }
