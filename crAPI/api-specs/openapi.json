@@ -1950,6 +1950,68 @@
           }
         }
       },
+      "get": {
+        "operationId": "OP_COMMUNITY_COUPON_GET_VALIDATE_COUPON",
+        "summary": "Validate the provided discount coupon code",
+        "tags": [
+          "Community / Coupon"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "coupon_code",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "example": "TRAC075"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "CreatedAt",
+                    "amount",
+                    "coupon_code"
+                  ],
+                  "properties": {
+                    "CreatedAt": {
+                      "type": "string"
+                    },
+                    "amount": {
+                      "type": "string"
+                    },
+                    "coupon_code": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "description": ""
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {}
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      },
       "parameters": []
     },
 

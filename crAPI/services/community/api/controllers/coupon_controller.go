@@ -18,9 +18,11 @@ package controllers
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strings"
 
 	"crapi.proj/goservice/api/models"
 	"crapi.proj/goservice/api/responses"
@@ -82,7 +84,6 @@ func (s *Server) AddNewCoupon(w http.ResponseWriter, r *http.Request) {
 //
 func (s *Server) ValidateCoupon(w http.ResponseWriter, r *http.Request) {
 
-	//coupon := models.CouponBody{}
 	var bsonMap bson.M
 
 	body, err := ioutil.ReadAll(r.Body)
@@ -99,6 +100,59 @@ func (s *Server) ValidateCoupon(w http.ResponseWriter, r *http.Request) {
 	}
 	couponData, err := models.ValidateCode(s.Client, s.DB, bsonMap)
 
+	if err != nil {
+		fmt.Println("Error fetching Coupon", couponData, err)
+		responses.JSON(w, http.StatusInternalServerError, err)
+		return
+	}
+	responses.JSON(w, http.StatusOK, couponData)
+}
+
+//ValidateViaGetCoupon Check if coupon present in database
+//@return
+//@params ResponseWriter, Request
+//Server have database connection
+//
+// Below are swagger annotations for: https://github.com/swaggo/swag
+// @Summary Check the validity of the coupon in the shop database.
+// @Description Validate coupon code specified as query param
+// @Accept json
+// @Produce json
+// @Param coupon_code query string true "Coupon Code"
+// @Success 200 {object} models.Coupon
+// @Failure 400 {object} string
+// @Failure 422 {object} string
+// @Failure 500 {object} string
+// @Router /community/api/v2/coupon/validate-coupon [get]
+//
+func (s *Server) ValidateCouponViaGET(w http.ResponseWriter, r *http.Request) {
+
+	couponCode := r.URL.Query().Get("coupon_code")
+	if couponCode == "" {
+		errorBadReq := errors.New(("Invalid request. Missing query parameter coupon_code."))
+		responses.ERROR(w, http.StatusBadRequest, errorBadReq)
+		return
+	}
+
+	couponCode = strings.TrimLeft(couponCode, " ")
+	couponCode = strings.TrimRight(couponCode, " ")
+	isJsonObject := (strings.HasPrefix(couponCode, "{") && strings.HasSuffix(couponCode, "}"))
+
+	queryStr := ""
+	if isJsonObject {
+		queryStr = "{ \"coupon_code\":" + couponCode + " }"
+	} else {
+		queryStr = "{ \"coupon_code\":\"" + couponCode + "\" }"
+	}
+
+	var bsonMap bson.M
+	err := json.Unmarshal([]byte(queryStr), &bsonMap)
+	if err != nil {
+		responses.ERROR(w, http.StatusUnprocessableEntity, err)
+		return
+	}
+
+	couponData, err := models.ValidateCode(s.Client, s.DB, bsonMap)
 	if err != nil {
 		fmt.Println("Error fetching Coupon", couponData, err)
 		responses.JSON(w, http.StatusInternalServerError, err)
