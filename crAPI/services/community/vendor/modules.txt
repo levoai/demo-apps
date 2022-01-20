@@ -1,3 +1,9 @@
+# github.com/KyleBanks/depth v1.2.1
+github.com/KyleBanks/depth
+# github.com/PuerkitoBio/purell v1.1.1
+github.com/PuerkitoBio/purell
+# github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578
+github.com/PuerkitoBio/urlesc
 # github.com/badoux/checkmail v0.0.0-20200623144435-f9f80cb795fa
 ## explicit
 github.com/badoux/checkmail
@@ -6,14 +12,16 @@ github.com/badoux/checkmail
 github.com/dgrijalva/jwt-go
 # github.com/globalsign/mgo v0.0.0-20181015135952-eeefdecb41b8
 ## explicit
-github.com/globalsign/mgo
-github.com/globalsign/mgo/bson
-github.com/globalsign/mgo/internal/json
-github.com/globalsign/mgo/internal/sasl
-github.com/globalsign/mgo/internal/scram
 # github.com/go-bongo/go-dotaccess v0.0.0-20190924013105-74ea4f4ca4eb
 ## explicit
-github.com/go-bongo/go-dotaccess
+# github.com/go-openapi/jsonpointer v0.19.5
+github.com/go-openapi/jsonpointer
+# github.com/go-openapi/jsonreference v0.19.6
+github.com/go-openapi/jsonreference
+# github.com/go-openapi/spec v0.20.4
+github.com/go-openapi/spec
+# github.com/go-openapi/swag v0.19.15
+github.com/go-openapi/swag
 # github.com/go-stack/stack v1.8.0
 ## explicit
 github.com/go-stack/stack
@@ -39,6 +47,11 @@ github.com/jinzhu/inflection
 # github.com/joho/godotenv v1.3.0
 ## explicit
 github.com/joho/godotenv
+# github.com/joncalhoun/qson v0.0.0-20200422171543-84433dcd3da0
+## explicit
+github.com/joncalhoun/qson
+# github.com/josharian/intern v1.0.0
+github.com/josharian/intern
 # github.com/klauspost/compress v1.9.5
 ## explicit
 github.com/klauspost/compress/fse
@@ -55,14 +68,20 @@ github.com/lib/pq/scram
 # github.com/lithammer/shortuuid v3.0.0+incompatible
 ## explicit
 github.com/lithammer/shortuuid
+# github.com/mailru/easyjson v0.7.6
+github.com/mailru/easyjson/buffer
+github.com/mailru/easyjson/jlexer
+github.com/mailru/easyjson/jwriter
 # github.com/oleiade/reflections v1.0.0
 ## explicit
-github.com/oleiade/reflections
 # github.com/pkg/errors v0.8.1
 ## explicit
 github.com/pkg/errors
 # github.com/rs/cors v1.7.0
 ## explicit
+# github.com/swaggo/swag v1.7.8
+## explicit
+github.com/swaggo/swag
 # github.com/xdg/scram v0.0.0-20180814205039-7eeb5667e42c
 ## explicit
 github.com/xdg/scram
@@ -107,12 +126,27 @@ go.mongodb.org/mongo-driver/x/mongo/driver/wiremessage
 golang.org/x/crypto/bcrypt
 golang.org/x/crypto/blowfish
 golang.org/x/crypto/pbkdf2
-# golang.org/x/sync v0.0.0-20190423024810-112230192c58
+# golang.org/x/net v0.0.0-20210805182204-aaa1db679c0d
+golang.org/x/net/idna
+# golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 ## explicit
 golang.org/x/sync/semaphore
-# golang.org/x/text v0.3.3
+# golang.org/x/sys v0.0.0-20210809222454-d867a43fc93e
+golang.org/x/sys/execabs
+# golang.org/x/text v0.3.7
 ## explicit
+golang.org/x/text/secure/bidirule
 golang.org/x/text/transform
+golang.org/x/text/unicode/bidi
 golang.org/x/text/unicode/norm
+golang.org/x/text/width
+# golang.org/x/tools v0.1.7
+golang.org/x/tools/go/ast/astutil
+golang.org/x/tools/go/buildutil
+golang.org/x/tools/go/internal/cgo
+golang.org/x/tools/go/loader
+golang.org/x/tools/internal/typeparams
 # gopkg.in/go-playground/assert.v1 v1.2.1
 ## explicit
+# gopkg.in/yaml.v2 v2.4.0
+gopkg.in/yaml.v2
