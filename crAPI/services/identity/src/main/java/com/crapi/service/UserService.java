@@ -46,7 +46,7 @@ public interface UserService {
 
     JwtResponse loginWithEmailTokenV2(LoginWithEmailToken loginWithEmailToken);
 
-    JwtResponse authenticateUserLogin(LoginForm loginForm) throws UnsupportedEncodingException;
+    JwtResponse authenticateUserLogin(LoginForm loginForm);
 
     public UserDetails createUserDetails(String name, User user);
 

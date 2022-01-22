@@ -95,34 +95,53 @@ public class InitialDataConfig {
 
     public void addUser(){
         if (CollectionUtils.isEmpty(userDetailsRepository.findAll())) {
-            
-            boolean user1 = predefineUserData("Victim One", "victim.one@example.com",
-                "4156895423", "Victim1One",
-                "649acfac-10ea-43b3-907f-752e86eff2b6", "0BZCX25UTBJ987271");
-
-            boolean user2 = predefineUserData("Victim Two", "victim.two@example.com",
-                "9876570006", "Victim2Two",
-                "8b9edbde-d74d-4773-8c9f-adb65c6056fc", "4NGPB83BRXL720409");
-
-            boolean user3 = predefineUserData("Hacker", "hacker@darkweb.com",
-                "7000070007", "Hack3r$$$",
-                "abac4018-5a38-466c-ab7f-361908afeab6", "5JTGZ48TPYP220157");
-            
-            if(!user1 || !user2 || !user3){
-                logger.error("Fail to create user predefine data -> Message: {}");
-            }
+            addInitialUsers();
+            // Mechanics are created in the workshop service
+            addInitialAdmins();
         }
     }
 
-    public boolean predefineUserData(String name, String email, String number,
-        String password, String vehicleUuidHexDigitString, String VIN) {
-        
+    private void addInitialUsers() {
+        boolean user1 = predefineUserData("Victim One", "victim.one@example.com",
+                ERole.ROLE_USER, "4156895423", "Victim1One",
+                "649acfac-10ea-43b3-907f-752e86eff2b6", "0BZCX25UTBJ987271");
+
+        boolean user2 = predefineUserData("Victim Two", "victim.two@example.com",
+                ERole.ROLE_USER, "9876570006", "Victim2Two",
+                "8b9edbde-d74d-4773-8c9f-adb65c6056fc", "4NGPB83BRXL720409");
+
+        boolean user3 = predefineUserData("Hacker", "hacker@darkweb.com",
+                ERole.ROLE_USER, "7000070007", "Hack3r$$$",
+                "abac4018-5a38-466c-ab7f-361908afeab6", "5JTGZ48TPYP220157");
+
+        if (!user1 || !user2 || !user3) {
+            logger.error("Fail to create user predefine data -> Message: {}");
+        }
+    }
+
+    private void addInitialAdmins() {
+        boolean user1 = predefineUserData("Admin One", "admin.one@example.com",
+                ERole.ROLE_ADMIN, "6052895429", "Admin1One",
+                "edee0263-0179-4d9e-9ab5-90e4e64afb34", "5NPDH4AE0DH213924");
+
+        boolean user2 = predefineUserData("Admin Two", "admin.two@example.com",
+                ERole.ROLE_ADMIN, "4258221234", "Admin2Two",
+                "836fe80c-02f9-4fc0-8fbd-fcdf637bb9c2", "JH4KA96633C000632");
+
+        if (!user1 || !user2) {
+            logger.error("Fail to create admin predefine data -> Message: {}");
+        }
+    }
+
+    private boolean predefineUserData(String name, String email, ERole role, String number,
+            String password, String vehicleUuidHexDigitString, String VIN) {
+
         UserData userData = new UserData();
         VehicleDetails vehicleDetails = null;
         UserDetails userDetails = null;
         try {
 
-            User loginForm = new User(email, number, encoder.encode(password), ERole.ROLE_USER);
+            User loginForm = new User(email, number, encoder.encode(password), role);
             loginForm = userRepository.save(loginForm);
             userDetails = userData.getPredefineUser(name, loginForm);
             userDetailsRepository.save(userDetails);
@@ -134,7 +153,7 @@ public class InitialDataConfig {
             }
             logger.error("Fail to create vehicle for user {}", email);
             return false;
-        } catch (Exception e){
+        } catch (Exception e) {
             logger.error("Fail to create user {}, Exception :: {}", email, e);
             return false;
         }

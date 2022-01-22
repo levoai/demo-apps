@@ -7,7 +7,7 @@ import { APIService, requestURLS } from "../../constants/APIConstant";
 
 const HackSSRF = ({ accessToken }) => {
 
-    const mechanicCode = ["TRAC_JHN", "TRAC_JME"];
+    const mechanicCode = ["TRAC_MECH1", "TRAC_MECH2"];
     const problemDetails = "My car has engine trouble, and I need urgent help!";
     const vinNo = "0BZCX25UTBJ987271";
     const mechanicAPI = "http://localhost:8000/workshop/api/mechanic/receive_report";

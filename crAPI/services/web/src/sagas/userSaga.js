@@ -19,7 +19,7 @@ import { APIService, requestURLS } from "../constants/APIConstant";
 import actionTypes from "../constants/actionTypes";
 import responseTypes from "../constants/responseTypes";
 import {
-  INVALID_CREDS, SIGN_UP_SUCCESS, SIGN_UP_FAILED, OTP_SENT, OTP_NOT_SENT, OTP_VERIFIED, OTP_NOT_VERIFIED, PASSWORD_CHANGED, PASSWORD_NOT_CHANGED, TOKEN_NOT_SENT, EMAIL_CHANGED, EMAIL_NOT_CHANGED, BACKEND_ERR,
+  INVALID_CREDS, ADMIN_LOGIN_DISALLOWED, SIGN_UP_SUCCESS, SIGN_UP_FAILED, OTP_SENT, OTP_NOT_SENT, OTP_VERIFIED, OTP_NOT_VERIFIED, PASSWORD_CHANGED, PASSWORD_NOT_CHANGED, TOKEN_NOT_SENT, EMAIL_CHANGED, EMAIL_NOT_CHANGED, BACKEND_ERR,
 } from "../constants/messages";
 
 /**
@@ -72,11 +72,18 @@ export function* logIn(param) {
       throw responseJSON;
     }
 
-    yield put({
-      type: actionTypes.LOGGED_IN,
-      payload: { token: responseJSON.token, user: userResponseJSON },
-    });
-    callback(responseTypes.SUCCESS, responseJSON.data);
+    if (responseJSON.role === "ROLE_ADMIN") {
+      yield put({ type: actionTypes.FETCHED_DATA, payload: recievedResponse });
+      callback(responseTypes.FAILURE, ADMIN_LOGIN_DISALLOWED);
+
+    } else {
+      yield put({
+        type: actionTypes.LOGGED_IN,
+        payload: { token: responseJSON.token, user: userResponseJSON },
+      });
+      callback(responseTypes.SUCCESS, responseJSON.data);
+    }
+
   } catch (e) {
     yield put({ type: actionTypes.FETCHED_DATA, payload: recievedResponse });
     callback(responseTypes.FAILURE, INVALID_CREDS);

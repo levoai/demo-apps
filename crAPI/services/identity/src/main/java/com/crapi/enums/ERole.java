@@ -22,7 +22,7 @@ package com.crapi.enums;
  */
 public enum ERole {
 
-    ROLE_PREDEFINE,
+    ROLE_UNDEFINED,
     ROLE_USER,
     ROLE_MECHANIC,
     ROLE_ADMIN,

@@ -72,6 +72,7 @@ export const INVALID_COUPON_CODE = "Invalid Coupon Code";
 export const COUPON_APPLIED = "Coupon applied";
 export const COUPON_NOT_APPLIED = "Could not validate coupon";
 export const INVALID_CREDS = "Invalid Username or Password";
+export const ADMIN_LOGIN_DISALLOWED = "Admin use of UI not allowed. Use APIs directly instead."
 export const SIGN_UP_SUCCESS = "User Registered Successfully!";
 export const SIGN_UP_FAILED = "Could not sign up";
 export const OTP_SENT = "OTP has been sent to your registered emailid";

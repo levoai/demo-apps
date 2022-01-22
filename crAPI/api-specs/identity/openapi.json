@@ -868,6 +868,15 @@
                     },
                     "message": {
                         "type": "string"
+                    },
+                    "role": {
+                        "type": "string",
+                        "enum": [
+                            "ROLE_UNDEFINED",
+                            "ROLE_USER",
+                            "ROLE_MECHANIC",
+                            "ROLE_ADMIN"
+                        ]
                     }
                 }
             },

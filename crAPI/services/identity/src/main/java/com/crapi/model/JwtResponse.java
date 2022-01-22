@@ -16,6 +16,8 @@
 
 package com.crapi.model;
 
+import com.crapi.enums.ERole;
+
 import lombok.Data;
 
 /**
@@ -23,23 +25,31 @@ import lombok.Data;
  */
 @Data
 public class JwtResponse {
-    private String token;
-    private String type = "Bearer";
+    private String token = null;
+    private String type = "";
     private String message;
+    private ERole role = ERole.ROLE_UNDEFINED;
 
-    public JwtResponse(){
-
+    public JwtResponse() {
     }
-    public JwtResponse(String accessToken) {
+
+    public JwtResponse(String accessToken, String message, ERole userRole) {
+        this.token = accessToken;
+        this.type = ( (accessToken != null) && (accessToken != "") ) ? "Bearer" : "";
+        this.message = message;
+        this.role = userRole;
+    }
+
+    public void setToken(final String accessToken) {
+        this.type = ( (accessToken != null) && (accessToken != "") ) ? "Bearer" : "";
         this.token = accessToken;
     }
 
-    public JwtResponse(String token,String message) {
-        this.token = token;
-        this.type ="";
-        this.message = message;
+    public void Clear() {
+        this.token = null;
+        this.type = "";
+        this.message = null;
+        this.role = ERole.ROLE_UNDEFINED;
     }
-
-
-
 }
+

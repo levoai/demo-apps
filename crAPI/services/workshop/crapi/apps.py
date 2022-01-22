@@ -54,24 +54,23 @@ def create_products():
             image_url=product_details['image_url']
         )
 
-
 def create_mechanics():
     from user.models import User, UserDetails
     from crapi.mechanic.models import Mechanic
     mechanic_details_all = [
         {
-            'name': 'Jhon',
-            'email': 'jhon@example.com',
-            'number': '',
-            'password': 'Admin1@#',
-            'mechanic_code': 'TRAC_JHN'
+            'name': 'Mechanic One',
+            'email': 'mechanic.one@example.com',
+            'number': '9051892421',
+            'password': 'Mechanic1One',
+            'mechanic_code': 'TRAC_MECH1'
         },
         {
-            'name': 'James',
-            'email': 'james@example.com',
-            'number': '',
-            'password': 'Admin1@#',
-            'mechanic_code': 'TRAC_JME'
+            'name': 'Mechanic Two',
+            'email': 'mechanic.two@example.com',
+            'number': '8056897231',
+            'password': 'Mechanic2Two',
+            'mechanic_code': 'TRAC_MECH2'
         },
     ]
     for mechanic_details in mechanic_details_all:

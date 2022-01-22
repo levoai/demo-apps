@@ -382,9 +382,9 @@
                       },
                       "example": {
                         "id": 1,
-                        "mechanic_code": "TRAC_JHN",
+                        "mechanic_code": "TRAC_MECH1",
                         "user": {
-                          "email": "jhon@example.com",
+                          "email": "mechanic.one@example.com",
                           "number": "415-654-3212"
                         }
                       }
@@ -564,7 +564,7 @@
               },
               "example": {
                 "mechanic_api": "http://localhost:8000/workshop/api/mechanic/receive_report",
-                "mechanic_code": "TRAC_JHN",
+                "mechanic_code": "TRAC_MECH1",
                 "number_of_repeats": 0,
                 "repeat_request_if_failed": false,
                 "problem_details": "My car has engine trouble, and I need urgent help!",
@@ -941,6 +941,15 @@
           },
           "message": {
             "type": "string"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "ROLE_UNDEFINED",
+              "ROLE_USER",
+              "ROLE_MECHANIC",
+              "ROLE_ADMIN"
+            ]
           }
         }
       },

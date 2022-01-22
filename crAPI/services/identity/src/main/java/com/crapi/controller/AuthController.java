@@ -54,11 +54,12 @@ public class AuthController {
      */
     @PostMapping("/login")
     public ResponseEntity<JwtResponse> authenticateUser(@Valid @RequestBody LoginForm loginForm) throws UnsupportedEncodingException {
-        JwtResponse jwtToken = userService.authenticateUserLogin(loginForm);
-        if (jwtToken!=null && jwtToken.getToken()!=null) {
-            return ResponseEntity.status(HttpStatus.OK).body(jwtToken);
+        JwtResponse respJwt = userService.authenticateUserLogin(loginForm);
+        
+        if ( (respJwt != null) && (respJwt.getToken() != null) ) {
+            return ResponseEntity.status(HttpStatus.OK).body(respJwt);
         }else {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(jwtToken);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(respJwt);
         }
     }
 

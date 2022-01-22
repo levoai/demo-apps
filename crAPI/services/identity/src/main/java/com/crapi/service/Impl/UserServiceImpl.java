@@ -98,27 +98,41 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     @Override
-    public JwtResponse authenticateUserLogin(LoginForm loginForm) throws UnsupportedEncodingException {
+    public JwtResponse authenticateUserLogin(LoginForm loginForm) {
         JwtResponse jwtResponse = new JwtResponse();
-        Authentication authentication = null;
-        if (loginForm.getEmail()!=null) {
-            authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            loginForm.getEmail(),
-                            loginForm.getPassword()
-                    )
-            );
-        }
-        SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        String jwt = jwtProvider.generateJwtToken(authentication);
-        if(jwt!=null){
-            updateUserToken(jwt, loginForm.getEmail());
-            jwtResponse.setToken(jwt);
-        }else {
-            jwtResponse.setMessage(UserMessage.INVALID_CREDENTIALS);
+        try {
+            final String userEmail = loginForm.getEmail();
+            final String userPassword = loginForm.getPassword();
+            Authentication authentication = null;
+
+            if (userEmail != null) {
+                authentication = authenticationManager.authenticate(
+                        new UsernamePasswordAuthenticationToken(userEmail, userPassword));
+            }
+
+            if (authentication != null) {
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+                final String jwt = jwtProvider.generateJwtToken(authentication);
+                if (jwt != null) {
+                    updateUserToken(jwt, userEmail);
+                    
+                    jwtResponse.setToken(jwt);
+                    jwtResponse.setMessage("Welcome to crAPI!!");
+                    final User user = userRepository.findByEmail(userEmail);
+                    jwtResponse.setRole(user.getRole());
+                    return jwtResponse;
+                }
+
+            }
+
+        } catch (Exception e) {
+            logger.info("Invalid login for User");
         }
 
+        // If we get here, we have an invalid login
+        jwtResponse.Clear();
+        jwtResponse.setMessage(UserMessage.INVALID_CREDENTIALS);
         return jwtResponse;
     }
 
@@ -360,11 +374,11 @@ public class UserServiceImpl implements UserService {
         if(changeEmailRequest!= null && user!=null && changeEmailRequest.getOldEmail().equalsIgnoreCase(user.getEmail())) {
             jwt = generateJWTToken(user);
             if (jwt!=null){
-                return new JwtResponse(jwt);
+                return new JwtResponse(jwt, UserMessage.LOGIN_WITH_EMAIL_TOKEN, user.getRole());
             }
         }
 
-        return new JwtResponse("",UserMessage.INVALID_CREDENTIALS);
+        return new JwtResponse("", UserMessage.INVALID_CREDENTIALS, ERole.ROLE_UNDEFINED);
 
     }
 
