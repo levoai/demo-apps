@@ -8,6 +8,11 @@
     "description": "Completely Ridiculous API - Highly Vulnerable Demo App",
     "url": "https://github.com/levoai/demo-apps/tree/main/crAPI"
   },
+  "x-levo-allowed-roles": [
+    "ROLE_USER",
+    "ROLE_MECHANIC",
+    "ROLE_ADMIN"
+  ],
   "paths": {
     "/": {
       "get": {
@@ -371,6 +376,11 @@
     },
 
     "/identity/api/v2/user/reset-password": {
+      "x-levo-allowed-roles": [
+        "ROLE_USER",
+        "ROLE_MECHANIC",
+        "ROLE_ADMIN"
+      ],
       "post": {
         "operationId": "OP_IDENT_USR_RESET_PASSWORD",
         "summary": "Reset password",
@@ -434,6 +444,11 @@
       "parameters": []
     },
     "/identity/api/v2/user/change-email": {
+      "x-levo-allowed-roles": [
+        "ROLE_USER",
+        "ROLE_MECHANIC",
+        "ROLE_ADMIN"
+      ],
       "post": {
         "operationId": "OP_IDENT_USR_CHANGE_EMAIL",
         "summary": "Change user email",
@@ -494,6 +509,11 @@
       "parameters": []
     },
     "/identity/api/v2/user/verify-email-token": {
+      "x-levo-allowed-roles": [
+        "ROLE_USER",
+        "ROLE_MECHANIC",
+        "ROLE_ADMIN"
+      ],
       "post": {
         "operationId": "OP_IDENT_USR_VERIFY_CHANGE_EMAIL_TOKEN",
         "summary": "Verify token sent for changing email",
@@ -554,6 +574,11 @@
       "parameters": []
     },
     "/identity/api/v2/user/dashboard": {
+      "x-levo-allowed-roles": [
+        "ROLE_USER",
+        "ROLE_MECHANIC",
+        "ROLE_ADMIN"
+      ],
       "get": {
         "operationId": "OP_IDENT_USR_GET_DASHBOARD",
         "summary": "Get user dashboard data",
@@ -619,6 +644,11 @@
       "parameters": []
     },
     "/identity/api/v2/user/pictures": {
+      "x-levo-allowed-roles": [
+        "ROLE_USER",
+        "ROLE_MECHANIC",
+        "ROLE_ADMIN"
+      ],
       "post": {
         "operationId": "OP_IDENT_USR_UPDATE_PROFILE_PIC",
         "summary": "Update user profile picture",
@@ -681,6 +711,11 @@
       "parameters": []
     },
     "/identity/api/v2/user/videos": {
+      "x-levo-allowed-roles": [
+        "ROLE_USER",
+        "ROLE_MECHANIC",
+        "ROLE_ADMIN"
+      ],
       "post": {
         "summary": "Add a video to this user's profile.",
         "operationId": "OP_IDENT_USR_ADD_PROFILE_VIDEO",
@@ -725,6 +760,11 @@
       }
     },
     "/identity/api/v2/user/videos/{video_id}": {
+      "x-levo-allowed-roles": [
+        "ROLE_USER",
+        "ROLE_MECHANIC",
+        "ROLE_ADMIN"
+      ],
       "get": {
         "summary": "Get the video associated with the user's profile.",
         "operationId": "OP_IDENT_USR_GET_PROFILE_VIDEO",
@@ -842,6 +882,11 @@
       }
     },
     "/identity/api/v2/user/videos/convert_video": {
+      "x-levo-allowed-roles": [
+        "ROLE_USER",
+        "ROLE_MECHANIC",
+        "ROLE_ADMIN"
+      ],
       "get": {
         "summary": "Convert the format for the specified video.",
         "operationId": "OP_IDENT_USR_CONVERT_PROFILE_VIDEO",
@@ -880,6 +925,9 @@
     },
 
     "/identity/api/v2/admin/videos/{video_id}": {
+      "x-levo-allowed-roles": [
+        "ROLE_ADMIN"
+      ],
       "delete": {
         "summary": "As admin, delete the video identified by video_id.",
         "operationId": "OP_IDENT_ADMIN_DEL_PROFILE_VIDEO",
@@ -918,6 +966,11 @@
     },
 
     "/identity/api/v2/vehicle/vehicles": {
+      "x-levo-allowed-roles": [
+        "ROLE_USER",
+        "ROLE_MECHANIC",
+        "ROLE_ADMIN"
+      ],
       "get": {
         "operationId": "OP_IDENT_VEHICLE_GET_VEHICLES",
         "summary": "Get user vehicles",
@@ -1038,6 +1091,11 @@
       "parameters": []
     },
     "/identity/api/v2/vehicle/add_vehicle": {
+      "x-levo-allowed-roles": [
+        "ROLE_USER",
+        "ROLE_MECHANIC",
+        "ROLE_ADMIN"
+      ],
       "post": {
         "operationId": "OP_IDENT_VEHICLE_ADD_VEHICLE",
         "summary": "Add the user vehicle",
@@ -1120,6 +1178,11 @@
       "parameters": []
     },
     "/identity/api/v2/vehicle/{vehicleId}/location": {
+      "x-levo-allowed-roles": [
+        "ROLE_USER",
+        "ROLE_MECHANIC",
+        "ROLE_ADMIN"
+      ],
       "get": {
         "operationId": "OP_IDENT_VEHICLE_GET_LOCATION",
         "summary": "Get user's vehicle location",
@@ -1211,6 +1274,11 @@
       ]
     },
     "/identity/api/v2/vehicle/resend_email": {
+      "x-levo-allowed-roles": [
+        "ROLE_USER",
+        "ROLE_MECHANIC",
+        "ROLE_ADMIN"
+      ],
       "post": {
         "operationId": "OP_IDENT_VEHICLE_RESEND_EMAIL",
         "summary": "Resend vehicles details to be added to the user dashboard",
@@ -1251,6 +1319,11 @@
     },
     
     "/identity/privacy/user_agent": {
+      "x-levo-allowed-roles": [
+        "ROLE_USER",
+        "ROLE_MECHANIC",
+        "ROLE_ADMIN"
+      ],
       "get": {
         "tags": [
           "Identity / Privacy"
@@ -1297,6 +1370,9 @@
       ]
     },
     "/identity/privacy/user/find": {
+      "x-levo-allowed-roles": [
+        "ROLE_ADMIN"
+      ],
       "get": {
         "tags": [
           "Identity / Privacy"
@@ -1384,6 +1460,11 @@
     },
 
     "/community/api/v2/community/posts/{postId}": {
+      "x-levo-allowed-roles": [
+        "ROLE_USER",
+        "ROLE_MECHANIC",
+        "ROLE_ADMIN"
+      ],
       "get": {
         "operationId": "OP_COMMUNITY_GET_POST",
         "summary": "Get an specific post in the forum",
@@ -1418,6 +1499,11 @@
       ]
     },
     "/community/api/v2/community/posts": {
+      "x-levo-allowed-roles": [
+        "ROLE_USER",
+        "ROLE_MECHANIC",
+        "ROLE_ADMIN"
+      ],
       "post": {
         "operationId": "OP_COMMUNITY_CREATE_POST",
         "summary": "Create a new post in the forum",
@@ -1520,6 +1606,11 @@
       "parameters": []
     },
     "/community/api/v2/community/posts/{postId}/comment": {
+      "x-levo-allowed-roles": [
+        "ROLE_USER",
+        "ROLE_MECHANIC",
+        "ROLE_ADMIN"
+      ],
       "post": {
         "operationId": "OP_COMMUNITY_POST_ADD_COMMENT",
         "summary": "Add a comment to an existing post in the forum",
@@ -1675,6 +1766,11 @@
       ]
     },
     "/community/api/v2/community/posts/recent": {
+      "x-levo-allowed-roles": [
+        "ROLE_USER",
+        "ROLE_MECHANIC",
+        "ROLE_ADMIN"
+      ],
       "get": {
         "summary": "Fetch the most recent posts in the forum.",
         "operationId": "OP_COMMUNITY_GET_RECENT_POSTS",
@@ -1799,6 +1895,10 @@
     },
 
     "/community/api/v2/coupon/new-coupon": {
+      "x-levo-allowed-roles": [
+        "ROLE_MECHANIC",
+        "ROLE_ADMIN"
+      ],
       "post": {
         "operationId": "OP_COMMUNITY_COUPON_ADD_COUPON",
         "summary": "Add a new coupon to the shop database",
@@ -1856,6 +1956,11 @@
       }
     },
     "/community/api/v2/coupon/validate-coupon": {
+      "x-levo-allowed-roles": [
+        "ROLE_USER",
+        "ROLE_MECHANIC",
+        "ROLE_ADMIN"
+      ],
       "post": {
         "operationId": "OP_COMMUNITY_COUPON_VALIDATE_COUPON",
         "summary": "Validate the provided discount coupon code",
@@ -1989,6 +2094,11 @@
       "parameters": []
     },
     "/community/api/v1/coupon/validate-coupon": {
+      "x-levo-allowed-roles": [
+        "ROLE_USER",
+        "ROLE_MECHANIC",
+        "ROLE_ADMIN"
+      ],
       "get": {
         "operationId": "OP_COMMUNITY_COUPON_GET_V1_VALIDATE_COUPON",
         "summary": "Validate the provided discount coupon code",
@@ -2062,6 +2172,11 @@
         "tags": [
           "Workshop / Shop"
         ],
+        "x-levo-allowed-roles": [
+          "ROLE_USER",
+          "ROLE_MECHANIC",
+          "ROLE_ADMIN"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -2121,6 +2236,9 @@
         "tags": [
           "Workshop / Shop"
         ],
+        "x-levo-allowed-roles": [
+          "ROLE_ADMIN"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -2162,6 +2280,11 @@
       }
     },
     "/workshop/api/shop/orders": {
+      "x-levo-allowed-roles": [
+        "ROLE_USER",
+        "ROLE_MECHANIC",
+        "ROLE_ADMIN"
+      ],
       "post": {
         "operationId": "OP_WORKSHOP_SHOP_CREATE_ORDER",
         "summary": "Create a new order for a product in the shop.",
@@ -2236,6 +2359,11 @@
       }
     },
     "/workshop/api/shop/orders/{order_id}": {
+      "x-levo-allowed-roles": [
+        "ROLE_USER",
+        "ROLE_MECHANIC",
+        "ROLE_ADMIN"
+      ],
       "put": {
         "operationId": "OP_WORKSHOP_SHOP_UPDATE_ORDER",
         "summary": "Update the order specified by the order_id.",
@@ -2395,6 +2523,11 @@
       }
     },
     "/workshop/api/shop/orders/all": {
+      "x-levo-allowed-roles": [
+        "ROLE_USER",
+        "ROLE_MECHANIC",
+        "ROLE_ADMIN"
+      ],
       "get": {
         "operationId": "OP_WORKSHOP_SHOP_GET_ORDERS",
         "summary": "Get user's past orders",
@@ -2493,6 +2626,11 @@
       "parameters": []
     },
     "/workshop/api/shop/orders/return_order/{order_id}": {
+      "x-levo-allowed-roles": [
+        "ROLE_USER",
+        "ROLE_MECHANIC",
+        "ROLE_ADMIN"
+      ],
       "post": {
         "operationId": "OP_WORKSHOP_SHOP_RETURN_PURCHASE",
         "summary": "Return order specified by the order_id",
@@ -2588,6 +2726,11 @@
       }
     },
     "/workshop/api/shop/apply_coupon": {
+      "x-levo-allowed-roles": [
+        "ROLE_USER",
+        "ROLE_MECHANIC",
+        "ROLE_ADMIN"
+      ],
       "post": {
         "operationId": "OP_WORKSHOP_SHOP_APPLY_COUPON",
         "summary": "Apply the coupon for the current user",
@@ -2666,6 +2809,11 @@
       "parameters": []
     },
     "/workshop/api/shop/return_qr_code": {
+      "x-levo-allowed-roles": [
+        "ROLE_USER",
+        "ROLE_MECHANIC",
+        "ROLE_ADMIN"
+      ],
       "get": {
         "operationId": "OP_WORKSHOP_SHOP_GET_QRCODE",
         "summary": "Get the return qr code image for UPS shipments.",
@@ -2710,6 +2858,11 @@
         "summary": "Get the available mechanics",
         "tags": [
           "Workshop / Mechanic"
+        ],
+        "x-levo-allowed-roles": [
+          "ROLE_USER",
+          "ROLE_MECHANIC",
+          "ROLE_ADMIN"
         ],
         "security": [
           {
@@ -2808,6 +2961,11 @@
         "summary": "Contact a mechanic for a service request on your vehicle",
         "tags": [
           "Workshop / Mechanic"
+        ],
+        "x-levo-allowed-roles": [
+          "ROLE_USER",
+          "ROLE_MECHANIC",
+          "ROLE_ADMIN"
         ],
         "security": [
           {
@@ -3034,6 +3192,11 @@
         "operationId": "OP_WORKSHOP_MECHANIC_GET_SVC_REPORTS",
         "tags": [
           "Workshop / Mechanic"
+        ],
+        "x-levo-allowed-roles": [
+          "ROLE_USER",
+          "ROLE_MECHANIC",
+          "ROLE_ADMIN"
         ],
         "security": [
           {
@@ -3300,6 +3463,11 @@
       }
     },
     "/workshop/api/mechanic/mechanic_report": {
+      "x-levo-allowed-roles": [
+        "ROLE_USER",
+        "ROLE_MECHANIC",
+        "ROLE_ADMIN"
+      ],
       "get": {
         "summary": "Get the service report specified by the report_id query parameter",
         "operationId": "OP_WORKSHOP_MECHANIC_GET_SVC_REPORT",
@@ -3511,6 +3679,9 @@
       }
     },
     "/workshop/api/mechanic/service_requests": {
+      "x-levo-allowed-roles": [
+        "ROLE_MECHANIC"
+      ],
       "get": {
         "operationId": "OP_WORKSHOP_MECHANIC_GET_MECH_SVC_REPORTS",
         "summary": "Fetch all service requests assigned to this specific mechanic.",
@@ -3639,6 +3810,11 @@
       }
     },
     "/workshop/api/mechanic/signup": {
+      "x-levo-allowed-roles": [
+        "ROLE_USER",
+        "ROLE_MECHANIC",
+        "ROLE_ADMIN"
+      ],
       "post": {
         "operationId": "OP_WORKSHOP_MECHANIC_SIGNUP",
         "summary": "Register a new mechanic in the workshop.",
