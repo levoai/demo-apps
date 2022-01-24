@@ -312,93 +312,6 @@
       ]
     },
 
-    "/identity/privacy/user/find": {
-      "get": {
-        "tags": [
-          "Identity / Privacy"
-        ],
-        "operationId": "OP_IDENT_PRIVACY_USER_FIND",
-        "summary": "Get details of a User given their phone number.",
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "number",
-                    "password",
-                    "role",
-                    "created_on",
-                    "id",
-                    "email"
-                  ],
-                  "properties": {
-                    "number": {
-                      "type": "string"
-                    },
-                    "password": {
-                      "type": "string"
-                    },
-                    "role": {
-                      "type": "integer"
-                    },
-                    "created_on": {
-                      "type": "string",
-                      "format": "date"
-                    },
-                    "id": {
-                      "type": "integer"
-                    },
-                    "email": {
-                      "type": "string",
-                      "format": "email"
-                    }
-                  }
-                }
-              }
-            },
-            "description": "User details corresponding to the phone number."
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "message",
-                    "status"
-                  ],
-                  "properties": {
-                    "message": {
-                      "type": "string"
-                    },
-                    "status": {
-                      "type": "number"
-                    }
-                  }
-                }
-              }
-            },
-            "description": "User not found."
-          }
-        },
-        "security": []
-      },
-      "parameters": [
-        {
-          "name": "number",
-          "in": "query",
-          "description": "Phone number of the user to locate.",
-          "required": true,
-          "schema": {
-            "type": "string",
-            "example": "4156895423"
-          }
-        }
-      ]
-    },
-
     "/workshop/api/mechanic/mechanic_report": {
       "get": {
         "summary": "Get the service report specified by the report_id query parameter",
@@ -823,6 +736,100 @@
         }
       },
       "parameters": []
+    },
+
+    "/identity/api/v1/admin/users/find": {
+      "x-levo-allowed-roles": [
+        "ROLE_ADMIN"
+      ],
+      "get": {
+        "tags": [
+          "Identity / Admin"
+        ],
+        "operationId": "OP_IDENT_ADMIN_USERS_FIND",
+        "summary": "Get details of a User given their phone number.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "number",
+                    "password",
+                    "role",
+                    "created_on",
+                    "id",
+                    "email"
+                  ],
+                  "properties": {
+                    "number": {
+                      "type": "string"
+                    },
+                    "password": {
+                      "type": "string"
+                    },
+                    "role": {
+                      "type": "integer"
+                    },
+                    "created_on": {
+                      "type": "string",
+                      "format": "date"
+                    },
+                    "id": {
+                      "type": "integer"
+                    },
+                    "email": {
+                      "type": "string",
+                      "format": "email"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "User details corresponding to the phone number."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "message",
+                    "status"
+                  ],
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "number"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "User not found."
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "name": "number",
+          "in": "query",
+          "description": "Phone number of the user to locate.",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "example": "4156895423"
+          }
+        }
+      ]
     }
 
   },

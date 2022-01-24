@@ -126,21 +126,6 @@ public class ProfileController {
         }
     }
 
-    /**
-     * @param videoId
-     * @param request
-     * @return delete user video from database and return message
-     * BFLA - Vulnerabilities
-     */
-    @DeleteMapping("/api/v2/admin/videos/{video_id}")
-    public ResponseEntity<CRAPIResponse> deleteVideoBOLA(@PathVariable("video_id") Long videoId, HttpServletRequest request) {
-        CRAPIResponse deleteProfileResponse = profileService.deleteAdminProfileVideo(videoId, request);
-        if (deleteProfileResponse!=null && deleteProfileResponse.getStatus()==200) {
-            return ResponseEntity.status(HttpStatus.OK).body(deleteProfileResponse);
-        }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(deleteProfileResponse);
-    }
-
 
     /**
      * @param video_id

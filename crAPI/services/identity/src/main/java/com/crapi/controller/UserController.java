@@ -44,9 +44,6 @@ public class UserController {
     @Autowired
     UserService userService;
 
-    @Autowired
-    private JwtProvider tokenProvider;
-
 
     /**
      * @param request getting jwt token for user from request header

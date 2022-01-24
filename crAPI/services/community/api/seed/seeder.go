@@ -51,7 +51,7 @@ var coupons = []models.Coupon{
 var posts = []models.Post{
 	models.Post{
 		Title:   "I love the crAPI forum!",
-		Content: "CrAPI's forum allows me to socialize with like minded auto enthusiasts.",
+		Content: "The CrAPI forum allows me to socialize with like minded auto enthusiasts.",
 	},
 	models.Post{
 		Title:   "The discussions are awesome!",
