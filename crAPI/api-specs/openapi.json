@@ -1057,6 +1057,105 @@
         }
       ]
     },
+    "/identity/api/v1/admin/users/list": {
+      "x-levo-allowed-roles": [
+        "ROLE_ADMIN"
+      ],
+      "get": {
+        "tags": [
+          "Identity / Admin"
+        ],
+        "operationId": "OP_IDENT_ADMIN_USERS_LIST",
+        "summary": "List all registered User(s).",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "number",
+                      "role",
+                      "created_on",
+                      "id",
+                      "email"
+                    ],
+                    "properties": {
+                      "number": {
+                        "type": "string"
+                      },
+                      "role": {
+                        "type": "integer"
+                      },
+                      "created_on": {
+                        "type": "string",
+                        "format": "date"
+                      },
+                      "id": {
+                        "type": "integer"
+                      },
+                      "email": {
+                        "type": "string",
+                        "format": "email"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "description": "Array of registered User objects."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "number",
+                      "role",
+                      "created_on",
+                      "id",
+                      "email"
+                    ],
+                    "properties": {
+                      "number": {
+                        "type": "string"
+                      },
+                      "role": {
+                        "type": "integer"
+                      },
+                      "created_on": {
+                        "type": "string",
+                        "format": "date"
+                      },
+                      "id": {
+                        "type": "integer"
+                      },
+                      "email": {
+                        "type": "string",
+                        "format": "email"
+                      }
+                    }
+                  }
+                },
+                "example": []
+              }
+            },
+            "description": "No User(s) found."
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "parameters": []
+    },
 
     "/identity/api/v2/vehicle/vehicles": {
       "x-levo-allowed-roles": [

@@ -20,6 +20,8 @@ import com.crapi.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 /**
  * @author Traceable AI
  */
@@ -30,4 +32,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsByEmail(String email);
 
     User findByEmail(String s);
+
+    List<User> findAll();
 }

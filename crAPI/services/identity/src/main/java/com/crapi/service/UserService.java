@@ -22,6 +22,7 @@ import com.crapi.entity.User;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
+import java.util.List;
 
 /**
  * @author Traceable AI
@@ -51,4 +52,6 @@ public interface UserService {
     public UserDetails createUserDetails(String name, User user);
 
     public String getUserByNumber(String number);
+
+    public List<User> getUsers();
 }

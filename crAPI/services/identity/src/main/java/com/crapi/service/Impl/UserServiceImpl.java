@@ -47,7 +47,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author Traceable AI
@@ -436,6 +438,26 @@ public class UserServiceImpl implements UserService {
         } catch (Exception e) {
             throw new EntityNotFoundException(User.class, "userNumber", number);
         }
+    }
+
+    /**
+     * @return List of User objects formatted as JSON string found in the database.
+     *         Empty list if no users found.
+     */
+    @Transactional
+    @Override
+    public List<User> getUsers() {
+        try {
+            List<User> allUsers = userRepository.findAll();
+            
+            if (allUsers != null) {
+                return allUsers;
+            }
+        } catch (Exception e) {
+            // NOP
+        }
+
+        return new ArrayList<User>(); // Empty list
     }
 
 }

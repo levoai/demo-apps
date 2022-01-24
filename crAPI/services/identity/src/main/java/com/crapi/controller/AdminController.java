@@ -16,8 +16,11 @@
 
 package com.crapi.controller;
 
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 
+import com.crapi.entity.User;
 import com.crapi.exception.EntityNotFoundException;
 import com.crapi.model.CRAPIResponse;
 import com.crapi.service.ProfileService;
@@ -77,6 +80,20 @@ public class AdminController {
         catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new CRAPIResponse(e.getMessage()));
         }
+    }
+
+    /**
+     * @return List (array) of User(s) details on success or error message.
+     */
+    @GetMapping("/v1/admin/users/list")
+    public ResponseEntity<List<User>> getUsers() {
+        final List<User> allUsers = userService.getUsers();
+
+        if (allUsers.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(allUsers);
+        } 
+
+        return ResponseEntity.status(HttpStatus.OK).body(allUsers);
     }
 
 }
