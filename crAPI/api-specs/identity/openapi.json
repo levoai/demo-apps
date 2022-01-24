@@ -686,12 +686,22 @@
                 }
             }
         },
+    
         "/identity/api/v2/admin/videos/{video_id}": {
+            "x-levo-allowed-roles": [
+                "ROLE_ADMIN"
+            ],
             "delete": {
+                "summary": "As admin, delete the video identified by video_id.",
+                "operationId": "OP_IDENT_ADMIN_DEL_PROFILE_VIDEO",
                 "tags": [
-                    "profile-controller"
+                    "Identity / Admin"
                 ],
-                "operationId": "deleteVideoBOLA",
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
                 "parameters": [
                     {
                         "name": "video_id",
@@ -716,6 +726,198 @@
                     }
                 }
             }
+        },
+        "/identity/api/v1/admin/users/find": {
+            "x-levo-allowed-roles": [
+                "ROLE_ADMIN"
+            ],
+            "get": {
+                "tags": [
+                    "Identity / Admin"
+                ],
+                "operationId": "OP_IDENT_ADMIN_USERS_FIND",
+                "summary": "Get details of a User given their phone number.",
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "number",
+                                        "password",
+                                        "role",
+                                        "created_on",
+                                        "id",
+                                        "email"
+                                    ],
+                                    "properties": {
+                                        "number": {
+                                            "type": "string"
+                                        },
+                                        "password": {
+                                            "type": "string"
+                                        },
+                                        "role": {
+                                            "type": "integer"
+                                        },
+                                        "created_on": {
+                                            "type": "string",
+                                            "format": "date"
+                                        },
+                                        "id": {
+                                            "type": "integer"
+                                        },
+                                        "email": {
+                                            "type": "string",
+                                            "format": "email"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": "User details corresponding to the phone number."
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "message",
+                                        "status"
+                                    ],
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "status": {
+                                            "type": "number"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": "User not found."
+                    }
+                },
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ]
+            },
+            "parameters": [
+                {
+                    "name": "number",
+                    "in": "query",
+                    "description": "Phone number of the user to locate.",
+                    "required": true,
+                    "schema": {
+                        "type": "string",
+                        "example": "4156895423"
+                    }
+                }
+            ]
+        },
+        "/identity/api/v1/admin/users/list": {
+            "x-levo-allowed-roles": [
+                "ROLE_ADMIN"
+            ],
+            "get": {
+                "tags": [
+                    "Identity / Admin"
+                ],
+                "operationId": "OP_IDENT_ADMIN_USERS_LIST",
+                "summary": "List all registered User(s).",
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "required": [
+                                            "number",
+                                            "role",
+                                            "created_on",
+                                            "id",
+                                            "email"
+                                        ],
+                                        "properties": {
+                                            "number": {
+                                                "type": "string"
+                                            },
+                                            "role": {
+                                                "type": "integer"
+                                            },
+                                            "created_on": {
+                                                "type": "string",
+                                                "format": "date"
+                                            },
+                                            "id": {
+                                                "type": "integer"
+                                            },
+                                            "email": {
+                                                "type": "string",
+                                                "format": "email"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": "Array of registered User objects."
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "required": [
+                                            "number",
+                                            "role",
+                                            "created_on",
+                                            "id",
+                                            "email"
+                                        ],
+                                        "properties": {
+                                            "number": {
+                                                "type": "string"
+                                            },
+                                            "role": {
+                                                "type": "integer"
+                                            },
+                                            "created_on": {
+                                                "type": "string",
+                                                "format": "date"
+                                            },
+                                            "id": {
+                                                "type": "integer"
+                                            },
+                                            "email": {
+                                                "type": "string",
+                                                "format": "email"
+                                            }
+                                        }
+                                    }
+                                },
+                                "example": []
+                            }
+                        },
+                        "description": "No User(s) found."
+                    }
+                },
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ]
+            },
+            "parameters": []
         }
     },
     "components": {
@@ -932,8 +1134,6 @@
         "securitySchemes": {
             "JWT": {
                 "type": "http",
-                "name": "Authorization",
-                "in": "header",
                 "scheme": "bearer",
                 "bearerFormat": "JWT"
             }

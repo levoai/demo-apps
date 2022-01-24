@@ -222,12 +222,24 @@ class ServiceRequestsView(APIView):
         fetch all service requests assigned to the particular mechanic
         :param request: http request for the view
             method allowed: GET
-            http request should be authorised by the jwt token of the mechanic
+            http request should be authorized by the jwt token of the mechanic
         :param user: User object of the requesting user
         :returns Response object with
             list of service request object and 200 status if no error
             message and corresponding status if error
         """
+        if not user:
+            return Response(dict(service_requests=[]), status=status.HTTP_401_UNAUTHORIZED)
+            
+        try:
+            userEntry = User.objects.get(email=user.email)
+        except:
+            return Response(dict(service_requests=[]), status=status.HTTP_401_UNAUTHORIZED)
+        
+        # Only mechanics are allowed to access this operation
+        if not userEntry or userEntry.role != User.ROLE_CHOICES.MECH:
+            return Response(dict(service_requests=[]), status=status.HTTP_403_FORBIDDEN)
+
         service_requests = ServiceRequest.objects.filter(mechanic__user=user)
         serializer = ServiceRequestSerializer(service_requests, many=True)
         response_data = dict(

@@ -3802,109 +3802,35 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "title": "Service Requests",
+                  "$ref": "#/components/schemas/ServiceRequests"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
                   "type": "object",
-                  "required": [
-                    "service_requests"
-                  ],
                   "properties": {
-                    "service_requests": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "required": [
-                          "created_on",
-                          "id",
-                          "mechanic",
-                          "vehicle"
-                        ],
-                        "properties": {
-                          "id": {
-                            "type": "integer",
-                            "readOnly": true
-                          },
-                          "mechanic": {
-                            "type": "object",
-                            "required": [
-                              "id",
-                              "mechanic_code",
-                              "user"
-                            ],
-                            "properties": {
-                              "id": {
-                                "type": "integer",
-                                "readOnly": true
-                              },
-                              "mechanic_code": {
-                                "type": "string"
-                              },
-                              "user": {
-                                "type": "object",
-                                "required": [
-                                  "email"
-                                ],
-                                "properties": {
-                                  "email": {
-                                    "type": "string"
-                                  },
-                                  "number": {
-                                    "type": "string",
-                                    "nullable": true
-                                  }
-                                }
-                              }
-                            }
-                          },
-                          "vehicle": {
-                            "type": "object",
-                            "properties": {
-                              "id": {
-                                "type": "integer",
-                                "readOnly": true
-                              },
-                              "vin": {
-                                "type": "string"
-                              },
-                              "owner": {
-                                "type": "object",
-                                "properties": {
-                                  "email": {
-                                    "type": "string"
-                                  },
-                                  "number": {
-                                    "type": "string",
-                                    "nullable": true
-                                  }
-                                },
-                                "required": [
-                                  "email"
-                                ]
-                              }
-                            },
-                            "required": [
-                              "id",
-                              "owner",
-                              "vin"
-                            ]
-                          },
-                          "problem_details": {
-                            "type": "string"
-                          },
-                          "status": {
-                            "enum": [
-                              "Pending",
-                              "Finished"
-                            ],
-                            "type": "string"
-                          },
-                          "created_on": {
-                            "type": "string",
-                            "format": "date-time"
-                          }
-                        }
-                      }
+                    "message": {
+                      "type": "string"
                     }
-                  }
+                  },
+                  "required": [
+                    "message"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceRequests"
                 }
               }
             }
@@ -4333,6 +4259,111 @@
           "amount",
           "coupon_code"
         ]
+      },
+      "ServiceRequests": {
+        "title": "Service Requests",
+        "type": "object",
+        "required": [
+          "service_requests"
+        ],
+        "properties": {
+          "service_requests": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "created_on",
+                "id",
+                "mechanic",
+                "vehicle"
+              ],
+              "properties": {
+                "id": {
+                  "type": "integer",
+                  "readOnly": true
+                },
+                "mechanic": {
+                  "type": "object",
+                  "required": [
+                    "id",
+                    "mechanic_code",
+                    "user"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "integer",
+                      "readOnly": true
+                    },
+                    "mechanic_code": {
+                      "type": "string"
+                    },
+                    "user": {
+                      "type": "object",
+                      "required": [
+                        "email"
+                      ],
+                      "properties": {
+                        "email": {
+                          "type": "string"
+                        },
+                        "number": {
+                          "type": "string",
+                          "nullable": true
+                        }
+                      }
+                    }
+                  }
+                },
+                "vehicle": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer",
+                      "readOnly": true
+                    },
+                    "vin": {
+                      "type": "string"
+                    },
+                    "owner": {
+                      "type": "object",
+                      "properties": {
+                        "email": {
+                          "type": "string"
+                        },
+                        "number": {
+                          "type": "string",
+                          "nullable": true
+                        }
+                      },
+                      "required": [
+                        "email"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "owner",
+                    "vin"
+                  ]
+                },
+                "problem_details": {
+                  "type": "string"
+                },
+                "status": {
+                  "enum": [
+                    "Pending",
+                    "Finished"
+                  ],
+                  "type": "string"
+                },
+                "created_on": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "securitySchemes": {
