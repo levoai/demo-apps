@@ -34,11 +34,15 @@ const ApiExplorer = ({ accessToken }) => {
         system.preauthorizeApiKey("bearerAuth", accessToken)
     },[accessToken])
 
-    return (
-        (Object.keys(apiSpec).length === 0) ? 
-            <SwaggerUI url={""} /> : <SwaggerUI spec={apiSpec} onComplete={handleSwaggerOnLoad} />
-           
-    );
+    const componentProps = {
+        dom_id: '#swagger-ui',
+        showExtensions: true,
+        showCommonExtensions: true,
+        onComplete: handleSwaggerOnLoad,
+        spec: apiSpec
+    };
+
+    return (< SwaggerUI {...componentProps} />);
 }
 
 export default (ApiExplorer)

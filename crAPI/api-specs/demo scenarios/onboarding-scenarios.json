@@ -739,15 +739,32 @@
     },
 
     "/identity/api/v1/admin/users/find": {
-      "x-levo-allowed-roles": [
-        "ROLE_ADMIN"
-      ],
       "get": {
         "tags": [
           "Identity / Admin"
         ],
         "operationId": "OP_IDENT_ADMIN_USERS_FIND",
         "summary": "Get details of a User given their phone number.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-levo-allowed-roles": [
+          "ROLE_ADMIN"
+        ],
+        "parameters": [
+          {
+            "name": "number",
+            "in": "query",
+            "description": "Phone number of the user to locate.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "4156895423"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -811,25 +828,8 @@
             },
             "description": "User not found."
           }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      },
-      "parameters": [
-        {
-          "name": "number",
-          "in": "query",
-          "description": "Phone number of the user to locate.",
-          "required": true,
-          "schema": {
-            "type": "string",
-            "example": "4156895423"
-          }
         }
-      ]
+      }
     }
 
   },

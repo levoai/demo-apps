@@ -65,7 +65,7 @@ const HackPad = ({history, accessToken}) => {
                   <h4>
                     crAPI has several <a href="https://github.com/levoai/demo-apps/blob/main/crAPI/docs/challenges.md">
                       vulnerabilities. </a>
-                    Below exercises demostrate on how you can exploit these vulnerabilities.
+                    Below exercises demonstrate exploiting these vulnerabilities.
                   </h4>
                   <div className="hackpad__header__token">
                     <span className="hackpad__header__token__text"> This is your access token: </span>
