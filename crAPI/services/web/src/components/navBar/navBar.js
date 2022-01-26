@@ -64,6 +64,7 @@ const Navbar = (props) => {
     if (input.key === "dashboard") history.push(`/`);
     else if (input.key === "shop") history.push(`/shop`);
     else if (input.key === "forum") history.push(`/forum`);
+    else if (input.key === "apiexplorer") history.push(`/apiexplorer`);
     else if (input.key === "hackpad") history.push(`/hackpad`);
   };
 
@@ -74,12 +75,14 @@ const Navbar = (props) => {
         <Menu.Item key="dashboard">Dashboard</Menu.Item>
         <Menu.Item key="shop">Shop</Menu.Item>
         <Menu.Item key="forum">Community</Menu.Item>
+        <Menu.Item key="apiexplorer">API Explorer</Menu.Item>
         <Menu.Item key="hackpad">Hack Pad</Menu.Item>
       </Menu>)
     }
     else {
       return (<Menu onClick={(key) => takeNavigationAction(key)} mode="horizontal" theme="dark">
         <Menu.Item key="dashboard">Dashboard</Menu.Item>
+        <Menu.Item key="apiexplorer">API Explorer</Menu.Item>
         <Menu.Item key="hackpad">Hack Pad</Menu.Item>
       </Menu>)
     }

@@ -43,6 +43,7 @@ import NewPostContainer from "../../containers/newPost/newPost";
 import PostContainer from "../../containers/post/post";
 import UserReportsContainer from "../../containers/userReports/userReports";
 import HackPadContainer from "../../containers/hackPad/hackPad";
+import ApiExplorerContainer from "../../containers/apiExplorer/apiExplorer";
 
 import { logOutUserAction } from "../../actions/userActions";
 import { isAccessTokenValid } from "../../utils";
@@ -302,6 +303,15 @@ const StyledComp = connect(
               component={ShopContainer}
               isLoggedIn={props.isLoggedIn}
               componentRole={roleTypes.ROLE_USER}
+              userRole={props.role}
+              accessToken={props.accessToken}
+              logOutUser={props.logOutUser}
+            />
+            <AfterLogin
+              path="/apiexplorer"
+              component={ApiExplorerContainer}
+              isLoggedIn={props.isLoggedIn}
+              componentRole={props.role}
               userRole={props.role}
               accessToken={props.accessToken}
               logOutUser={props.logOutUser}

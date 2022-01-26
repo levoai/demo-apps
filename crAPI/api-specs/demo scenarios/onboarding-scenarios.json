@@ -1,7 +1,7 @@
 {
   "openapi": "3.0.1",
   "info": {
-    "title": "OWASP crAPI API - Demo Scenario A-OK",
+    "title": "Levo's Demo for OWASP crAPI APIs",
     "version": "1.0"
   },
   "externalDocs": {
@@ -18,6 +18,11 @@
           "Home"
         ],
         "security": [],
+        "x-levo-allowed-roles": [
+          "ROLE_USER",
+          "ROLE_MECHANIC",
+          "ROLE_ADMIN"
+        ],
         "responses": {
           "200": {
             "content": {
@@ -45,6 +50,11 @@
           {
             "bearerAuth": []
           }
+        ],
+        "x-levo-allowed-roles": [
+          "ROLE_USER",
+          "ROLE_MECHANIC",
+          "ROLE_ADMIN"
         ],
         "responses": {
           "200": {
@@ -143,6 +153,11 @@
         "security": [
           {}
         ],
+        "x-levo-allowed-roles": [
+          "ROLE_USER",
+          "ROLE_MECHANIC",
+          "ROLE_ADMIN"
+        ],
         "parameters": [
           {
             "name": "Accept",
@@ -183,6 +198,11 @@
           {
             "bearerAuth": []
           }
+        ],
+        "x-levo-allowed-roles": [
+          "ROLE_USER",
+          "ROLE_MECHANIC",
+          "ROLE_ADMIN"
         ],
         "responses": {
           "200": {
@@ -296,7 +316,12 @@
             "description": ""
           }
         },
-        "security": []
+        "security": [],
+        "x-levo-allowed-roles": [
+          "ROLE_USER",
+          "ROLE_MECHANIC",
+          "ROLE_ADMIN"
+        ]
       },
       "parameters": [
         {
@@ -323,6 +348,11 @@
           {
             "bearerAuth": []
           }
+        ],
+        "x-levo-allowed-roles": [
+          "ROLE_USER",
+          "ROLE_MECHANIC",
+          "ROLE_ADMIN"
         ],
         "parameters": [
           {
@@ -536,6 +566,11 @@
             "bearerAuth": []
           }
         ],
+        "x-levo-allowed-roles": [
+          "ROLE_USER",
+          "ROLE_MECHANIC",
+          "ROLE_ADMIN"
+        ],
         "parameters": [
           {
             "in": "path",
@@ -602,6 +637,11 @@
           {
             "bearerAuth": []
           }
+        ],
+        "x-levo-allowed-roles": [
+          "ROLE_USER",
+          "ROLE_MECHANIC",
+          "ROLE_ADMIN"
         ],
         "requestBody": {
           "content": {
