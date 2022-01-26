@@ -88,14 +88,14 @@ const Profile = (props) => {
       type="primary"
       shape="round"
       icon={<CameraOutlined />}
-      size="large"
+      size="medium"
       onClick={() => picInputRef.current.click()}
     />
   );
   const renderProfileDescription = () => (
     <Row gutter={[60, 20]}>
       <Col flex="200px">
-        <Badge offset={[0, 200]} count={renderChangePicButton()}>
+        <Badge offset={[0, 180]} count={renderChangePicButton()}>
           <input
             type="file"
             hidden
@@ -125,9 +125,8 @@ const Profile = (props) => {
               Change email
             </Button>
           </Descriptions.Item>
-          <Descriptions.Item label="Phone No.">
-            {userData.number}
-          </Descriptions.Item>
+          <Descriptions.Item label="Phone No."> {userData.number} </Descriptions.Item>
+          <Descriptions.Item label="Role"> {userData.role} </Descriptions.Item>
         </Descriptions>
       </Col>
     </Row>
