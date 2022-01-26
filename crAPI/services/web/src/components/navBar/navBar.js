@@ -24,6 +24,7 @@ import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { logOutUserAction } from "../../actions/userActions";
 import defaultProficPic from "../../assets/default_profile_pic.png";
+import roleTypes from "../../constants/roleTypes";
 
 const { Header } = Layout;
 /**
@@ -36,7 +37,7 @@ const { Header } = Layout;
  * dropdown alos consists the logout button
  */
 const Navbar = (props) => {
-  const { history, logOutUser, isLoggedIn, name, profilePicData } = props;
+  const { history, logOutUser, isLoggedIn, name, profilePicData, role } = props;
 
   const logout = () => {
     logOutUser({
@@ -67,14 +68,22 @@ const Navbar = (props) => {
   };
 
 
-  const menuNavigation = () => (
-    <Menu onClick={(key) => takeNavigationAction(key)} mode="horizontal" theme="dark">
-      <Menu.Item key="dashboard">Dashboard</Menu.Item>
-      <Menu.Item key="shop">Shop</Menu.Item>
-      <Menu.Item key="forum">Community</Menu.Item>
-      <Menu.Item key="hackpad">Hack Pad</Menu.Item>
-    </Menu>
-  );
+  const menuNavigation = () => {
+    if (role === roleTypes.ROLE_USER) {
+      return (<Menu onClick={(key) => takeNavigationAction(key)} mode="horizontal" theme="dark">
+        <Menu.Item key="dashboard">Dashboard</Menu.Item>
+        <Menu.Item key="shop">Shop</Menu.Item>
+        <Menu.Item key="forum">Community</Menu.Item>
+        <Menu.Item key="hackpad">Hack Pad</Menu.Item>
+      </Menu>)
+    }
+    else {
+      return (<Menu onClick={(key) => takeNavigationAction(key)} mode="horizontal" theme="dark">
+        <Menu.Item key="dashboard">Dashboard</Menu.Item>
+        <Menu.Item key="hackpad">Hack Pad</Menu.Item>
+      </Menu>)
+    }
+  }
 
   return (
     <Header>
@@ -125,13 +134,14 @@ const Navbar = (props) => {
 };
 
 const mapStateToProps = ({
-  userReducer: { accessToken, name, isLoggedIn },
+  userReducer: { accessToken, name, isLoggedIn, role },
   profileReducer: { profilePicData },
 }) => ({
   accessToken,
   name,
   isLoggedIn,
   profilePicData,
+  role
 });
 
 const mapDispatchToProps = {
@@ -141,6 +151,7 @@ const mapDispatchToProps = {
 Navbar.propTypes = {
   isLoggedIn: PropTypes.bool,
   accessToken: PropTypes.string,
+  role: PropTypes.string,
   name: PropTypes.string,
   profilePicData: PropTypes.string,
   logOutUser: PropTypes.func,
