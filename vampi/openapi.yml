@@ -1,0 +1,497 @@
+openapi: 3.0.0
+info:
+  title: Options title
+  description: Description from options
+  version: 6.0.7-beta
+  termsOfService: http://tos.myweb.com
+servers:
+  - url: http://{{baseurl}}
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+security:
+  - bearerAuth: []
+paths:
+  /users/v1/{username}:
+    get:
+      tags:
+        - default
+      summary: Retrieves user by username
+      description: Displays user by username
+      parameters:
+        - name: username
+          in: path
+          schema:
+            type: string
+          required: true
+          description: (Required) retrieve username data
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                - username: et cupidatat
+                  email: labore
+                - username: incididunt elit mollit
+                  email: dolor dolor id
+        '404':
+          description: Not Found
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: text/plain
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: ''
+    delete:
+      tags:
+        - default
+      summary: Deletes user by username (Only Admins)
+      description: Deletes user by username (Only Admins)
+      parameters:
+        - name: username
+          in: path
+          schema:
+            type: string
+          required: true
+          description: (Required) Delete username
+      responses:
+        '204':
+          description: No Content
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: text/plain
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: ''
+        '401':
+          description: Unauthorized
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: text/plain
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: ''
+        '404':
+          description: Not Found
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: text/plain
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: ''
+  /users/v1/{username}/email:
+    put:
+      tags:
+        - default
+      summary: Update users email
+      description: Update a single users email
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                email: test@example.com
+      parameters:
+        - name: username
+          in: path
+          schema:
+            type: string
+          required: true
+          description: (Required) username to update email
+      responses:
+        '204':
+          description: No Content
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: text/plain
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: ''
+        '400':
+          description: Bad Request
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: text/plain
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: ''
+        '401':
+          description: Unauthorized
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: text/plain
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: ''
+  /users/v1/{username}/password:
+    put:
+      tags:
+        - default
+      summary: Update users password
+      description: Update users password
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      parameters:
+        - name: username
+          in: path
+          schema:
+            type: string
+          required: true
+          description: (Required) username to update password
+      responses:
+        '204':
+          description: No Content
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: text/plain
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: ''
+        '400':
+          description: Bad Request
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: text/plain
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: ''
+        '401':
+          description: Unauthorized
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: text/plain
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: ''
+  /users/v1:
+    get:
+      tags:
+        - default
+      summary: Retrieves all users
+      description: Displays all users with basic information
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: text/plain
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: ''
+  /users/v1/_debug:
+    get:
+      tags:
+        - default
+      summary: Retrieves all details for all users
+      description: Displays all details for all users
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: text/plain
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: ''
+  /users/v1/register:
+    post:
+      security: []
+      tags:
+        - default
+      summary: Register new user
+      description: Register new user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: text/plain
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: ''
+        '400':
+          description: Bad Request
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: text/plain
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: ''
+  /users/v1/login:
+    post:
+      tags:
+        - default
+      summary: Login to VAmPI
+      description: Login to VAmPI
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: text/plain
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: ''
+        '400':
+          description: Bad Request
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: text/plain
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: ''
+      security: []
+  /books/v1:
+    get:
+      tags:
+        - default
+      summary: Retrieves all books
+      description: Retrieves all books
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: text/plain
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: ''
+    post:
+      tags:
+        - default
+      summary: Add new book
+      description: Add new book
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: text/plain
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: ''
+        '400':
+          description: Bad Request
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: text/plain
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: ''
+        '401':
+          description: Unauthorized
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: text/plain
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: ''
+  /books/v1/{book}:
+    get:
+      tags:
+        - default
+      summary: Retrieves book by title along with secret
+      description: Retrieves book by title along with secret. Only the owner may retrieve it
+      parameters:
+        - name: book
+          in: path
+          schema:
+            type: string
+          required: true
+          description: (Required) retrieve book data
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                - book_title: occaecat
+                  secret: laboris et nisi
+                  owner: sunt laboris
+                - book_title: cillum
+                  secret: Ut in non amet exercitation
+                  owner: amet qui aliquip
+        '401':
+          description: Unauthorized
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: text/plain
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: ''
+        '404':
+          description: Not Found
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: text/plain
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: ''
+  /createdb:
+    get:
+      tags:
+        - default
+      summary: Creates and populates the database with dummy data
+      description: Creates and populates the database with dummy data
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: text/plain
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: ''
+  /:
+    get:
+      tags:
+        - default
+      summary: VAmPI home
+      description: >-
+        VAmPI is a vulnerable on purpose API. It was created in order to
+        evaluate the efficiency of third party tools in identifying
+        vulnerabilities in APIs but it can also be used in learning/teaching
+        purposes.
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: text/plain
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: ''
+      security: []
