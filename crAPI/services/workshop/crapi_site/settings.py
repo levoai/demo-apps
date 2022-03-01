@@ -66,6 +66,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'health_check',
     'health_check.db',
+    'ratelimit',
 ]
 
 MIDDLEWARE = [
