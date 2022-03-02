@@ -109,6 +109,44 @@
                 }
             }
         },
+        "/identity/api/v2/user/videos/list_sample_videos": {
+            "get": {
+                "tags": [
+                    "profile-controller"
+                ],
+                "operationId": "listSampleVideos",
+                "summary": "List a selection of sample videos.",
+                "responses": {
+                    "200": {
+                        "description": "The file names of the sample videos.",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ]
+            },
+            "parameters": [
+                {
+                    "name": "number",
+                    "description": "The number of sample videos to return.",
+                    "in": "query",
+                    "required": true,
+                    "schema": {
+                        "type": "integer"
+                    },
+                    "example": 10
+                }
+            ]
+        },
         "/identity/api/v2/vehicle/resend_email": {
             "post": {
                 "tags": [
