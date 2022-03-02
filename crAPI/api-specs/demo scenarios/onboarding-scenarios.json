@@ -870,8 +870,256 @@
           }
         }
       }
-    }
+    },
 
+    "/community/api/v2/coupon/validate-coupon": {
+      "post": {
+        "operationId": "OP_COMMUNITY_COUPON_VALIDATE_COUPON",
+        "summary": "Validate the provided discount coupon code",
+        "tags": [
+          "Community / Coupon"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-levo-allowed-roles": [
+          "ROLE_USER",
+          "ROLE_MECHANIC",
+          "ROLE_ADMIN"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "coupon_code"
+                ],
+                "properties": {
+                  "coupon_code": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "CreatedAt",
+                    "amount",
+                    "coupon_code"
+                  ],
+                  "properties": {
+                    "CreatedAt": {
+                      "type": "string"
+                    },
+                    "amount": {
+                      "type": "string"
+                    },
+                    "coupon_code": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "description": ""
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {}
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      },
+      "get": {
+        "operationId": "OP_COMMUNITY_COUPON_GET_VALIDATE_COUPON",
+        "summary": "Validate the provided discount coupon code",
+        "tags": [
+          "Community / Coupon"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "coupon_code",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "example": "TRAC075"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "CreatedAt",
+                    "amount",
+                    "coupon_code"
+                  ],
+                  "properties": {
+                    "CreatedAt": {
+                      "type": "string"
+                    },
+                    "amount": {
+                      "type": "string"
+                    },
+                    "coupon_code": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "description": ""
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {}
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      },
+      "parameters": []
+    },
+
+    "/community/api/v1/coupon/validate-coupon": {
+      "get": {
+        "operationId": "OP_COMMUNITY_COUPON_GET_V1_VALIDATE_COUPON",
+        "summary": "Validate the provided discount coupon code",
+        "tags": [
+          "Community / Coupon"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-levo-allowed-roles": [
+          "ROLE_USER",
+          "ROLE_MECHANIC",
+          "ROLE_ADMIN"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "coupon_code",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "example": "TRAC075"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "CreatedAt",
+                    "amount",
+                    "coupon_code"
+                  ],
+                  "properties": {
+                    "CreatedAt": {
+                      "type": "string"
+                    },
+                    "amount": {
+                      "type": "string"
+                    },
+                    "coupon_code": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "description": ""
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {}
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      },
+      "parameters": []
+    },
+
+    "/identity/api/v2/user/videos/list_sample_videos": {
+      "get": {
+        "tags": [
+          "Identity / User"
+        ],
+        "operationId": "OP_IDENT_USR_LIST_SAMPLE_VIDEOS",
+        "summary": "List a selection of sample videos.",
+        "responses": {
+          "200": {
+            "description": "The file names of the sample videos.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "name": "number",
+          "description": "The number of sample videos to return.",
+          "in": "query",
+          "required": true,
+          "schema": {
+            "type": "integer"
+          },
+          "example": 10
+        }
+      ]
+    }
   },
   "components": {
     "schemas": {
