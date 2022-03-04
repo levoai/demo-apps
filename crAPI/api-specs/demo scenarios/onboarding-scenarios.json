@@ -201,7 +201,6 @@
         ],
         "x-levo-allowed-roles": [
           "ROLE_USER",
-          "ROLE_MECHANIC",
           "ROLE_ADMIN"
         ],
         "responses": {
@@ -351,7 +350,6 @@
         ],
         "x-levo-allowed-roles": [
           "ROLE_USER",
-          "ROLE_MECHANIC",
           "ROLE_ADMIN"
         ],
         "parameters": [
@@ -640,7 +638,6 @@
         ],
         "x-levo-allowed-roles": [
           "ROLE_USER",
-          "ROLE_MECHANIC",
           "ROLE_ADMIN"
         ],
         "requestBody": {

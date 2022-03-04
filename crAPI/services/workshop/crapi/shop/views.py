@@ -86,7 +86,7 @@ class OrderControlView(APIView):
     Order Controller View
     """
     @jwt_auth_required
-    @method_decorator(ratelimit(key='ip', group="/orders/{order_id}", rate='3/m', method='GET', block=False))
+    @method_decorator(ratelimit(key='ip', group="/orders/{order_id}", rate='30/m', method='GET', block=False))
     def get(self, request, order_id=None, user=None):
         """
         order view for fetching  a particular order
@@ -100,7 +100,7 @@ class OrderControlView(APIView):
             order object and 200 status if no error
             message and corresponding status if error
         """
-        if is_ratelimited(request, group="/orders/{order_id}", key='ip', rate='3/m', method='GET', increment=False):
+        if is_ratelimited(request, group="/orders/{order_id}", key='ip', rate='30/m', method='GET', increment=False):
             return JsonResponse({'message' : 'You are being rate limited!'}, status=status.HTTP_429_TOO_MANY_REQUESTS)
 
         order = Order.objects.get(id=order_id)
@@ -201,7 +201,7 @@ class OrderDetailsView(APIView):
     """
 
     @jwt_auth_required
-    @method_decorator(ratelimit(key='ip', group="/orders/all", rate='3/m', method='GET', block=False))
+    @method_decorator(ratelimit(key='ip', group="/orders/all", rate='30/m', method='GET', block=False))
     def get(self, request, user=None):
         """
         returns all the order of the particular user
@@ -213,7 +213,7 @@ class OrderDetailsView(APIView):
             list of order object and 200 status if no error
             message and corresponding status if error
         """ 
-        if is_ratelimited(request, group="/orders/all", key='ip', rate='3/m', method='GET', increment=False):
+        if is_ratelimited(request, group="/orders/all", key='ip', rate='30/m', method='GET', increment=False):
             return JsonResponse({'message' : 'You are being rate limited!'}, status=status.HTTP_429_TOO_MANY_REQUESTS)
 
         orders = Order.objects.filter(user=user)

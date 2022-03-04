@@ -19,7 +19,7 @@ Use the info below to login to crAPI
 
 ### User's Vehicle UUID
 
-Below are UUIDs of vechicles that belong to users:
+Below are UUIDs of vehicles that belong to users:
 
 | UserID                 | Vehicle UUID                         | VIN               |
 | ---------------------- | ------------------------------------ | ----------------- |
@@ -38,16 +38,23 @@ Below are IDs of vehicle service reports filed by the users:
 | victim.one@example.com | 1, & 2             |
 | victim.two@example.com | 3, & 4             |
 | hacker@darkweb.com     | 5, & 6             |
+| admin.one@example.com  | 7, & 8             |
+| admin.two@example.com  | 9, & 10            |
 
 ### User's Previous Shop Orders
 
 Below are IDs of shop orders placed by the users:
 
-| UserID                 | Service Report IDs |
-| ---------------------- | ------------------ |
-| victim.one@example.com | 1, & 2             |
-| victim.two@example.com | 3, & 4             |
-| hacker@darkweb.com     | No Orders          |
+| UserID                   | Order IDs          |
+| ----------------------   | ------------------ |
+| victim.one@example.com   | 1, & 2             |
+| victim.two@example.com   | 3, & 4             |
+| hacker@darkweb.com       | No Orders          |
+| admin.one@example.com    | 5, & 6             |
+| admin.two@example.com    | 7, & 8             |
+| mechanic.one@example.com | 9, & 10            |
+| mechanic.two@example.com | 11, & 12           |
+
 
 Please note that these orders are pre-populated on the first start of crAPI. If you manipulate these orders via the shop API endpoints, these order IDs may not be consistent.
 
