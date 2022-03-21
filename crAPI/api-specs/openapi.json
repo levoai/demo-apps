@@ -2185,6 +2185,11 @@
             "bearerAuth": []
           }
         ],
+        "x-levo-allowed-roles": [
+          "ROLE_USER",
+          "ROLE_MECHANIC",
+          "ROLE_ADMIN"
+        ],
         "parameters": [
           {
             "in": "query",
