@@ -1217,7 +1217,6 @@
         ],
         "x-levo-allowed-roles": [
           "ROLE_USER",
-          "ROLE_MECHANIC",
           "ROLE_ADMIN"
         ],
         "responses": {
@@ -1342,7 +1341,6 @@
         ],
         "x-levo-allowed-roles": [
           "ROLE_USER",
-          "ROLE_MECHANIC",
           "ROLE_ADMIN"
         ],
         "requestBody": {
@@ -1429,7 +1427,6 @@
         ],
         "x-levo-allowed-roles": [
           "ROLE_USER",
-          "ROLE_MECHANIC",
           "ROLE_ADMIN"
         ],
         "responses": {
@@ -1525,7 +1522,6 @@
         ],
         "x-levo-allowed-roles": [
           "ROLE_USER",
-          "ROLE_MECHANIC",
           "ROLE_ADMIN"
         ],
         "responses": {
@@ -3118,7 +3114,6 @@
         ],
         "x-levo-allowed-roles": [
           "ROLE_USER",
-          "ROLE_MECHANIC",
           "ROLE_ADMIN"
         ],
         "security": [
@@ -3635,7 +3630,6 @@
         ],
         "x-levo-allowed-roles": [
           "ROLE_USER",
-          "ROLE_MECHANIC",
           "ROLE_ADMIN"
         ],
         "parameters": [

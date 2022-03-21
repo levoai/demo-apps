@@ -16,13 +16,15 @@
 """
 contains views related to Shop APIs
 """
-import logging
 from django.utils import timezone
-from django.http import FileResponse
+from django.http import FileResponse, JsonResponse
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from ratelimit.decorators import ratelimit
+from ratelimit.core import is_ratelimited
+from django.utils.decorators import method_decorator
 
 from crapi.shop.serializers import OrderSerializer, ProductSerializer, CouponSerializer, ProductQuantitySerializer
 from utils.jwt import jwt_auth_required
@@ -84,12 +86,13 @@ class OrderControlView(APIView):
     Order Controller View
     """
     @jwt_auth_required
+    @method_decorator(ratelimit(key='ip', group="/orders/{order_id}", rate='30/m', method='GET', block=False))
     def get(self, request, order_id=None, user=None):
         """
         order view for fetching  a particular order
         :param request: http request for the view
             method allowed: GET
-            http request should be authorised by the jwt token of the user
+            http request should be authorized by the jwt token of the user
         :param order_id:
             order_id of the order referring to\
         :param user: User object of the requesting user
@@ -97,6 +100,9 @@ class OrderControlView(APIView):
             order object and 200 status if no error
             message and corresponding status if error
         """
+        if is_ratelimited(request, group="/orders/{order_id}", key='ip', rate='30/m', method='GET', increment=False):
+            return JsonResponse({'message' : 'You are being rate limited!'}, status=status.HTTP_429_TOO_MANY_REQUESTS)
+
         order = Order.objects.get(id=order_id)
         if user != order.user:
             return Response({'message': messages.RESTRICTED}, status=status.HTTP_403_FORBIDDEN)
@@ -195,6 +201,7 @@ class OrderDetailsView(APIView):
     """
 
     @jwt_auth_required
+    @method_decorator(ratelimit(key='ip', group="/orders/all", rate='30/m', method='GET', block=False))
     def get(self, request, user=None):
         """
         returns all the order of the particular user
@@ -205,7 +212,10 @@ class OrderDetailsView(APIView):
         :returns Response object with
             list of order object and 200 status if no error
             message and corresponding status if error
-        """
+        """ 
+        if is_ratelimited(request, group="/orders/all", key='ip', rate='30/m', method='GET', increment=False):
+            return JsonResponse({'message' : 'You are being rate limited!'}, status=status.HTTP_429_TOO_MANY_REQUESTS)
+
         orders = Order.objects.filter(user=user)
         serializer = OrderSerializer(orders, many=True)
         response_data = dict(

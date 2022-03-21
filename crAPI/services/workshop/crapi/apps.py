@@ -16,16 +16,14 @@
 """
 Configuration for crapi application
 """
-import django
 import sys
 from django.apps import AppConfig
 import bcrypt
 from django.utils import timezone
-from django.db import models
-from django.db import connection, transaction
+from django.db import connection
 import logging
 
-MAX_PREDEF_MECH_REPORTS:int = 6 # The maximum predefined reports to generate
+MAX_PREDEF_MECH_REPORTS:int = 10 # The maximum predefined reports to generate
 MAX_PREDEF_REPORTS_PER_USER:int = 2
 
 logger = logging.getLogger()
@@ -212,10 +210,15 @@ def create_orders_for_user(user: str):
 
 
 def create_orders():
-    """Pre-populuate orders for the two pre-defined users"""
-    users = ["victim.one@example.com", "victim.two@example.com"]
-    create_orders_for_user(user=users[0])
-    create_orders_for_user(user=users[1])
+    """Pre-populate orders for some of the pre-defined users"""
+    users = ["victim.one@example.com", "victim.two@example.com",
+             "admin.one@example.com", "admin.two@example.com",
+             "mechanic.one@example.com", "mechanic.two@example.com"]
+
+    for user in users:
+        create_orders_for_user(user=user)
+
+    return
 
 
 
@@ -246,6 +249,7 @@ class CRAPIConfig(AppConfig):
             logger.error("Cannot Pre Populate Reports: "+str(e))
 
         try:
+            # Cannot be called prior to creating mechanics!
             create_orders()
         except Exception as e:
             logger.error("Cannot Pre Populate Orders: " + str(e))
