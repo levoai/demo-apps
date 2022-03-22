@@ -990,8 +990,11 @@
         },
         "security": [
           {
-            "JWT": []
+            "bearerAuth": []
           }
+        ],
+        "x-levo-allowed-roles": [
+          "ROLE_USER"
         ]
       },
       "parameters": [

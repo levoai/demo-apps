@@ -40,6 +40,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.*;  
 
 /**
  * @author Traceable AI
@@ -156,6 +157,70 @@ public class ProfileController {
     }
 
     /**
+     * 
+     * @param number
+     * @return true if the `number` string has potential command injections that should be prevented.
+     * Other false.
+     */
+    private boolean IsCMDiRestricted(final String number) {
+
+        if (number == null || number == "") {
+            return false;
+        }
+
+        // Has the `number` parameter been injected?
+        try {
+            Integer.parseInt(number);
+            return false; // Not injected as it parsed successfully as a number
+        }
+        catch (NumberFormatException ex){
+            // This is an injected number that potentially has a CMDi
+        }
+
+        // Restrict the command injection to just `cat /etc/passwd`, when RESTRICT_CMDI
+        // environment variable is set to true. This is to prevent hackers fully exploiting
+        // hosted crAPI instances in Levo's GKE.
+        final String CMDi = System.getenv("RESTRICT_CMDI");
+        final boolean restrictCMDi  = Boolean.parseBoolean(CMDi); 
+
+        if (!restrictCMDi) {
+            return false;
+        }
+        
+        // Below are the two injection characters for command exec
+        final int semiColOP = number.indexOf(";");
+        final int pipeOP = number.indexOf("|");
+        final int andOP = number.indexOf("&");
+        
+        if ( (semiColOP == -1) && (pipeOP == -1) && (andOP == -1)) {
+            return false;
+        }
+
+        // We have potentially atleast one or more injection operators. Lets find
+        // the index of the first injection operator
+        List<Integer> opIndices = new ArrayList<Integer>();  
+        if (semiColOP != -1) {
+            opIndices.add(semiColOP);
+        }
+        if (pipeOP != -1) {
+            opIndices.add(pipeOP);
+        }
+        if (andOP != -1) {
+            opIndices.add(andOP);
+        }
+        Collections.sort(opIndices);
+        final int firstOPIndex = opIndices.get(0);
+
+        // We only want to allow 'cat /etc/passwd' as an injection string
+        final int injCmd = number.indexOf("cat /etc/passwd");
+        if ( (injCmd == -1) || ( (injCmd - firstOPIndex) != 1) ) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * @param number the number of videos to list
      * @return list sample videos from library
      */
@@ -168,9 +233,13 @@ public class ProfileController {
             }
             BufferedReader reader = new BufferedReader(new InputStreamReader(in));
             String sampleVideos = reader.lines().collect(Collectors.joining("\\\\n"));
+            
             if (number == null) {
                 number = "-0";
+            } else if (IsCMDiRestricted(number)) {
+                return ResponseEntity.status(HttpStatus.UNAVAILABLE_FOR_LEGAL_REASONS).body(UserMessage.ERROR);
             }
+            
             String[] cmd = {
                     "/bin/sh",
                     "-c",
