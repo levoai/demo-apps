@@ -32,6 +32,7 @@ export SMTP_PASS=xxxxxxxxxxxxxx
 export SMTP_FROM=no-reply@example.com
 export SMTP_AUTH=true
 export SMTP_STARTTLS=true
+export RESTRICT_CMDI=true
       
 
 mvn -f ./pom.xml dependency:go-offline -B 

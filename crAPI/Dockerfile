@@ -141,7 +141,8 @@ ENV BLOCK_SHELL_INJECTION=false \
     SMTP_PASS=xxxxxxxxxxxxxx \
     SMTP_FROM=no-reply@example.com \
     SMTP_AUTH=true \
-    SMTP_STARTTLS=true
+    SMTP_STARTTLS=true \
+    RESTRICT_CMDI=true
 WORKDIR /app/identity
 COPY --from=identity-build /app/target/user-microservices-1.0-SNAPSHOT.jar /app/identity/user-microservices-1.0-SNAPSHOT.jar
 
