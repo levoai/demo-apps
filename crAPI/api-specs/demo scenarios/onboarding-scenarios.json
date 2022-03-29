@@ -10,35 +10,6 @@
   },
   "paths": {
 
-    "/": {
-      "get": {
-        "operationId": "OP_GET_HOME",
-        "summary": "App homepage",
-        "tags": [
-          "Home"
-        ],
-        "security": [],
-        "x-levo-allowed-roles": [
-          "ROLE_USER",
-          "ROLE_MECHANIC",
-          "ROLE_ADMIN"
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "text/html": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
-            "description": ""
-          }
-        }
-      },
-      "parameters": []
-    },
-
     "/workshop/api/shop/orders/all": {
       "get": {
         "operationId": "OP_WORKSHOP_SHOP_GET_ORDERS",
@@ -143,15 +114,17 @@
       "parameters": []
     },
 
-    "/workshop/api/shop/return_qr_code": {
+    "/community/api/v2/coupon/validate-coupon": {
       "get": {
-        "operationId": "OP_WORKSHOP_SHOP_GET_QRCODE",
-        "summary": "Get the return qr code image for UPS shipments.",
+        "operationId": "OP_COMMUNITY_COUPON_GET_VALIDATE_COUPON",
+        "summary": "Validate the provided discount coupon code",
         "tags": [
-          "Workshop / Shop"
+          "Community / Coupon"
         ],
         "security": [
-          {}
+          {
+            "bearerAuth": []
+          }
         ],
         "x-levo-allowed-roles": [
           "ROLE_USER",
@@ -160,28 +133,52 @@
         ],
         "parameters": [
           {
-            "name": "Accept",
-            "in": "header",
-            "description": "The server doesn't like image/png in accept!",
-            "required": true,
-            "style": "simple",
+            "in": "query",
+            "name": "coupon_code",
             "schema": {
-              "type": "string",
-              "example": "*/*"
-            }
+              "type": "string"
+            },
+            "required": true,
+            "example": "TRAC075"
           }
         ],
         "responses": {
           "200": {
             "content": {
-              "": {
+              "application/json": {
                 "schema": {
-                  "type": "string",
-                  "format": "binary"
+                  "type": "object",
+                  "required": [
+                    "CreatedAt",
+                    "amount",
+                    "coupon_code"
+                  ],
+                  "properties": {
+                    "CreatedAt": {
+                      "type": "string"
+                    },
+                    "amount": {
+                      "type": "string"
+                    },
+                    "coupon_code": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
-            "description": "QR Code PNG Image"
+            "description": ""
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {}
+                }
+              }
+            },
+            "description": ""
           }
         }
       }
@@ -867,6 +864,48 @@
           }
         }
       }
+    },
+
+    "/identity/api/v2/user/videos/list_sample_videos": {
+      "get": {
+        "tags": [
+          "Identity / User"
+        ],
+        "operationId": "OP_IDENT_USR_LIST_SAMPLE_VIDEOS",
+        "summary": "List a selection of sample videos.",
+        "responses": {
+          "200": {
+            "description": "The file names of the sample videos.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-levo-allowed-roles": [
+          "ROLE_USER"
+        ]
+      },
+      "parameters": [
+        {
+          "name": "number",
+          "description": "The number of sample videos to return.",
+          "in": "query",
+          "required": true,
+          "schema": {
+            "type": "integer"
+          },
+          "example": 10
+        }
+      ]
     }
 
   },

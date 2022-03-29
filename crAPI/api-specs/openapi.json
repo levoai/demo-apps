@@ -969,6 +969,47 @@
         }
       }
     },
+    "/identity/api/v2/user/videos/list_sample_videos": {
+      "get": {
+        "tags": [
+          "Identity / User"
+        ],
+        "operationId": "OP_IDENT_USR_LIST_SAMPLE_VIDEOS",
+        "summary": "List a selection of sample videos.",
+        "responses": {
+          "200": {
+            "description": "The file names of the sample videos.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-levo-allowed-roles": [
+          "ROLE_USER"
+        ]
+      },
+      "parameters": [
+        {
+          "name": "number",
+          "description": "The number of sample videos to return.",
+          "in": "query",
+          "required": true,
+          "schema": {
+            "type": "integer"
+          },
+          "example": 10
+        }
+      ]
+    },
 
     "/identity/api/v2/admin/videos/{video_id}": {
       "delete": {
@@ -2184,6 +2225,11 @@
           {
             "bearerAuth": []
           }
+        ],
+        "x-levo-allowed-roles": [
+          "ROLE_USER",
+          "ROLE_MECHANIC",
+          "ROLE_ADMIN"
         ],
         "parameters": [
           {

@@ -19,7 +19,7 @@ COPY ./services/identity/src /app/src
 RUN mvn -f /app/pom.xml clean package -DskipTests
 
 # Build image for Community service
-FROM golang:buster AS community-builder
+FROM golang:1.18.0-buster AS community-builder
 ENV GO111MODULE=on \
     CGO_ENABLED=0 \
     GOOS=linux \
@@ -37,14 +37,14 @@ WORKDIR /dist
 RUN cp /build/main .
 
 # Build image for Mailhog
-FROM golang:buster AS mailhog-builder
+FROM golang:1.18.0-buster AS mailhog-builder
 RUN apt-get update && apt-get install -y \
     ca-certificates \
     git
 WORKDIR /app
 RUN mkdir -p /app/gocode \
   && export GOPATH=/app/gocode \
-  && go get github.com/mailhog/MailHog \
+  && go install github.com/mailhog/MailHog@v1.0.1 \
   && mv /app/gocode/bin/MailHog /usr/local/bin \
   && rm -rf /app/gocode
 
@@ -141,7 +141,8 @@ ENV BLOCK_SHELL_INJECTION=false \
     SMTP_PASS=xxxxxxxxxxxxxx \
     SMTP_FROM=no-reply@example.com \
     SMTP_AUTH=true \
-    SMTP_STARTTLS=true
+    SMTP_STARTTLS=true \
+    RESTRICT_CMDI=true
 WORKDIR /app/identity
 COPY --from=identity-build /app/target/user-microservices-1.0-SNAPSHOT.jar /app/identity/user-microservices-1.0-SNAPSHOT.jar
 
