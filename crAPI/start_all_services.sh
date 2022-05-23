@@ -45,7 +45,7 @@ waitport 8025
 
 # Start identity service
 print_banner "Starting Identity Service"
-IDENTITY_SERVICE_HEAP="${IDENTITY_SERVICE_HEAP:-128m}"
+IDENTITY_SERVICE_HEAP="${IDENTITY_SERVICE_HEAP:-512m}"
 java -Xms"${IDENTITY_SERVICE_HEAP}" -Xmx"${IDENTITY_SERVICE_HEAP}" -jar /app/identity/user-microservices-1.0-SNAPSHOT.jar &
 
 # Wait for identity service to fully come up
