@@ -411,74 +411,6 @@
       }
     },
 
-    "/identity/api/v2/user/reset-password": {
-      "post": {
-        "operationId": "OP_IDENT_USR_RESET_PASSWORD",
-        "summary": "Reset password",
-        "tags": [
-          "Identity / User"
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "x-levo-allowed-roles": [
-          "ROLE_USER",
-          "ROLE_MECHANIC",
-          "ROLE_ADMIN"
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "password": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "message",
-                    "status"
-                  ],
-                  "properties": {
-                    "message": {
-                      "type": "string"
-                    },
-                    "status": {
-                      "type": "number"
-                    }
-                  }
-                }
-              }
-            },
-            "description": ""
-          },
-          "500": {
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
-            "description": ""
-          }
-        }
-      },
-      "parameters": []
-    },
     "/identity/api/v2/user/change-email": {
       "post": {
         "operationId": "OP_IDENT_USR_CHANGE_EMAIL",
@@ -1592,7 +1524,7 @@
       },
       "parameters": []
     },
-    
+
     "/identity/privacy/user_agent": {
       "get": {
         "tags": [
@@ -3047,7 +2979,7 @@
         }
       }
     },
-   
+
     "/workshop/api/mechanic/": {
       "get": {
         "operationId": "OP_WORKSHOP_MECHANIC_GET_MECHANICS",
