@@ -16,8 +16,7 @@
         "tags": [
           "Home"
         ],
-        "security": [
-        ],
+        "security": [],
         "x-levo-allowed-roles": [
           "ROLE_USER",
           "ROLE_MECHANIC",
@@ -38,7 +37,6 @@
       },
       "parameters": []
     },
-
     "/identity/api/auth/signup": {
       "post": {
         "operationId": "OP_IDENT_AUTH_SIGNUP",
@@ -410,7 +408,6 @@
         }
       }
     },
-
     "/identity/api/v2/user/change-email": {
       "post": {
         "operationId": "OP_IDENT_USR_CHANGE_EMAIL",
@@ -942,7 +939,6 @@
         }
       ]
     },
-
     "/identity/api/v2/admin/videos/{video_id}": {
       "delete": {
         "summary": "As admin, delete the video identified by video_id.",
@@ -1175,7 +1171,6 @@
         }
       }
     },
-
     "/identity/api/v2/vehicle/vehicles": {
       "get": {
         "operationId": "OP_IDENT_VEHICLE_GET_VEHICLES",
@@ -1524,7 +1519,6 @@
       },
       "parameters": []
     },
-
     "/identity/privacy/user_agent": {
       "get": {
         "tags": [
@@ -1576,7 +1570,6 @@
         }
       ]
     },
-
     "/community/api/v2/community/posts/{postId}": {
       "get": {
         "operationId": "OP_COMMUNITY_GET_POST",
@@ -2011,7 +2004,6 @@
         }
       }
     },
-
     "/community/api/v2/coupon/new-coupon": {
       "post": {
         "operationId": "OP_COMMUNITY_COUPON_ADD_COUPON",
@@ -2286,7 +2278,6 @@
       },
       "parameters": []
     },
-
     "/workshop/api/shop/products": {
       "parameters": [],
       "get": {
@@ -2753,7 +2744,7 @@
       },
       "parameters": []
     },
-    "/workshop/api/shop/orders/return_order/{order_id}": {
+    "/workshop/api/shop/orders/return_order": {
       "post": {
         "operationId": "OP_WORKSHOP_SHOP_RETURN_PURCHASE",
         "summary": "Return order specified by the order_id",
@@ -2772,7 +2763,7 @@
         ],
         "parameters": [
           {
-            "in": "path",
+            "in": "query",
             "name": "order_id",
             "schema": {
               "type": "integer"
@@ -2979,7 +2970,6 @@
         }
       }
     },
-
     "/workshop/api/mechanic/": {
       "get": {
         "operationId": "OP_WORKSHOP_MECHANIC_GET_MECHANICS",
@@ -3960,7 +3950,6 @@
         }
       }
     }
-
   },
   "components": {
     "schemas": {
