@@ -571,7 +571,11 @@
                     "role",
                     "video_id",
                     "video_name",
-                    "video_url"
+                    "video_url",
+                    "credit_card",
+                    "address",
+                    "social_security_number",
+                    "date_of_birth"
                   ],
                   "properties": {
                     "number": {
@@ -597,7 +601,39 @@
                     "id": {
                       "type": "number"
                     },
-                    "picture_url": {}
+                    "picture_url": {},
+                    "address": {
+                      "type": "string"
+                    },
+                    "credit_card": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer"
+                        },
+                        "cvv": {
+                          "type": "integer"
+                        },
+                        "card_number": {
+                          "type": "string"
+                        },
+                        "expiry_date": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "cvv",
+                        "card_number",
+                        "expiry_date"
+                      ]
+                    },
+                    "date_of_birth": {
+                      "type": "string"
+                    },
+                    "social_security_number": {
+                      "type": "string"
+                    }
                   }
                 }
               }
@@ -694,7 +730,7 @@
         ],
         "requestBody": {
           "content": {
-            "application/json": {
+            "multipart/form-data": {
               "schema": {
                 "required": [
                   "file"
@@ -714,12 +750,22 @@
           "200": {
             "description": "OK",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "type": "object"
+                  "$ref": "#/components/schemas/ProfileVideo"
                 }
               }
             }
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CRAPIResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
           }
         }
       }
@@ -749,19 +795,30 @@
             "schema": {
               "type": "integer",
               "format": "int64"
-            }
+            },
+            "example": 28
           }
         ],
         "responses": {
           "200": {
             "description": "OK",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "type": "object"
+                  "$ref": "#/components/schemas/ProfileVideo"
                 }
               }
             }
+          },
+          "204": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CRAPIResponse"
+                }
+              }
+            },
+            "description": "Video not found"
           }
         }
       },
@@ -806,12 +863,22 @@
           "200": {
             "description": "OK",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "type": "object"
+                  "$ref": "#/components/schemas/ProfileVideo"
                 }
               }
             }
+          },
+          "204": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CRAPIResponse"
+                }
+              }
+            },
+            "description": "Video not found"
           }
         }
       },
@@ -852,6 +919,26 @@
                 }
               }
             }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CRAPIResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CRAPIResponse"
+                }
+              }
+            },
+            "description": "Video not found"
           }
         }
       }
@@ -962,19 +1049,40 @@
             "schema": {
               "type": "integer",
               "format": "int64"
-            }
+            },
+            "example": 28
           }
         ],
         "responses": {
           "200": {
             "description": "OK",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/CRAPIResponse"
                 }
               }
             }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CRAPIResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CRAPIResponse"
+                }
+              }
+            },
+            "description": "Video not found"
           }
         }
       }
@@ -4256,6 +4364,33 @@
             "maxLength": 60,
             "minLength": 3,
             "type": "string"
+          }
+        }
+      },
+      "ProfileVideo": {
+        "type": "object",
+        "required": [
+          "id",
+          "video_name",
+          "converstion_params",
+          "video",
+          "user"
+        ],
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "video_name": {
+            "type": "string"
+          },
+          "conversion_params": {
+            "type": "string"
+          },
+          "video": {
+            "type": "string"
+          },
+          "user": {
+            "$ref": "#/components/schemas/User"
           }
         }
       },

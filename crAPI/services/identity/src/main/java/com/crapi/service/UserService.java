@@ -49,8 +49,6 @@ public interface UserService {
 
     JwtResponse authenticateUserLogin(LoginForm loginForm);
 
-    public UserDetails createUserDetails(String name, User user);
-
     public String getUserByNumber(String number);
 
     public List<User> getUsers();

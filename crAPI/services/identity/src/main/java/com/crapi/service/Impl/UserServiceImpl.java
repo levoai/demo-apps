@@ -83,6 +83,9 @@ public class UserServiceImpl implements UserService {
     UserDetailsRepository userDetailsRepository;
 
     @Autowired
+    CreditCardRepository creditCardRepository;
+
+    @Autowired
     PasswordEncoder encoder;
 
     @Autowired
@@ -118,7 +121,7 @@ public class UserServiceImpl implements UserService {
                 final String jwt = jwtProvider.generateJwtToken(authentication);
                 if (jwt != null) {
                     updateUserToken(jwt, userEmail);
-                    
+
                     jwtResponse.setToken(jwt);
                     jwtResponse.setMessage("Welcome to crAPI!!");
                     final User user = userRepository.findByEmail(userEmail);
@@ -162,18 +165,21 @@ public class UserServiceImpl implements UserService {
                     encoder.encode(signUpRequest.getPassword()),ERole.ROLE_USER);
          user = userRepository.save(user);
          if (user != null) {
-            logger.info("User registered successful with userId {}",user.getId());
-            //Creating User Details for same user
-             userDetails = createUserDetails(signUpRequest.getName(),user);
-             if (userDetails!= null) {
-                 userDetailsRepository.save(userDetails);
-                 logger.info("User Details Created successful with userId {}",userDetails.getId());
-             }
+             logger.info("User registered successful with userId {}",user.getId());
+             userDetails = new UserDetails();
+             userDetails.setName(signUpRequest.getName());
+             userDetails.setUser(user);
+             userDetails.setAvailable_credit(100.0);
+             userDetails.setStatus(EStatus.ACTIVE.toString());
+             // TODO: Accept PII data from user and remove the usage of the following method.
+             userDetails.generatePiiValues();
+             creditCardRepository.save(userDetails.getCreditCard());
+             userDetailsRepository.save(userDetails);
 
              //Creating User Vehicle
              vehicleDetails = vehicleService.createVehicle();
              if (vehicleDetails!=null) {
-                 smtpMailServer.sendMail(user.getEmail(), MailBody.signupMailBody(vehicleDetails, (userDetails!=null && userDetails.getName()!=null?userDetails.getName():"")), "Welcome to crAPI");
+                 smtpMailServer.sendMail(user.getEmail(), MailBody.signupMailBody(vehicleDetails, userDetails.getName()), "Welcome to crAPI");
                  return new CRAPIResponse(UserMessage.SIGN_UP_SUCCESS_MESSAGE,200);
              }
             throw new EntityNotFoundException(VehicleDetails.class,UserMessage.ERROR, signUpRequest.getName());
@@ -231,11 +237,12 @@ public class UserServiceImpl implements UserService {
             user = getUserFromToken(request);
             userDetails = userDetailsRepository.findByUser_id(user.getId());
             profileVideo = profileVideoRepository.findByUser_id(user.getId());
-            dashboardResponse  = new DashboardResponse(user.getId(),(userDetails!=null?userDetails.getName():""),
-                    user.getEmail(), user.getNumber(),user.getRole().toString(),
-                    userDetails!=null?userDetails.getAvailable_credit():0.0);
-            if (userDetails!=null &&userDetails.getPicture()!=null )
-                dashboardResponse.setPicture_url(userDetails.getPhotoBase64());
+            dashboardResponse  = new DashboardResponse();
+            dashboardResponse.setId(user.getId());
+            dashboardResponse.setEmail(user.getEmail());
+            dashboardResponse.setNumber(user.getNumber());
+            dashboardResponse.setRole(user.getRole().toString());
+            dashboardResponse.setUserDetails(userDetails);
             if (profileVideo!=null && profileVideo.getVideo()!=null) {
                 dashboardResponse.setVideo_name(profileVideo.getVideo_name());
                 dashboardResponse.setVideo_url(profileVideo.getVideoBase64());
@@ -362,7 +369,7 @@ public class UserServiceImpl implements UserService {
 
 
     /**
-     * @param loginWithEmailTokenV2 contains user email and email change token, which allow user login with email token
+     * @param loginWithEmailToken contains user email and email change token, which allow user login with email token
      * @return check user and token and return jwt token for user.
      */
     @Transactional
@@ -381,28 +388,6 @@ public class UserServiceImpl implements UserService {
         }
 
         return new JwtResponse("", UserMessage.INVALID_CREDENTIALS, ERole.ROLE_UNDEFINED);
-
-    }
-
-
-    /**
-     * @param name is signup user name which will set into user details
-     * @param user Mapping user with user details
-     * @return create user with default value and mapped with user.
-     */
-    public UserDetails createUserDetails(String name, User user){
-        UserDetails userDetails;
-        try {
-            userDetails = new UserDetails();
-            userDetails.setName(name);
-            userDetails.setUser(user);
-            userDetails.setAvailable_credit(100.0);
-            userDetails.setStatus(EStatus.ACTIVE.toString());
-            return userDetails;
-        }catch (Exception exception){
-            logger.error("fail to create UserDetails  Message: %d", exception);
-        }
-        return  null;
 
     }
 
@@ -449,7 +434,7 @@ public class UserServiceImpl implements UserService {
     public List<User> getUsers() {
         try {
             List<User> allUsers = userRepository.findAll();
-            
+
             if (allUsers != null) {
                 return allUsers;
             }

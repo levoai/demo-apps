@@ -16,9 +16,16 @@
 
 package com.crapi.model;
 
+import com.crapi.entity.CreditCard;
+import com.crapi.entity.UserDetails;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
+import java.sql.Date;
+
 @Data
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class DashboardResponse {
     private long id;
     private String name;
@@ -32,18 +39,28 @@ public class DashboardResponse {
     private double available_credit;
     private long video_id;
 
+    @JsonProperty("credit_card")
+    private CreditCard creditCard;
+    @JsonProperty("date_of_birth")
+    private Date dateOfBirth;
+    private String address;
+    @JsonProperty("social_security_number")
+    private String socialSecurityNumber;
+
     private String role;
 
-
-
-    public DashboardResponse(Long id,String name, String email,String number, String role, double available_credit){
-        this.id =id;
-        this.name = name;
-        this.email=email;
-        this.number = number;
-        this.role = role;
-        this.available_credit=available_credit;
-
-
+    public void setUserDetails(UserDetails userDetails) {
+        if (userDetails == null) {
+            return;
+        }
+        name = userDetails.getName();
+        available_credit = userDetails.getAvailable_credit();
+        creditCard = userDetails.getCreditCard();
+        dateOfBirth = userDetails.getDateOfBirth();
+        address = userDetails.getAddress();
+        socialSecurityNumber = userDetails.getSocialSecurityNumber();
+        if (userDetails.getPicture() != null) {
+            picture_url = userDetails.getPhotoBase64();
+        }
     }
 }

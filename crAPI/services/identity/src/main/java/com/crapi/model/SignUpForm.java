@@ -52,7 +52,5 @@ public class SignUpForm {
         this.name = name;
         this.email=email;
         this.number = number;
-
-
     }
 }
