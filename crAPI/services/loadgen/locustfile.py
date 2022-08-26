@@ -6,28 +6,27 @@ from locust import HttpUser, task, between
 class QuickstartUser(HttpUser):
     letters = string.ascii_lowercase
     funds = 1
-    password = "Victim1One"
-    name = "Victim One"
-    email = "victim.one@example.com"
-    number = "4156895423"
+    password = ""
+    name = ""
+    email = ""
+    number = ""
     order_id = 0
     post_id = ""
     host = "http://localhost:8888"
     wait_time = between(1, 5)
 
-    # defunct
-    # def set_name(self):
-    #     self.name = ''.join(random.choice(self.letters) for i in range(8))
+    def set_name(self):
+        self.name = ''.join(random.choice(self.letters) for i in range(8))
     
-    # def set_password(self):
-    #     self.password = self.name + "A1!"
+    def set_password(self):
+        self.password = self.name + "A1!"
     
-    # def set_number(self):
-    #     for i in range(10):
-    #         self.number += str(random.randint(0, 9))
+    def set_number(self):
+        for i in range(10):
+            self.number += str(random.randint(0, 9))
 
-    # def set_email(self):
-    #     self.email = self.name + "@example.com"
+    def set_email(self):
+        self.email = self.name + "@example.com"
 
     '''
     Main action for each user. Stresses endpoints that 
@@ -91,6 +90,12 @@ class QuickstartUser(HttpUser):
                     print(f"Couldn't return order: response {response.status_code}")
             if self.funds == -1:
                 self.funds = 0
+
+
+
+
+
+
         #get posts on community
         with self.client.get(f"/community/api/v2/community/posts/recent", catch_response = True) as response:
             if response.status_code >= 400:
@@ -109,33 +114,37 @@ class QuickstartUser(HttpUser):
             json={"content":"I know, right? I love identity fraud!"}, catch_response = True) as response:
                 if response.status_code >= 400:
                     print(f"Couldn't create post: response {response.status_code}")
-        #create new mechanic
-        with self.client.post("/workshop/api/mechanic/signup", 
-        json={"name":f"{''.join(random.choice(self.letters) for i in range(8))}",
-        "email":f"{''.join(random.choice(self.letters) for i in range(8))}@example.com",
-        "number":random.randint(1, 1000000),
-        "password":f"{''.join(random.choice(self.letters) for i in range(8))}A1!",
-        "mechanic_code":''.join(random.choice(self.letters) for i in range(8))},
-         catch_response = True) as response:
-            if response.status_code >= 400:
-                print(f"Couldn't add mechanic: response {response.status_code}")
         #get specific post
         if self.post_id != "":
             with self.client.get(f"/community/api/v2/community/posts/{self.post_id}",
              catch_response = True) as response:
                 if response.status_code >= 400:
                     print(f"Couldn't get post {self.post_id}: response {response.status_code}")
+        #getting QR code to return
+        with self.client.get(f"/workshop/api/shop/return_qr_code", json={"accept":"*/*"}, catch_response = True) as response:
+            if response.status_code >= 400:
+                print(f"Couldn't get QR code: response {response.status_code}")
                 
     #initializing user (logging in/applying coupon)
     def on_start(self):
+        
+        self.set_name()
+        self.set_password()
+        self.set_number()
+        self.set_email()
+
+        with self.client.post("/identity/api/auth/signup", json={"email":self.email, "password":self.password, "name":self.name, "number":self.number}, catch_response=True) as response:
+            if response.status_code >= 400:
+                raise Exception("Could not sign up")
         with self.client.post("/identity/api/auth/login", json={"email":self.email, "password":self.password}, catch_response = True) as response:
             if response.status_code >= 400:
-                print(response.json())
                 raise Exception(f"Could not log in")
             else:
                 login = response.json()
         self.client.headers["Authorization"] = login["type"] + " " + login["token"]
+        
+        #one-time API calls
         #apply coupon
         with self.client.post("/workshop/api/shop/apply_coupon", json={"amount":75, "coupon_code": "TRAC075"}, catch_response = True) as response:
             if response.status_code >= 400:
-                print(f"Couldn't validate coupon: response {response.status_code}")
+                print(f"Couldn't apply coupon: response {response.status_code}")
