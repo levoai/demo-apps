@@ -1,9 +1,9 @@
 name: Generate crAPI load
 
 on:
-  pull_request:
-    paths:
-      - .github/workflows/generate_load.yml
+  # pull_request:
+  #   paths:
+  #     - .github/workflows/generate_load.yml
   workflow_dispatch:
 
 jobs:
