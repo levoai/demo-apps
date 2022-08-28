@@ -91,11 +91,6 @@ class QuickstartUser(HttpUser):
             if self.funds == -1:
                 self.funds = 0
 
-
-
-
-
-
         #get posts on community
         with self.client.get(f"/community/api/v2/community/posts/recent", catch_response = True) as response:
             if response.status_code >= 400:

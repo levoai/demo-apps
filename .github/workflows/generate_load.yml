@@ -1,0 +1,25 @@
+name: Generate crAPI load
+
+on:
+  pull_request:
+    paths:
+      - .github/workflows/generate_load.yml
+  workflow_dispatch:
+
+jobs:
+  generate-crapi-load:
+    name: Generate crAPI load
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+
+      - name: Run Load Test
+        uses: apardo04/locust-github-action@master
+        working-directory: crAPI/services/loadgen
+        with:
+          LOCUSTFILE: "locustfile.py"
+          URL:  "http://crapi-prod.levo.ai"
+          USERS: "5"
+          RATE: "5"
+          RUNTIME: "10s"
