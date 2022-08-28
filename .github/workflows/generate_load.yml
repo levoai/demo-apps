@@ -16,9 +16,8 @@ jobs:
 
       - name: Run Load Test
         uses: apardo04/locust-github-action@master
-        working-directory: crAPI/services/loadgen
         with:
-          LOCUSTFILE: "locustfile.py"
+          LOCUSTFILE: "crAPI/services/loadgen/locustfile.py"
           URL:  "http://crapi-prod.levo.ai"
           USERS: "5"
           RATE: "5"
