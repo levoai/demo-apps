@@ -1193,6 +1193,7 @@
           }
         ],
         "x-levo-allowed-roles": [
+          "ROLE_MECHANIC",
           "ROLE_ADMIN"
         ],
         "parameters": [],

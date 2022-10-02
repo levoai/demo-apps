@@ -1,0 +1,7 @@
+.user-directory__header {
+    display: flex;
+    justify-content: space-between;
+    border: 1px;
+    padding: 24px;
+    margin-bottom: 18px;
+}
