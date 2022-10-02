@@ -860,6 +860,7 @@
         },
         "/identity/api/v1/admin/users/list": {
             "x-levo-allowed-roles": [
+                "ROLE_MECHANIC",
                 "ROLE_ADMIN"
             ],
             "get": {

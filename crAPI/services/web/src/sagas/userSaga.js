@@ -441,6 +441,44 @@ export function* getServices(param) {
   }
 }
 
+/**
+ * get all registered users in the system (meant for mechanics)
+ * @param { accessToken, callback} param
+ * accessToken: access token of the user
+ * callback : callback method
+ */
+ export function* getUserDirectory(param) {
+  const { accessToken, callback } = param;
+  let recievedResponse = {};
+  try {
+    yield put({ type: actionTypes.FETCHING_DATA });
+    const getUrl =
+      APIService.JAVA_MICRO_SERVICES + requestURLS.GET_USER_DIRECTORY;
+    const headers = {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${accessToken}`,
+    };
+
+    const ResponseJson = yield fetch(getUrl, {
+      headers,
+      method: "GET",
+    }).then((response) => {
+      recievedResponse = response;
+      return response.json();
+    });
+
+    yield put({ type: actionTypes.FETCHED_DATA, payload: recievedResponse });
+    if (recievedResponse.ok) {
+      callback(responseTypes.SUCCESS, ResponseJson);
+    } else {
+      callback(responseTypes.FAILURE, ResponseJson.message);
+    }
+  } catch (e) {
+    yield put({ type: actionTypes.FETCHED_DATA, payload: recievedResponse });
+    callback(responseTypes.FAILURE, BACKEND_ERR);
+  }
+}
+
 
 export function* userActionWatcher() {
   yield takeLatest(actionTypes.LOG_IN, logIn);
@@ -452,5 +490,6 @@ export function* userActionWatcher() {
   yield takeLatest(actionTypes.VERIFY_TOKEN, verifyToken);
   yield takeLatest(actionTypes.GET_SERVICES, getServices);
   yield takeLatest(actionTypes.GET_USER_REPORTS, getUserReports);
+  yield takeLatest(actionTypes.GET_USER_DIRECTORY, getUserDirectory);
   yield takeLatest(actionTypes.GET_SERVICE_REPORT, getServiceReport);
 }

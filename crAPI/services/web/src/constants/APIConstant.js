@@ -51,6 +51,7 @@ export const requestURLS = {
   GET_PRODUCTS: "api/shop/products",
   GET_SERVICES: "api/mechanic/service_requests",
   GET_USER_REPORTS: "api/mechanic/user_reports",
+  GET_USER_DIRECTORY: "api/v1/admin/users/list",
   GET_SERVICE_REPORT: "api/mechanic/mechanic_report?report_id=",
   BUY_PRODUCT: "api/shop/orders",
   GET_ORDERS: "api/shop/orders/all",

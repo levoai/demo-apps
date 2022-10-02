@@ -42,6 +42,7 @@ import ForumContainer from "../../containers/forum/forum";
 import NewPostContainer from "../../containers/newPost/newPost";
 import PostContainer from "../../containers/post/post";
 import UserReportsContainer from "../../containers/userReports/userReports";
+import UserDirectoryContainer from "../../containers/userDirectory/userDirectory";
 import HackPadContainer from "../../containers/hackPad/hackPad";
 import ApiExplorerContainer from "../../containers/apiExplorer/apiExplorer";
 
@@ -241,6 +242,15 @@ const StyledComp = connect(
             <AfterLogin
               path="/mechanic-dashboard"
               component={MechanicDashboardContainer}
+              isLoggedIn={props.isLoggedIn}
+              componentRole={roleTypes.ROLE_MECHANIC}
+              userRole={props.role}
+              accessToken={props.accessToken}
+              logOutUser={props.logOutUser}
+            />
+            <AfterLogin
+              path="/get-user-directory"
+              component={UserDirectoryContainer}
               isLoggedIn={props.isLoggedIn}
               componentRole={roleTypes.ROLE_MECHANIC}
               userRole={props.role}
