@@ -21,10 +21,15 @@ import com.crapi.entity.User;
 import com.crapi.entity.UserDetails;
 import com.crapi.entity.VehicleDetails;
 import com.crapi.enums.ERole;
-import com.crapi.repository.*;
-import com.crapi.service.Impl.VehicleServiceImpl;
+import com.crapi.enums.EStatus;
+import com.crapi.repository.CreditCardRepository;
+import com.crapi.repository.ProfileVideoRepository;
+import com.crapi.repository.UserDetailsRepository;
+import com.crapi.repository.UserRepository;
+import com.crapi.repository.VehicleDetailsRepository;
+import com.crapi.repository.VehicleLocationRepository;
+import com.crapi.repository.VehicleModelRepository;
 import com.crapi.service.VehicleService;
-import com.crapi.utils.UserData;
 import com.crapi.utils.VehicleLocationData;
 import com.crapi.utils.VehicleModelData;
 import org.slf4j.Logger;
@@ -35,8 +40,6 @@ import org.springframework.context.event.EventListener;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
-
-import java.util.List;
 
 /**
  * @author Traceable AI
@@ -59,6 +62,9 @@ public class InitialDataConfig {
     UserDetailsRepository userDetailsRepository;
 
     @Autowired
+    CreditCardRepository creditCardRepository;
+
+    @Autowired
     UserRepository userRepository;
 
     @Autowired
@@ -71,29 +77,29 @@ public class InitialDataConfig {
     PasswordEncoder encoder;
 
 
-    public void addLocation(){
+    public void addLocation() {
         if (CollectionUtils.isEmpty(vehicleLocationRepository.findAll())) {
             VehicleLocationData vehicleLocationData = new VehicleLocationData();
             vehicleLocationRepository.saveAll(vehicleLocationData.getVehicleLocationData());
         }
     }
 
-    public void addVehicleModel(){
-        if (CollectionUtils.isEmpty(vehicleModelRepository.findAll())){
+    public void addVehicleModel() {
+        if (CollectionUtils.isEmpty(vehicleModelRepository.findAll())) {
             VehicleModelData vehicleModelData = new VehicleModelData();
             vehicleModelRepository.saveAll(vehicleModelData.getModelList());
         }
     }
 
     @EventListener
-    public void setup(ApplicationReadyEvent event){
+    public void setup(ApplicationReadyEvent event) {
 
         addLocation();
         addVehicleModel();
         addUser();
     }
 
-    public void addUser(){
+    public void addUser() {
         if (CollectionUtils.isEmpty(userDetailsRepository.findAll())) {
             addInitialUsers();
             // Mechanics are created in the workshop service
@@ -115,7 +121,7 @@ public class InitialDataConfig {
                 "abac4018-5a38-466c-ab7f-361908afeab6", "5JTGZ48TPYP220157");
 
         if (!user1 || !user2 || !user3) {
-            logger.error("Fail to create user predefine data -> Message: {}");
+            logger.error("Failed to add predefined users.");
         }
     }
 
@@ -129,29 +135,30 @@ public class InitialDataConfig {
                 "836fe80c-02f9-4fc0-8fbd-fcdf637bb9c2", "JH4KA96633C000632");
 
         if (!user1 || !user2) {
-            logger.error("Fail to create admin predefine data -> Message: {}");
+            logger.error("Failed to add predefined administrators.");
         }
     }
 
     private boolean predefineUserData(String name, String email, ERole role, String number,
-            String password, String vehicleUuidHexDigitString, String VIN) {
-
-        UserData userData = new UserData();
-        VehicleDetails vehicleDetails = null;
-        UserDetails userDetails = null;
+                                      String password, String vehicleUuidHexDigitString, String VIN) {
         try {
-
             User loginForm = new User(email, number, encoder.encode(password), role);
             loginForm = userRepository.save(loginForm);
-            userDetails = userData.getPredefineUser(name, loginForm);
+            UserDetails userDetails = new UserDetails();
+            userDetails.setName(name);
+            userDetails.setUser(loginForm);
+            userDetails.setAvailable_credit(100.0);
+            userDetails.setStatus(EStatus.ACTIVE.toString());
+            userDetails.generatePiiValues();
+            creditCardRepository.save(userDetails.getCreditCard());
             userDetailsRepository.save(userDetails);
-            vehicleDetails = vehicleService.createVehicle(vehicleUuidHexDigitString, VIN);
+            VehicleDetails vehicleDetails = vehicleService.createVehicle(vehicleUuidHexDigitString, VIN);
             if (vehicleDetails != null) {
                 vehicleDetails.setOwner(loginForm);
                 vehicleDetailsRepository.save(vehicleDetails);
                 return true;
             }
-            logger.error("Fail to create vehicle for user {}", email);
+            logger.error("Failed to create vehicle for user {}", email);
             return false;
         } catch (Exception e) {
             logger.error("Fail to create user {}, Exception :: {}", email, e);

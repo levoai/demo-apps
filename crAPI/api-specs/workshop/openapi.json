@@ -447,7 +447,7 @@
       },
       "parameters": []
     },
-    "/workshop/api/shop/orders/return_order/{order_id}": {
+    "/workshop/api/shop/orders/return_order": {
       "post": {
         "operationId": "OP_WORKSHOP_SHOP_RETURN_PURCHASE",
         "summary": "Return order specified by the order_id",
@@ -461,7 +461,7 @@
         ],
         "parameters": [
           {
-            "in": "path",
+            "in": "query",
             "name": "order_id",
             "schema": {
               "type": "integer"
@@ -658,7 +658,6 @@
         }
       }
     },
-   
     "/workshop/api/mechanic/": {
       "get": {
         "operationId": "OP_WORKSHOP_MECHANIC_GET_MECHANICS",
@@ -1611,7 +1610,6 @@
         }
       }
     }
-
   },
   "components": {
     "schemas": {

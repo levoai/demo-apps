@@ -184,6 +184,113 @@
       }
     },
 
+    "/identity/api/v2/user/dashboard": {
+      "get": {
+        "operationId": "OP_IDENT_USR_GET_DASHBOARD",
+        "summary": "Get user dashboard data",
+        "tags": [
+          "Identity / User"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-levo-allowed-roles": [
+          "ROLE_USER",
+          "ROLE_MECHANIC",
+          "ROLE_ADMIN"
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "available_credit",
+                    "email",
+                    "id",
+                    "name",
+                    "number",
+                    "picture_url",
+                    "role",
+                    "video_id",
+                    "video_name",
+                    "video_url",
+                    "credit_card",
+                    "address",
+                    "social_security_number",
+                    "date_of_birth"
+                  ],
+                  "properties": {
+                    "number": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "video_id": {
+                      "type": "number"
+                    },
+                    "video_url": {},
+                    "email": {
+                      "type": "string"
+                    },
+                    "role": {
+                      "type": "string"
+                    },
+                    "available_credit": {
+                      "type": "number"
+                    },
+                    "video_name": {},
+                    "id": {
+                      "type": "number"
+                    },
+                    "picture_url": {},
+                    "address": {
+                      "type": "string"
+                    },
+                    "credit_card": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer"
+                        },
+                        "cvv": {
+                          "type": "integer"
+                        },
+                        "card_number": {
+                          "type": "string"
+                        },
+                        "expiry_date": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "cvv",
+                        "card_number",
+                        "expiry_date"
+                      ]
+                    },
+                    "date_of_birth": {
+                      "type": "string"
+                    },
+                    "social_security_number": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      },
+      "parameters": []
+    },
+
     "/identity/api/v2/vehicle/{vehicleId}/location": {
       "get": {
         "operationId": "OP_IDENT_VEHICLE_GET_LOCATION",

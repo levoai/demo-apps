@@ -16,8 +16,7 @@
         "tags": [
           "Home"
         ],
-        "security": [
-        ],
+        "security": [],
         "x-levo-allowed-roles": [
           "ROLE_USER",
           "ROLE_MECHANIC",
@@ -38,7 +37,6 @@
       },
       "parameters": []
     },
-
     "/identity/api/auth/signup": {
       "post": {
         "operationId": "OP_IDENT_AUTH_SIGNUP",
@@ -410,75 +408,6 @@
         }
       }
     },
-
-    "/identity/api/v2/user/reset-password": {
-      "post": {
-        "operationId": "OP_IDENT_USR_RESET_PASSWORD",
-        "summary": "Reset password",
-        "tags": [
-          "Identity / User"
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "x-levo-allowed-roles": [
-          "ROLE_USER",
-          "ROLE_MECHANIC",
-          "ROLE_ADMIN"
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "password": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "message",
-                    "status"
-                  ],
-                  "properties": {
-                    "message": {
-                      "type": "string"
-                    },
-                    "status": {
-                      "type": "number"
-                    }
-                  }
-                }
-              }
-            },
-            "description": ""
-          },
-          "500": {
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
-            "description": ""
-          }
-        }
-      },
-      "parameters": []
-    },
     "/identity/api/v2/user/change-email": {
       "post": {
         "operationId": "OP_IDENT_USR_CHANGE_EMAIL",
@@ -642,7 +571,11 @@
                     "role",
                     "video_id",
                     "video_name",
-                    "video_url"
+                    "video_url",
+                    "credit_card",
+                    "address",
+                    "social_security_number",
+                    "date_of_birth"
                   ],
                   "properties": {
                     "number": {
@@ -668,7 +601,39 @@
                     "id": {
                       "type": "number"
                     },
-                    "picture_url": {}
+                    "picture_url": {},
+                    "address": {
+                      "type": "string"
+                    },
+                    "credit_card": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer"
+                        },
+                        "cvv": {
+                          "type": "integer"
+                        },
+                        "card_number": {
+                          "type": "string"
+                        },
+                        "expiry_date": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "cvv",
+                        "card_number",
+                        "expiry_date"
+                      ]
+                    },
+                    "date_of_birth": {
+                      "type": "string"
+                    },
+                    "social_security_number": {
+                      "type": "string"
+                    }
                   }
                 }
               }
@@ -765,7 +730,7 @@
         ],
         "requestBody": {
           "content": {
-            "application/json": {
+            "multipart/form-data": {
               "schema": {
                 "required": [
                   "file"
@@ -785,12 +750,22 @@
           "200": {
             "description": "OK",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "type": "object"
+                  "$ref": "#/components/schemas/ProfileVideo"
                 }
               }
             }
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CRAPIResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
           }
         }
       }
@@ -820,19 +795,30 @@
             "schema": {
               "type": "integer",
               "format": "int64"
-            }
+            },
+            "example": 28
           }
         ],
         "responses": {
           "200": {
             "description": "OK",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "type": "object"
+                  "$ref": "#/components/schemas/ProfileVideo"
                 }
               }
             }
+          },
+          "204": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CRAPIResponse"
+                }
+              }
+            },
+            "description": "Video not found"
           }
         }
       },
@@ -877,12 +863,22 @@
           "200": {
             "description": "OK",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "type": "object"
+                  "$ref": "#/components/schemas/ProfileVideo"
                 }
               }
             }
+          },
+          "204": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CRAPIResponse"
+                }
+              }
+            },
+            "description": "Video not found"
           }
         }
       },
@@ -923,6 +919,26 @@
                 }
               }
             }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CRAPIResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CRAPIResponse"
+                }
+              }
+            },
+            "description": "Video not found"
           }
         }
       }
@@ -1010,7 +1026,6 @@
         }
       ]
     },
-
     "/identity/api/v2/admin/videos/{video_id}": {
       "delete": {
         "summary": "As admin, delete the video identified by video_id.",
@@ -1034,19 +1049,40 @@
             "schema": {
               "type": "integer",
               "format": "int64"
-            }
+            },
+            "example": 28
           }
         ],
         "responses": {
           "200": {
             "description": "OK",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/CRAPIResponse"
                 }
               }
             }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CRAPIResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CRAPIResponse"
+                }
+              }
+            },
+            "description": "Video not found"
           }
         }
       }
@@ -1157,6 +1193,7 @@
           }
         ],
         "x-levo-allowed-roles": [
+          "ROLE_MECHANIC",
           "ROLE_ADMIN"
         ],
         "parameters": [],
@@ -1243,7 +1280,6 @@
         }
       }
     },
-
     "/identity/api/v2/vehicle/vehicles": {
       "get": {
         "operationId": "OP_IDENT_VEHICLE_GET_VEHICLES",
@@ -1592,7 +1628,6 @@
       },
       "parameters": []
     },
-    
     "/identity/privacy/user_agent": {
       "get": {
         "tags": [
@@ -1644,7 +1679,6 @@
         }
       ]
     },
-
     "/community/api/v2/community/posts/{postId}": {
       "get": {
         "operationId": "OP_COMMUNITY_GET_POST",
@@ -2079,7 +2113,6 @@
         }
       }
     },
-
     "/community/api/v2/coupon/new-coupon": {
       "post": {
         "operationId": "OP_COMMUNITY_COUPON_ADD_COUPON",
@@ -2354,7 +2387,6 @@
       },
       "parameters": []
     },
-
     "/workshop/api/shop/products": {
       "parameters": [],
       "get": {
@@ -2821,7 +2853,7 @@
       },
       "parameters": []
     },
-    "/workshop/api/shop/orders/return_order/{order_id}": {
+    "/workshop/api/shop/orders/return_order": {
       "post": {
         "operationId": "OP_WORKSHOP_SHOP_RETURN_PURCHASE",
         "summary": "Return order specified by the order_id",
@@ -2840,7 +2872,7 @@
         ],
         "parameters": [
           {
-            "in": "path",
+            "in": "query",
             "name": "order_id",
             "schema": {
               "type": "integer"
@@ -3047,7 +3079,6 @@
         }
       }
     },
-   
     "/workshop/api/mechanic/": {
       "get": {
         "operationId": "OP_WORKSHOP_MECHANIC_GET_MECHANICS",
@@ -4028,7 +4059,6 @@
         }
       }
     }
-
   },
   "components": {
     "schemas": {
@@ -4335,6 +4365,33 @@
             "maxLength": 60,
             "minLength": 3,
             "type": "string"
+          }
+        }
+      },
+      "ProfileVideo": {
+        "type": "object",
+        "required": [
+          "id",
+          "video_name",
+          "converstion_params",
+          "video",
+          "user"
+        ],
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "video_name": {
+            "type": "string"
+          },
+          "conversion_params": {
+            "type": "string"
+          },
+          "video": {
+            "type": "string"
+          },
+          "user": {
+            "$ref": "#/components/schemas/User"
           }
         }
       },

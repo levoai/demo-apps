@@ -88,11 +88,13 @@ const Navbar = (props) => {
     }
   }
 
+  const appName = process.env.REACT_APP_NAME ? process.env.REACT_APP_NAME : "crAPI";
+
   return (
     <Header>
       <Space className="top-nav-left">
         <div className="logo-text" onClick={() => history.push("/")}>
-          crAPI
+          {appName}
         </div>
         {isLoggedIn ? menuNavigation() : (<div/>)
         }

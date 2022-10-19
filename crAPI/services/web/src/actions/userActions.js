@@ -114,3 +114,11 @@ export const verifyTokenAction = ({ callback, accessToken, ...data }) => {
     ...data,
   };
 };
+
+export const getUserDirectoryAction = ({ callback, accessToken }) => {
+  return {
+    type: actionTypes.GET_USER_DIRECTORY,
+    accessToken,
+    callback,
+  };
+};

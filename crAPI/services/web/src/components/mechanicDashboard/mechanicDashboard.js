@@ -16,15 +16,31 @@
 
 import React from "react";
 import PropTypes from "prop-types";
-import { PageHeader, Card, Row, Col } from "antd";
+import { PageHeader, Card, Row, Col, Button } from "antd";
+import { ToolOutlined, } from "@ant-design/icons";
+
 
 const { Meta } = Card;
 
 const MechanicDashboard = (props) => {
-  const { services } = props;
+  const { services, history } = props;
   return (
     <>
-      <PageHeader title="Pending Services" />
+      <PageHeader
+        title="Pending Services"
+        extra={
+          <Button
+            type="primary"
+            shape="round"
+            icon={<ToolOutlined />}
+            size="large"
+            onClick={() => history.push(`/get-user-directory`)}
+            key="get-user-directory">
+            User Directory
+          </Button>
+        }
+      />
+      
       <Row gutter={[16, 24]}>
         {services.map((service) => (
           <Col span={8} key={service.id}>
