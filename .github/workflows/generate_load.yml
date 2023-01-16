@@ -9,8 +9,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  generate-crapi-load:
-    name: Generate crAPI load
+  generate-crapi-load-prod:
+    name: Generate crAPI load for Prod
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout
@@ -24,6 +24,13 @@ jobs:
           USERS: "5"
           RATE: "5"
           RUNTIME: "3m"
+
+  generate-crapi-load-dev:
+    name: Generate crAPI load for Dev
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
 
       - name: Run Load against Dev e2e
         uses: apardo04/locust-github-action@master
