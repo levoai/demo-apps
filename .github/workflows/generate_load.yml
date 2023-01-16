@@ -4,6 +4,8 @@ on:
   # pull_request:
   #   paths:
   #     - .github/workflows/generate_load.yml
+  schedule:
+    - cron: '0 */1 * * *'
   workflow_dispatch:
 
 jobs:
@@ -14,11 +16,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v1
 
-      - name: Run Load Test
+      - name: Run Load against prod Demo
         uses: apardo04/locust-github-action@master
         with:
           LOCUSTFILE: "crAPI/services/loadgen/locustfile.py"
           URL:  "http://crapi-prod.levo.ai"
           USERS: "5"
           RATE: "5"
-          RUNTIME: "10s"
+          RUNTIME: "3m"
+
+      - name: Run Load against Dev e2e
+        uses: apardo04/locust-github-action@master
+        with:
+          LOCUSTFILE: "crAPI/services/loadgen/locustfile.py"
+          URL:  "http://34.170.155.55"
+          USERS: "5"
+          RATE: "5"
+          RUNTIME: "3m"
