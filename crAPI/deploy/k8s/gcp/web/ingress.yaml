@@ -12,3 +12,4 @@ spec:
   type: LoadBalancer
   selector:
     app: crapi-web
+  loadBalancerIP: "35.226.144.72"
