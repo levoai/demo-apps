@@ -7,7 +7,7 @@ metadata:
     app: postgresdb
  
 spec:
-  storageClassName: gp2
+  # storageClassName: gp2
   accessModes:
     - ReadWriteOnce
   resources:
