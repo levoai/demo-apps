@@ -7,10 +7,9 @@ metadata:
     app: postgresdb
  
 spec:
-  #storageClassName: local-path
+  storageClassName: gp2
   accessModes:
     - ReadWriteOnce
- 
   resources:
     requests:
       storage: 1000Mi
