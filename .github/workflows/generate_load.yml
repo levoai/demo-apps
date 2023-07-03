@@ -36,7 +36,7 @@ jobs:
         uses: apardo04/locust-github-action@master
         with:
           LOCUSTFILE: "crAPI/services/loadgen/locustfile.py"
-          URL:  "http://34.170.155.55"
+          URL:  "http://crapi-dev.levo.ai"
           USERS: "5"
           RATE: "5"
           RUNTIME: "3m"
