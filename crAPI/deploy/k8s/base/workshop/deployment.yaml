@@ -12,15 +12,17 @@ spec:
       labels:
         app: crapi-workshop
     spec:
+      nodeSelector:
+        kubernetes.io/arch: amd64
       initContainers:
         - name: wait-for-crapi-identity
-          image: groundnuty/k8s-wait-for:v1.3
+          image: groundnuty/k8s-wait-for:v2.0
           imagePullPolicy: Always
           args:
             - "service"
             - "crapi-identity"
         - name: wait-for-crapi-community
-          image: groundnuty/k8s-wait-for:v1.3
+          image: groundnuty/k8s-wait-for:v2.0
           imagePullPolicy: Always
           args:
             - "service"
