@@ -17,6 +17,8 @@ spec:
       annotations:
         sidecar.traceable.ai/inject: "false"
     spec:
+      nodeSelector:
+        kubernetes.io/arch: amd64
       securityContext:
         runAsUser: 0
         runAsGroup: 0
