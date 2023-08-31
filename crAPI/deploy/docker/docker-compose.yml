@@ -41,12 +41,11 @@ services:
       - SMTP_AUTH=true
       - SMTP_STARTTLS=true
       - RESTRICT_CMDI=true
-      - WAIT_HOSTS=postgresdb:5432,mongodb:27017
+      - WAIT_HOSTS=postgresdb:5432
       - WAIT_HOSTS_TIMEOUT=240
       - WAIT_SLEEP_INTERVAL=5
     depends_on:
       - postgresdb
-      - mongodb
     healthcheck:
         test: curl 0.0.0.0:8080/identity/health_check
         interval: 15s
@@ -183,7 +182,7 @@ services:
   
   mongodb:
     container_name: mongodb
-    image: 'mongo'
+    image: 'mongo:7.0.0'
     environment:
       MONGO_INITDB_ROOT_USERNAME: admin
       MONGO_INITDB_ROOT_PASSWORD: crapisecretpassword

@@ -9,15 +9,13 @@ You'll need to have Docker installed and running on your host system.
     ```
     $ git clone [REPOSITORY-URL]
     ```
-2. Build all docker images
-    ```
-    $ deploy/docker/build-all.sh
-    ```
-3. Start crAPI
+
+2. Start crAPI
     ```
     $ docker-compose -f deploy/docker/docker-compose.yml up -d
     ```
-4. Visit `http://localhost:8888`
+
+3. Visit `http://localhost:8888`
 
 **Note**: All emails are sent to mailhog service by default and can be checked on `http://localhost:8025`.
 You can change the smtp configuration if required. However all emails with domain **example.com** will still go to mailhog.
@@ -35,18 +33,14 @@ Make sure minikube is up and running as well as the following addons:
     ```
     $ docker run --rm -it --network=host alpine ash -c "apk add socat && socat TCP-LISTEN:5000,reuseaddr,fork TCP:$(minikube ip):5000"
     ```
-2. Build Docker images and push to minikube registry
 
-    ```
-    $ deploy/k8s/minikube/build-all.sh
-    ```
-3. Bring the k8s cluster up
+2. Bring the k8s cluster up
 
     ```
     $ deploy/k8s/minikube/deploy.sh
     ```
 
-4. Run the following command to get the URLs
+3. Run the following command to get the URLs
     ```
     crAPI URL:
     $ echo "http://$(minikube ip):30080"
