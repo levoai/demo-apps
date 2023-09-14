@@ -7,8 +7,11 @@ metadata:
 spec:
   ports:
   - port: 80
-    nodePort: 30080
-    name: nginx
+    targetPort: 80
+    name: http
+  - port: 443
+    targetPort: 443
+    name: https
   type: LoadBalancer
   selector:
     app: crapi-web

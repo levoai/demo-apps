@@ -159,10 +159,13 @@ RUN pip3 install -r requirements.txt
 # Copy Nginx related config form web
 COPY --from=web-build /app/build /usr/share/nginx/html
 COPY ./services/web/nginx-wrapper.sh /etc/nginx/nginx-wrapper.sh
+COPY ./services/web/nginx-selfsigned.crt /etc/nginx/selfsigned.crt
+COPY ./services/web/nginx-selfsigned.key /etc/nginx/selfsigned.key
 COPY ./services/web/nginx.conf.template /etc/nginx/conf.d/default.conf.template
 COPY openresty_nginx.conf /usr/local/openresty/nginx/conf/nginx.conf
 # RUN echo "daemon off;" >> /usr/local/openresty/nginx/conf/nginx.conf
 EXPOSE 80
+EXPOSE 443
 
 WORKDIR /app
 COPY start_all_services.sh /app
