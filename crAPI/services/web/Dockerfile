@@ -33,10 +33,13 @@ RUN apk add gettext curl
 RUN rm /etc/nginx/conf.d/default.conf
 COPY --from=build /app/build /usr/share/nginx/html
 COPY ./nginx-wrapper.sh /etc/nginx/nginx-wrapper.sh
+COPY ./nginx-selfsigned.crt /etc/nginx/selfsigned.crt
+COPY ./nginx-selfsigned.key /etc/nginx/selfsigned.key
 COPY ./nginx.conf.template /etc/nginx/conf.d/default.conf.template
 
 RUN echo "daemon off;" >> /usr/local/openresty/nginx/conf/nginx.conf
 EXPOSE 80
+EXPOSE 443
 
 
 ADD https://github.com/ufoscout/docker-compose-wait/releases/download/2.7.3/wait /wait

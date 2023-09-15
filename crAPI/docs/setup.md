@@ -43,7 +43,7 @@ Make sure minikube is up and running as well as the following addons:
 3. Run the following command to get the URLs
     ```
     crAPI URL:
-    $ echo "http://$(minikube ip):30080"
+    $ echo "https://$(minikube ip):30080"
     ```
     ```
     Mailhog URL:
@@ -83,7 +83,7 @@ Make sure minikube is up and running as well as the following addons:
 
     Replace the EXTERNAL-IP template values with the actual values noted from the previous step.
 
-    crAPI URL: **`http://<crapi-web EXTERNAL-IP>`**
+    crAPI URL: **`https://<crapi-web EXTERNAL-IP>`**
     
     Mailhog URL: **`http://<mailhog-web EXTERNAL-IP:8025>`**
 
