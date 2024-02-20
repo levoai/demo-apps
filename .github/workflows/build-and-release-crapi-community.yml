@@ -38,5 +38,5 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: levoai/crapi-community:latest
-          cache-from: type=registry,ref=levoai/crapi-community-cache
-          cache-to: type=registry,ref=levoai/crapi-community-cache,mode=max
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
