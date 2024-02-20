@@ -32,11 +32,11 @@ EXPOSE 8080
 
 ARG TARGETARCH
 RUN if [ "$TARGETARCH" = "arm64" ]; then \
-        wget -o wait https://github.com/ufoscout/docker-compose-wait/releases/download/2.12.1/wait_aarch64 \
+        wget -o wait https://github.com/ufoscout/docker-compose-wait/releases/download/2.12.1/wait_aarch64; \
     else \
-        wget -o wait https://github.com/ufoscout/docker-compose-wait/releases/download/2.12.1/wait \
+        wget -o wait https://github.com/ufoscout/docker-compose-wait/releases/download/2.12.1/wait; \
     fi
-    
+
 RUN chmod +x /wait
 
 CMD /wait && java -jar /app/user-microservices-1.0-SNAPSHOT.jar

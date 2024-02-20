@@ -39,9 +39,9 @@ FROM python:3.8-alpine3.15
 
 ARG TARGETARCH
 RUN if [ "$TARGETARCH" = "arm64" ]; then \
-        wget -o wait https://github.com/ufoscout/docker-compose-wait/releases/download/2.12.1/wait_aarch64 \
+        wget -o wait https://github.com/ufoscout/docker-compose-wait/releases/download/2.12.1/wait_aarch64; \
     else \
-        wget -o wait https://github.com/ufoscout/docker-compose-wait/releases/download/2.12.1/wait \
+        wget -o wait https://github.com/ufoscout/docker-compose-wait/releases/download/2.12.1/wait; \
     fi
     
 RUN chmod +x /wait
