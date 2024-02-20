@@ -37,6 +37,7 @@ RUN pip install wheel && pip wheel . --wheel-dir /app/wheels
 
 FROM python:3.8-alpine3.15
 
+RUN apk add --update --no-cache curl
 ARG TARGETARCH
 RUN if [ "$TARGETARCH" = "arm64" ]; then \
         curl -o wait https://github.com/ufoscout/docker-compose-wait/releases/download/2.12.1/wait_aarch64; \
