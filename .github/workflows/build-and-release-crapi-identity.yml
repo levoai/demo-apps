@@ -31,7 +31,16 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
+      - name: Build image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./crAPI/services/identity
+          load: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          tags: levoai/crapi-identity:pr-build
       - name: Build and push
+        if: ${{ github.ref == 'refs/heads/main' }}
         uses: docker/build-push-action@v5
         with:
           context: ./crAPI/services/identity
