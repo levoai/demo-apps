@@ -17,14 +17,12 @@ spec:
       annotations:
         sidecar.traceable.ai/inject: "false"
     spec:
-      nodeSelector:
-        kubernetes.io/arch: amd64
       securityContext:
         runAsUser: 0
         runAsGroup: 0
       containers:
         - name: mailhog
-          image: mailhog/mailhog
+          image: jcalonso/mailhog
           imagePullPolicy: "IfNotPresent"
           livenessProbe:
             tcpSocket:
