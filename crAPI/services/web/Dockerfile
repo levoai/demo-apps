@@ -41,6 +41,7 @@ RUN echo "daemon off;" >> /usr/local/openresty/nginx/conf/nginx.conf
 EXPOSE 80
 EXPOSE 443
 
+RUN apt-get update && apt-get install -y wget
 ARG TARGETARCH
 RUN if [ "$TARGETARCH" = "arm64" ]; then \
         wget -o wait https://github.com/ufoscout/docker-compose-wait/releases/download/2.12.1/wait_aarch64; \
