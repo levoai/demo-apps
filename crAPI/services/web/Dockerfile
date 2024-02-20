@@ -28,7 +28,7 @@ RUN ls /app/build
 
 # Main Image
 FROM openresty/openresty:1.17.8.2-alpine
-RUN apk add gettext curl
+RUN apk add gettext curl 
 # React
 RUN rm /etc/nginx/conf.d/default.conf
 COPY --from=build /app/build /usr/share/nginx/html
@@ -41,12 +41,11 @@ RUN echo "daemon off;" >> /usr/local/openresty/nginx/conf/nginx.conf
 EXPOSE 80
 EXPOSE 443
 
-RUN apt-get update && apt-get install -y wget
 ARG TARGETARCH
 RUN if [ "$TARGETARCH" = "arm64" ]; then \
-        wget -o wait https://github.com/ufoscout/docker-compose-wait/releases/download/2.12.1/wait_aarch64; \
+        curl -o wait https://github.com/ufoscout/docker-compose-wait/releases/download/2.12.1/wait_aarch64; \
     else \
-        wget -o wait https://github.com/ufoscout/docker-compose-wait/releases/download/2.12.1/wait; \
+        curl -o wait https://github.com/ufoscout/docker-compose-wait/releases/download/2.12.1/wait; \
     fi
     
 RUN chmod +x /wait

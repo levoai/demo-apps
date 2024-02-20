@@ -30,12 +30,11 @@ RUN mkdir /app
 COPY --from=javabuild /app/target/user-microservices-1.0-SNAPSHOT.jar /app/user-microservices-1.0-SNAPSHOT.jar
 EXPOSE 8080
 
-RUN apt-get update && apt-get install -y wget
 ARG TARGETARCH
 RUN if [ "$TARGETARCH" = "arm64" ]; then \
-        wget -o wait https://github.com/ufoscout/docker-compose-wait/releases/download/2.12.1/wait_aarch64; \
+        curl -o wait https://github.com/ufoscout/docker-compose-wait/releases/download/2.12.1/wait_aarch64; \
     else \
-        wget -o wait https://github.com/ufoscout/docker-compose-wait/releases/download/2.12.1/wait; \
+        curl -o wait https://github.com/ufoscout/docker-compose-wait/releases/download/2.12.1/wait; \
     fi
 
 RUN chmod +x /wait
