@@ -15,10 +15,12 @@
 
 # GoLang Build
 FROM golang:alpine AS builder
+ARG TARGETARCH
+ARG TARGETOS
 ENV GO111MODULE=on \
     CGO_ENABLED=0 \
-    GOOS=linux \
-    GOARCH=amd64
+    GOOS=$TARGETOS \
+    GOARCH=$TARGETARCH
 WORKDIR /build
 COPY ./go.mod .
 COPY ./go.sum .
@@ -41,7 +43,13 @@ COPY --from=builder /dist/main /app/main
 RUN ls -al /app
 EXPOSE 8087
 
-ADD https://github.com/ufoscout/docker-compose-wait/releases/download/2.7.3/wait /wait
+ARG TARGETARCH
+RUN if [ "$TARGETARCH" = "arm64" ]; then \
+        wget -o wait https://github.com/ufoscout/docker-compose-wait/releases/download/2.12.1/wait_aarch64 \
+    else \
+        wget -o wait https://github.com/ufoscout/docker-compose-wait/releases/download/2.12.1/wait \
+    fi
+    
 RUN chmod +x /wait
 
 CMD /wait && /app/main
