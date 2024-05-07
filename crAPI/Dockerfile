@@ -74,7 +74,7 @@ ENV GO_SERVICE=localhost:8087 \
 
 # Add openresty for web
 ARG RESTY_DEB_FLAVOR=""
-ARG RESTY_DEB_VERSION="=1.19.9.1-1~buster1"
+ARG RESTY_DEB_VERSION="=1.19.9.1"
 ARG RESTY_APT_REPO="http://openresty.org/package/debian"
 ARG RESTY_APT_PGP="https://openresty.org/package/pubkey.gpg"
 
