@@ -37,7 +37,7 @@ import {
   ShoppingCartOutlined,
 } from "@ant-design/icons";
 import { COUPON_CODE_REQUIRED } from "../../constants/messages";
-import SampleAPI from "../SampleAPI/SampleAPI";
+import SampleAPI from "../sampleapi/SampleAPI.js";
 
 const { Content } = Layout;
 const { Meta } = Card;
