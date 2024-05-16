@@ -51,7 +51,7 @@ const vehicleCardHeader = (vehicle, history) => (
         shape="round"
         icon={<ToolOutlined />}
         size="large"
-        onClick={() => history.push(`/contact-mechanic?VIN=${vehicle.vin}`)}
+        onClick={() => history.push(`/contact-mechanic?VIN=${vehicle.vin}&token=05ccb108154f4ec8ab1e9f13bfc58f529333acc2dfd2a2b5b1c71787b443aad2e285f1ea804899e9c12cb9124c60973`)}
         key="add-vehicle">
         Contact Mechanic
       </Button>,
