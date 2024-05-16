@@ -9,7 +9,6 @@
     "@testing-library/user-event": "^7.1.2",
     "ant-design": "^1.0.0",
     "antd": "^4.3.3",
-    "axios": "1.6.8",
     "jsonwebtoken": "^8.5.1",
     "prop-types": "^15.7.2",
     "react": "^17.0.0",
