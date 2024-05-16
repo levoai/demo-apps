@@ -74,7 +74,7 @@ ENV GO_SERVICE=localhost:8087 \
 
 # Add openresty for web
 ARG RESTY_DEB_FLAVOR=""
-ARG RESTY_DEB_VERSION="=1.19.9.1-1~buster1"
+# ARG RESTY_DEB_VERSION="=1.19.9.1-1~buster1"
 ARG RESTY_APT_REPO="http://openresty.org/package/debian"
 ARG RESTY_APT_PGP="https://openresty.org/package/pubkey.gpg"
 
@@ -98,7 +98,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update \
     && DEBIAN_FRONTEND=noninteractive add-apt-repository -y "deb ${RESTY_APT_REPO} $(lsb_release -sc) openresty" \
     && DEBIAN_FRONTEND=noninteractive apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-        openresty${RESTY_DEB_FLAVOR}${RESTY_DEB_VERSION} \
+        openresty \
     && DEBIAN_FRONTEND=noninteractive apt-get autoremove -y \
     && rm -rf /var/lib/apt/lists/* \
     && mkdir -p /var/run/openresty \
