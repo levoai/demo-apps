@@ -29,13 +29,13 @@ jobs:
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
           image: levoai/crapi-web
           path: ./crAPI/services/web
-          tag: latest
+          tag: test
           cache: true
           # Don't push the image, just build it to validate it.
           extra_args: "--no-push --cache-repo levoai/crapi-web-cache"
 
   push-latest-web-image:
-    if: ${{ github.ref == 'refs/heads/main' }}
+    # if: ${{ github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
@@ -47,12 +47,12 @@ jobs:
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
           image: levoai/crapi-web
           path: ./crAPI/services/web
-          tag: latest
+          tag: test
           cache: true
           extra_args: "--cache-repo levoai/crapi-web-cache"
 
   release-web-image:
-    if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
+    # if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
