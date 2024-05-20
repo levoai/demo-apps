@@ -86,24 +86,24 @@ class OrderControlView(APIView):
     Order Controller View
     """
     @jwt_auth_required
-    @method_decorator(ratelimit(key='ip', group="/orders/{order_id}", rate='30/m', method='GET', block=False))
-    def get(self, request, order_id=None, user=None):
+    @method_decorator(ratelimit(key='ip', group="/orders/{token}", rate='30/m', method='GET', block=False))
+    def get(self, request, token=None, user=None):
         """
         order view for fetching  a particular order
         :param request: http request for the view
             method allowed: GET
             http request should be authorized by the jwt token of the user
-        :param order_id:
-            order_id of the order referring to\
+        :param token:
+            token of the order referring to\
         :param user: User object of the requesting user
         :returns Response object with
             order object and 200 status if no error
             message and corresponding status if error
         """
-        if is_ratelimited(request, group="/orders/{order_id}", key='ip', rate='30/m', method='GET', increment=False):
+        if is_ratelimited(request, group="/orders/{token}", key='ip', rate='30/m', method='GET', increment=False):
             return JsonResponse({'message' : 'You are being rate limited!'}, status=status.HTTP_429_TOO_MANY_REQUESTS)
 
-        order = Order.objects.get(id=order_id)
+        order = Order.objects.get(id=token)
         if user != order.user:
             return Response({'message': messages.RESTRICTED}, status=status.HTTP_403_FORBIDDEN)
         serializer = OrderSerializer(order)
@@ -113,15 +113,15 @@ class OrderControlView(APIView):
         return Response(response_data, status=status.HTTP_200_OK)
 
     @jwt_auth_required
-    def post(self, request, order_id=None, user=None):
+    def post(self, request, token=None, user=None):
         """
         order view for adding a new order
         :param request: http request for the view
             method allowed: POST
             http request should be authorised by the jwt token of the user
             mandatory fields: ['product_id', 'quantity']
-        :param order_id:
-            order_id of the order referring to
+        :param token:
+            token of the order referring to
             mandatory for GET and PUT http methods
         :param user: User object of the requesting user
         :returns Response object with
@@ -155,15 +155,15 @@ class OrderControlView(APIView):
         }, status=status.HTTP_200_OK)
 
     @jwt_auth_required
-    def put(self, request, order_id=None, user=None):
+    def put(self, request, token=None, user=None):
         """
         order view for updating a particular order
         :param request: http request for the view
             method allowed: PUT
             http request should be authorised by the jwt token of the user
             mandatory fields for POST and PUT http methods: ['product_id', 'quantity']
-        :param order_id:
-            order_id of the order referring to
+        :param token:
+            token of the order referring to
             mandatory for GET and PUT http methods
         :param user: User object of the requesting user
         :returns Response object with
@@ -171,7 +171,7 @@ class OrderControlView(APIView):
             message and corresponding status if error
         """
         request_data = request.data
-        order = Order.objects.get(id=order_id)
+        order = Order.objects.get(id=token)
         if user != order.user:
             return Response({'message': messages.RESTRICTED}, status=status.HTTP_403_FORBIDDEN)
         if 'quantity' in request_data:
@@ -240,7 +240,7 @@ class ReturnOrder(APIView):
             message and 200 status if no error
             message and corresponding status if error
         """
-        order = Order.objects.get(id=request.GET['order_id'])
+        order = Order.objects.get(id=request.GET['token'])
         if user != order.user:
             return Response({'message': messages.RESTRICTED}, status=status.HTTP_403_FORBIDDEN)
         if order.status == Order.STATUS_CHOICES.RETURNED.value:

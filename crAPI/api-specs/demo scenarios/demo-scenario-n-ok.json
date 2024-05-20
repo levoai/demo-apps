@@ -449,10 +449,10 @@
       }
     },
     
-    "/workshop/api/shop/orders/{order_id}": {
+    "/workshop/api/shop/orders/{token}": {
       "get": {
-        "operationId": "OP_WORKSHOP_SHOP_GET_ORDER_ID",
-        "summary": "Get the order details for order identified by order_id.",
+        "operationId": "OP_WORKSHOP_SHOP_GET_TOKEN",
+        "summary": "Get the order details for order identified by token.",
         "tags": [
           "Workshop / Shop"
         ],
@@ -464,7 +464,7 @@
         "parameters": [
           {
             "in": "path",
-            "name": "order_id",
+            "name": "token",
             "schema": {
               "type": "integer"
             },

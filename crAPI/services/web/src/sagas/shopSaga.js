@@ -173,7 +173,7 @@ export function* returnOrder(param) {
       "Content-Type": "application/json",
       Authorization: `Bearer ${accessToken}`,
     };
-    const ResponseJson = yield fetch(`${postUrl}?order_id=${orderId}`, {
+    const ResponseJson = yield fetch(`${postUrl}?token=${token}`, {
       headers,
       method: "POST",
     }).then((response) => {
