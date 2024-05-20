@@ -39,7 +39,7 @@ const PastOrdersContainer = (props) => {
     getOrders({ callback, accessToken });
   }, [accessToken, getOrders]);
 
-  const handleReturnOrder = (orderId) => {
+  const handleReturnOrder = (token) => {
     const callback = (res, data) => {
       if (res === responseTypes.SUCCESS) {
         Modal.success({
@@ -61,7 +61,7 @@ const PastOrdersContainer = (props) => {
         });
       }
     };
-    returnOrder({ callback, accessToken, orderId });
+    returnOrder({ callback, accessToken, token });
   };
 
   return <PastOrders history={history} returnOrder={handleReturnOrder} />;
