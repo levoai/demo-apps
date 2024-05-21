@@ -32,6 +32,7 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
       - name: Build image
+        if: ${{ github.event_name == 'pull_request' || github.ref != 'refs/heads/main' }}
         uses: docker/build-push-action@v5
         with:
           context: ./crAPI/services/web
@@ -40,7 +41,7 @@ jobs:
           cache-to: type=gha,mode=max
           tags: levoai/crapi-web:pr-build      
       - name: Build and push
-        if: ${{ github.ref == 'refs/heads/main' }}
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
         uses: docker/build-push-action@v5
         with:
           context: ./crAPI/services/web
