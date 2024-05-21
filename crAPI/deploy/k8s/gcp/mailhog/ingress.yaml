@@ -13,4 +13,4 @@ spec:
     app: mailhog
   sessionAffinity: None
   type: LoadBalancer
-  loadBalancerIP: "35.232.101.208"
+  # loadBalancerIP: "35.232.101.208"
