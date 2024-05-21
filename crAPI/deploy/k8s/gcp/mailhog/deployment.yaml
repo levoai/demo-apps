@@ -22,7 +22,7 @@ spec:
         runAsGroup: 0
       containers:
         - name: mailhog
-          image: mailhog/mailhog
+          image: jcalonso/mailhog
           imagePullPolicy: "IfNotPresent"
           livenessProbe:
             tcpSocket:

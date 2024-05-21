@@ -16,54 +16,37 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-identity-image:
-    if: ${{ github.ref != 'refs/heads/main' }}
-    runs-on: ubuntu-20.04
+  build-and-push-image:
+    runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v2
-
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
       - name: Build image
-        uses: aevea/action-kaniko@master
+        if: ${{ github.event_name == 'pull_request' || github.ref != 'refs/heads/main' }}
+        uses: docker/build-push-action@v5
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_PASSWORD }}
-          image: levoai/crapi-identity
-          path: ./crAPI/services/identity
-          tag: latest
-          cache: true
-          # Don't push the image, just build it to validate it.
-          extra_args: "--no-push --cache-repo levoai/crapi-identity-cache"
-
-  push-latest-identity-image:
-    if: ${{ github.ref == 'refs/heads/main' }}
-    runs-on: ubuntu-20.04
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Latest image push
-        uses: aevea/action-kaniko@master
+          context: ./crAPI/services/identity
+          load: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          tags: levoai/crapi-identity:pr-build
+      - name: Build and push
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+        uses: docker/build-push-action@v5
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_PASSWORD }}
-          image: levoai/crapi-identity
-          path: ./crAPI/services/identity
-          tag: latest
-          cache: true
-          extra_args: "--cache-repo levoai/crapi-identity-cache"
-
-  release-identity-image:
-    if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
-    runs-on: ubuntu-20.04
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Tagged image push
-        uses: aevea/action-kaniko@master
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_PASSWORD }}
-          image: levoai/crapi-identity
-          path: ./crAPI/services/identity
-          strip_tag_prefix: v
-          cache: true
-          extra_args: "--cache-repo levoai/crapi-identity-cache"
+          context: ./crAPI/services/identity
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: levoai/crapi-identity:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
