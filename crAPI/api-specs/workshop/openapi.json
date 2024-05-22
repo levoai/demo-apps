@@ -190,10 +190,10 @@
         }
       }
     },
-    "/workshop/api/shop/orders/{order_id}": {
+    "/workshop/api/shop/orders/{token}": {
       "put": {
         "operationId": "OP_WORKSHOP_SHOP_UPDATE_ORDER",
-        "summary": "Update the order specified by the order_id.",
+        "summary": "Update the order specified by the token.",
         "tags": [
           "Workshop / Shop"
         ],
@@ -205,7 +205,7 @@
         "parameters": [
           {
             "in": "path",
-            "name": "order_id",
+            "name": "token",
             "schema": {
               "type": "integer"
             },
@@ -286,8 +286,8 @@
         }
       },
       "get": {
-        "operationId": "OP_WORKSHOP_SHOP_GET_ORDER_ID",
-        "summary": "Get the order details for order identified by order_id.",
+        "operationId": "OP_WORKSHOP_SHOP_GET_TOKEN",
+        "summary": "Get the order details for order identified by token.",
         "tags": [
           "Workshop / Shop"
         ],
@@ -299,7 +299,7 @@
         "parameters": [
           {
             "in": "path",
-            "name": "order_id",
+            "name": "token",
             "schema": {
               "type": "integer"
             },
@@ -450,7 +450,7 @@
     "/workshop/api/shop/orders/return_order": {
       "post": {
         "operationId": "OP_WORKSHOP_SHOP_RETURN_PURCHASE",
-        "summary": "Return order specified by the order_id",
+        "summary": "Return order specified by the token",
         "tags": [
           "Workshop / Shop"
         ],
@@ -462,7 +462,7 @@
         "parameters": [
           {
             "in": "query",
-            "name": "order_id",
+            "name": "token",
             "schema": {
               "type": "integer"
             },

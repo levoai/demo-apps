@@ -157,13 +157,13 @@ export function* getOrders(param) {
 
 /**
  * return an order
- * @param { accessToken, callback, orderId } param
+ * @param { accessToken, callback, token } param
  * accessToken: access token of the user
  * callback : callback method
- * orderId: id of the order to be returned
+ * token: id of the order to be returned
  */
 export function* returnOrder(param) {
-  const { accessToken, callback, orderId } = param;
+  const { accessToken, callback, token } = param;
   let recievedResponse = {};
   try {
     yield put({ type: actionTypes.FETCHING_DATA });
@@ -173,7 +173,7 @@ export function* returnOrder(param) {
       "Content-Type": "application/json",
       Authorization: `Bearer ${accessToken}`,
     };
-    const ResponseJson = yield fetch(`${postUrl}?order_id=${orderId}`, {
+    const ResponseJson = yield fetch(`${postUrl}?token=${token}`, {
       headers,
       method: "POST",
     }).then((response) => {
@@ -185,7 +185,7 @@ export function* returnOrder(param) {
     if (recievedResponse.ok) {
       yield put({
         type: actionTypes.ORDER_RETURNED,
-        payload: { order: ResponseJson.order, orderId },
+        payload: { order: ResponseJson.order, token },
       });
       callback(responseTypes.SUCCESS, ResponseJson);
     } else {

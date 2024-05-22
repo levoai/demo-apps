@@ -10,7 +10,7 @@ class QuickstartUser(HttpUser):
     name = ""
     email = ""
     number = ""
-    order_id = 0
+    token = 0
     post_id = ""
     host = "http://localhost:8888"
     wait_time = between(1, 5)
@@ -74,7 +74,7 @@ class QuickstartUser(HttpUser):
                     self.funds = -1
                     print("Insufficient funds")
                 else:
-                    self.order_id = response.json()["id"]
+                    self.token = response.json()["id"]
         #validate coupon
         with self.client.post("/community/api/v2/coupon/validate-coupon", json={"coupon_code": "TRAC075"}, catch_response = True) as response:
             if response.status_code >= 400:
@@ -85,7 +85,7 @@ class QuickstartUser(HttpUser):
                 print(f"Couldn't get all orders: response {response.status_code}")
         if self.funds:
             #return order (if one exists)
-            with self.client.post(f"/workshop/api/shop/orders/return_order?order_id={self.order_id}", catch_response = True) as response:
+            with self.client.post(f"/workshop/api/shop/orders/return_order?token={self.token}", catch_response = True) as response:
                 if response.status_code >= 400:
                     print(f"Couldn't return order: response {response.status_code}")
             if self.funds == -1:

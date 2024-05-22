@@ -92,27 +92,27 @@ class OrderControlView(APIView):
     @jwt_auth_required
     @extend_schema(
         parameters=[
-          OpenApiParameter("order_id", OpenApiTypes.INT, OpenApiParameter.PATH), # path variable was overridden
+          OpenApiParameter("token", OpenApiTypes.INT, OpenApiParameter.PATH), # path variable was overridden
         ],
         responses=(
             {200: OrderSerializer}
         ),
         auth=[ {"bearerAuth": [] }]
     )
-    def get(self, request, order_id=None, user=None):
+    def get(self, request, token=None, user=None):
         """
         order view for fetching  a particular order
         :param request: http request for the view
             method allowed: GET
             http request should be authorised by the jwt token of the user
-        :param order_id:
-            order_id of the order referring to\
+        :param token:
+            token of the order referring to\
         :param user: User object of the requesting user
         :returns Response object with
             order object and 200 status if no error
             message and corresponding status if error
         """
-        order = Order.objects.get(id=order_id)
+        order = Order.objects.get(id=token)
         if user != order.user:
             return Response({'message': messages.RESTRICTED}, status=status.HTTP_403_FORBIDDEN)
         serializer = OrderSerializer(order)
@@ -155,15 +155,15 @@ class OrderControlView(APIView):
         },
         auth=[ {"bearerAuth": [] }]
     )
-    def post(self, request, order_id=None, user=None):
+    def post(self, request, token=None, user=None):
         """
         order view for adding a new order
         :param request: http request for the view
             method allowed: POST
             http request should be authorised by the jwt token of the user
             mandatory fields: ['product_id', 'quantity']
-        :param order_id:
-            order_id of the order referring to
+        :param token:
+            token of the order referring to
             mandatory for GET and PUT http methods
         :param user: User object of the requesting user
         :returns Response object with
@@ -199,7 +199,7 @@ class OrderControlView(APIView):
     @jwt_auth_required
     @extend_schema(
         parameters=[
-          OpenApiParameter("order_id", OpenApiTypes.INT, OpenApiParameter.PATH), # path variable was overridden
+          OpenApiParameter("token", OpenApiTypes.INT, OpenApiParameter.PATH), # path variable was overridden
         ],
         responses={
             200: OrderSerializer,
@@ -215,15 +215,15 @@ class OrderControlView(APIView):
         },
         auth=[ {"bearerAuth": [] }]
     )
-    def put(self, request, order_id=None, user=None):
+    def put(self, request, token=None, user=None):
         """
         order view for updating a particular order
         :param request: http request for the view
             method allowed: PUT
             http request should be authorised by the jwt token of the user
             mandatory fields for POST and PUT http methods: ['product_id', 'quantity']
-        :param order_id:
-            order_id of the order referring to
+        :param token:
+            token of the order referring to
             mandatory for GET and PUT http methods
         :param user: User object of the requesting user
         :returns Response object with
@@ -231,7 +231,7 @@ class OrderControlView(APIView):
             message and corresponding status if error
         """
         request_data = request.data
-        order = Order.objects.get(id=order_id)
+        order = Order.objects.get(id=token)
         if user != order.user:
             return Response({'message': messages.RESTRICTED}, status=status.HTTP_403_FORBIDDEN)
         if 'quantity' in request_data:
@@ -302,7 +302,7 @@ class ReturnOrder(APIView):
             message and 200 status if no error
             message and corresponding status if error
         """
-        order = Order.objects.get(id=request.GET['order_id'])
+        order = Order.objects.get(id=request.GET['token'])
         if user != order.user:
             return Response({'message': messages.RESTRICTED}, status=status.HTTP_403_FORBIDDEN)
         if order.status == Order.STATUS_CHOICES.RETURNED.value:

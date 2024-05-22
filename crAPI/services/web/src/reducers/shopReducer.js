@@ -43,7 +43,7 @@ const profileReducer = (state = initialData, action) => {
       return {
         ...state,
         pastOrders: state.pastOrders.map((order) =>
-          order.id === action.payload.orderId ? action.payload.order : order
+          order.id === action.payload.token ? action.payload.order : order
         ),
       };
     default:
