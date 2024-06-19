@@ -79,7 +79,7 @@ swagger-ui-bundle==0.0.8
     # via connexion
 typing-extensions==3.7.4.3
     # via aiohttp
-urllib3==1.25.8
+urllib3==1.26.19
     # via requests
 werkzeug==1.0.1
     # via flask
