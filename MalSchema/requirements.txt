@@ -6,7 +6,7 @@
 #
 aiohttp-jinja2==1.2.0
     # via connexion
-aiohttp==3.7.4
+aiohttp==3.9.4
     # via
     #   aiohttp-jinja2
     #   connexion
