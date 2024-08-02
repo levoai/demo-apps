@@ -122,6 +122,8 @@ class QuickstartUser(HttpUser):
                 
     #initializing user (logging in/applying coupon)
     def on_start(self):
+
+        self.client.verify = False
         
         self.set_name()
         self.set_password()
