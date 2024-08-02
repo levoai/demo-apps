@@ -21,9 +21,9 @@ jobs:
         with:
           LOCUSTFILE: "crAPI/services/loadgen/locustfile.py"
           URL:  "https://crapi-prod.levo.ai"
-          USERS: "5"
-          RATE: "5"
-          RUNTIME: "3m"
+          USERS: "3"
+          RATE: "3"
+          RUNTIME: "1m"
 
   generate-crapi-load-dev:
     name: Generate crAPI load for Dev
@@ -37,6 +37,6 @@ jobs:
         with:
           LOCUSTFILE: "crAPI/services/loadgen/locustfile.py"
           URL:  "https://crapi-dev.levo.ai"
-          USERS: "5"
-          RATE: "5"
-          RUNTIME: "3m"
+          USERS: "3"
+          RATE: "3"
+          RUNTIME: "1m"

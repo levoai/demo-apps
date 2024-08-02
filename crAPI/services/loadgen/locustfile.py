@@ -51,15 +51,16 @@ class QuickstartUser(HttpUser):
             if response.status_code >= 400:
                 print(f"Couldn't get all mechanics: response {response.status_code}")
         #post mechanic request
-        with self.client.post("/workshop/api/merchant/contact_mechanic", json={"mechanic_api": "http://localhost:8888/workshop/api/mechanic/receive_report",
-            "mechanic_code": "TRAC_MECH1",
-            "number_of_repeats": 0,
-            "repeat_request_if_failed": False,
-            "problem_details": "My car has engine trouble, and I need urgent help!",
-            "vin": "0BZCX25UTBJ987271"}, catch_response = True) as response:
-            if response.status_code >= 400:
-                print(f"Couldn't contact mechanic: response {response.status_code}")
-        #get mechanic reports
+        # TODO: contact_mechanic api is not working
+        # with self.client.post("/workshop/api/merchant/contact_mechanic", json={"mechanic_api": "http://localhost:8888/workshop/api/mechanic/receive_report",
+        #     "mechanic_code": "TRAC_MECH1",
+        #     "number_of_repeats": 0,
+        #     "repeat_request_if_failed": False,
+        #     "problem_details": "My car has engine trouble, and I need urgent help!",
+        #     "vin": "0BZCX25UTBJ987271"}, catch_response = True) as response:
+        #     if response.status_code >= 400:
+        #         print(f"Couldn't contact mechanic: response {response.status_code}")
+        # #get mechanic reports
         with self.client.get("/workshop/api/mechanic/user_reports", catch_response = True) as response:
             if response.status_code >= 400:
                 print(f"Couldn't get all service reports: response {response.status_code}")
