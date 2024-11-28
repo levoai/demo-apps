@@ -7,10 +7,8 @@ spec:
   ports:
   - name: web
     port: 8025
-    nodePort: 30025
     protocol: TCP
   selector:
     app: mailhog
   sessionAffinity: None
-  type: LoadBalancer
-  # loadBalancerIP: "35.232.101.208"
+  type: ClusterIP
