@@ -8,7 +8,7 @@ data:
   GO_SERVICE: crapi-community:8087
   JAVA_SERVICE: crapi-identity:8080
   PYTHON_SERVICE: crapi-workshop:8000
-  MAILHOG_UI: mailhog:8025
+  MAILHOG_UI: mailhog-web:8025
   DB_NAME: crapi
   DB_USER: admin
   DB_PASSWORD: crapisecretpassword
