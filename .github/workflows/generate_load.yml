@@ -20,7 +20,7 @@ jobs:
         uses: apardo04/locust-github-action@master
         with:
           LOCUSTFILE: "crAPI/services/loadgen/locustfile.py"
-          URL:  "https://crapi-prod-catalog-tests.levoai.app"
+          URL:  "https://crapi-prod-demo.levoai.app"
           USERS: "5"
           RATE: "5"
           RUNTIME: "3m"

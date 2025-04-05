@@ -2,7 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: mailhog
-  namespace: crapi
 spec:
   selector:
     matchLabels:

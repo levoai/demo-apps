@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 
-# Delete the entire crapi namespace
-kubectl delete namespace --wait=true crapi
+NAMESPACE={$NAMESPACE:-crapi}
 
 # Delete the persistent volumes
-kubectl get pvc -ncrapi
+kubectl get pvc -n $NAMESPACE
 
-for pv in `kubectl get pv`
-do
-  kubectl delete pv --grace-period=0 --timeout=0s --force=true $pv
-done
+# Delete the persistent volume claims
+kubectl get pvc -n $NAMESPACE -o name | xargs kubectl delete pvc -n $NAMESPACE
+
+# Delete the entire crapi namespace
+kubectl delete namespace --wait=true $NAMESPACE
 
 exit 0
