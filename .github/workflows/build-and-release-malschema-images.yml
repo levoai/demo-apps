@@ -19,9 +19,9 @@ jobs:
   build-malschema-image:
     name: Build malschema image
     if: ${{ github.ref != 'refs/heads/main' }}
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - run: echo "MONTH=$(date +%m)" >> $GITHUB_ENV
       - uses: satackey/action-docker-layer-caching@v0.0.11
@@ -44,9 +44,9 @@ jobs:
 
   publish-malschema-image:
     if: ${{ github.ref == 'refs/heads/main' }}
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - run: echo "MONTH=$(date +%m)" >> $GITHUB_ENV
       - uses: satackey/action-docker-layer-caching@v0.0.11
@@ -69,9 +69,9 @@ jobs:
   build-malschema-all-image:
     name: Build malschema-all image
     if: ${{ github.ref != 'refs/heads/main' }}
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - run: echo "MONTH=$(date +%m)" >> $GITHUB_ENV
       - uses: satackey/action-docker-layer-caching@v0.0.11
@@ -96,9 +96,9 @@ jobs:
   publish-malschema-all-image:
     name: Publish malschema-all latest image
     if: ${{ github.ref == 'refs/heads/main' }}
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - run: echo "MONTH=$(date +%m)" >> $GITHUB_ENV
       - uses: satackey/action-docker-layer-caching@v0.0.11
@@ -121,10 +121,10 @@ jobs:
 
   release-malschema-image:
     name: Build and publish MalSchema container images to DockerHub
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - run: echo "MONTH=$(date +%m)" >> $GITHUB_ENV
       - uses: satackey/action-docker-layer-caching@v0.0.11
