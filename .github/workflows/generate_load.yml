@@ -11,7 +11,7 @@ on:
 jobs:
   generate-crapi-load-prod:
     name: Generate crAPI load for Prod
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout
         uses: actions/checkout@v1
@@ -27,7 +27,7 @@ jobs:
 
   generate-crapi-load-dev:
     name: Generate crAPI load for Dev
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout
         uses: actions/checkout@v1
