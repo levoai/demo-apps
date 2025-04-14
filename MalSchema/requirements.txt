@@ -19,7 +19,7 @@ attrs==19.3.0
     #   -r requirements.in
     #   aiohttp
     #   jsonschema
-certifi==2020.6.20
+certifi==2023.7.22
     # via requests
 chardet==3.0.4
     # via
