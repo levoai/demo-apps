@@ -11,10 +11,10 @@ on:
 jobs:
   generate-crapi-load-prod:
     name: Generate crAPI load for Prod
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v1
+        uses: actions/checkout@v4
 
       - name: Run Load against prod Demo
         uses: apardo04/locust-github-action@master
@@ -27,10 +27,10 @@ jobs:
 
   generate-crapi-load-dev:
     name: Generate crAPI load for Dev
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v1
+        uses: actions/checkout@v4
 
       - name: Run Load against Dev e2e
         uses: apardo04/locust-github-action@master
