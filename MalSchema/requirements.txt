@@ -33,7 +33,7 @@ clickclick==1.2.2
     # via connexion
 connexion[aiohttp,swagger-ui]==2.4.0
     # via -r requirements.in
-flask==1.1.1
+flask==2.2.5
     # via connexion
 idna==2.8
     # via
