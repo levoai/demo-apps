@@ -12,3 +12,4 @@ djongo==1.3.3
 django-db-cascade-2
 drf-spectacular
 django-filter
+dnspython>=2.6.0rc1 # not directly required, pinned by Snyk to avoid a vulnerability
