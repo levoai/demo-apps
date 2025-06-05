@@ -1,0 +1,46 @@
+# Default values for DVGA Helm chart
+replicaCount: 1
+
+image:
+  repository: dolevf/dvga
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+nameOverride: ""
+fullnameOverride: ""
+
+service:
+  type: ClusterIP
+  port: 5013
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: dvga.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: []
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+env:
+  WEB_HOST: "0.0.0.0"
+  WEB_PORT: "5013"
+
+# Game mode: beginner or expert
+gameMode: "beginner"
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {} 

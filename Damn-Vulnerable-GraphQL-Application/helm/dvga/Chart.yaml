@@ -1,0 +1,13 @@
+apiVersion: v2
+name: dvga
+description: A Helm chart for Damn Vulnerable GraphQL Application
+type: application
+version: 0.1.0
+appVersion: "latest"
+maintainers:
+  - name: Levo
+keywords:
+  - graphql
+  - security
+  - vulnerability
+  - training 
