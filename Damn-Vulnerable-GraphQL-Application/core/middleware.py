@@ -105,11 +105,11 @@ class processMiddleware(object):
 class IntrospectionMiddleware(object):
   @run_only_once
   def resolve(self, next, root, info, **kwargs):
-    if helpers.is_level_easy():
-      return next(root, info, **kwargs)
+    # if helpers.is_level_easy():
+    #   return next(root, info, **kwargs)
 
-    if info.field_name.lower() in ['__schema']:
-      raise werkzeug.exceptions.SecurityError('Introspection is Disabled')
+    # if info.field_name.lower() in ['__schema']:
+    #   raise werkzeug.exceptions.SecurityError('Introspection is Disabled')
 
     return next(root, info, **kwargs)
 
