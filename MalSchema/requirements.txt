@@ -35,7 +35,7 @@ connexion[aiohttp,swagger-ui]==2.4.0
     # via -r requirements.in
 flask==1.1.1
     # via connexion
-idna==2.8
+idna==3.7
     # via
     #   requests
     #   yarl
