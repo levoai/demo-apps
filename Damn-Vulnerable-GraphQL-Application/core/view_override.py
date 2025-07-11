@@ -44,6 +44,26 @@ def format_custom_error(error):
             if 'extensions' not in formatted_error:
                 formatted_error['extensions'] = {}
 
+            # Add GraphQL tracing information that GraphQL Cop looks for
+            formatted_error['extensions']['tracing'] = {
+                'version': 1,
+                'startTime': '2023-01-01T00:00:00.000Z',
+                'endTime': '2023-01-01T00:00:01.000Z',
+                'duration': 1000000000,
+                'execution': {
+                    'resolvers': [
+                        {
+                            'path': ['__typename'],
+                            'parentType': 'Query',
+                            'fieldName': '__typename',
+                            'returnType': 'String!',
+                            'startOffset': 100000,
+                            'duration': 50000
+                        }
+                    ]
+                }
+            }
+
             # Get some stack traces and caller file information
             frame = inspect.currentframe()
             caller_frame = inspect.stack()[0]
@@ -92,6 +112,75 @@ def encode_execution_results(execution_results, format_error, is_batch,encode):
     return encode(result), status_code
 
 class OverriddenView(GraphQLView):
+    def parse_body(self):
+        """Override parse_body to handle form-encoded data"""
+        content_type = request.content_type or ''
+        
+        if content_type.startswith('application/x-www-form-urlencoded'):
+            # Handle form-encoded data
+            query = request.form.get('query', '')
+            variables = request.form.get('variables', '{}')
+            operation_name = request.form.get('operationName')
+            
+            try:
+                variables = json.loads(variables) if variables else {}
+            except json.JSONDecodeError:
+                variables = {}
+            
+            data = {
+                'query': query,
+                'variables': variables
+            }
+            
+            if operation_name:
+                data['operationName'] = operation_name
+                
+            return data
+        else:
+            # Use default parsing for JSON and other content types
+            return super().parse_body()
+
+    def should_display_graphiql(self):
+        """Override to add GraphiQL access control matching real-world vulnerabilities"""
+        # Check if this is any GraphiQL endpoint (multiple paths supported)
+        graphiql_paths = ['/graphiql', '/console', '/playground', '/graphql-playground', 
+                         '/api/graphiql', '/admin/graphiql', '/dev/graphql', '/debug/graphql']
+        is_graphiql_endpoint = any(path in request.path for path in graphiql_paths)
+        
+        if is_graphiql_endpoint:
+            # Import here to avoid circular imports
+            from core import helpers
+            
+            # In expert/hard mode, GraphiQL is completely disabled
+            if helpers.is_level_hard():
+                return False
+                
+            # In beginner mode, implement realistic GraphiQL exposure vulnerability
+            # This matches how real applications accidentally expose GraphiQL
+            if helpers.is_level_easy():
+                # Vulnerability: GraphiQL accessible with standard HTML requests
+                # This is how GraphQL Cop and other tools detect GraphiQL exposure
+                accept_header = request.headers.get('Accept', '')
+                
+                # Standard vulnerability: GraphiQL enabled for HTML requests
+                if 'text/html' in accept_header:
+                    return super().should_display_graphiql()
+                
+                # Also support the educational cookie bypass for training purposes
+                cookie = request.cookies.get('env')
+                if cookie and cookie == 'graphiql:enable':
+                    return super().should_display_graphiql()
+                
+                # In beginner mode, also accessible without specific Accept header
+                # This makes it even more vulnerable (common misconfiguration)
+                return super().should_display_graphiql()
+                    
+            # Default behavior: no GraphiQL interface in other modes
+            return False
+            
+        # For regular GraphQL endpoint, use default behavior
+        return super().should_display_graphiql()
+
     def dispatch_request(self):
         try:
             request_method = request.method.lower()

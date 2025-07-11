@@ -116,11 +116,28 @@ class IntrospectionMiddleware(object):
 class IGQLProtectionMiddleware(object):
   @run_only_once
   def resolve(self, next, root, info, **kwargs):
+    # Check if we're in hard mode - GraphiQL completely disabled
     if helpers.is_level_hard():
       raise werkzeug.exceptions.SecurityError('GraphiQL is disabled')
 
-    cookie = request.cookies.get('env')
-    if cookie and cookie == 'graphiql:enable':
+    # In beginner mode, implement realistic vulnerable behavior
+    if helpers.is_level_easy():
+      # Vulnerability: Allow GraphQL execution for GraphiQL interface
+      # This matches real-world scenarios where GraphiQL is accidentally left enabled
+      
+      # Allow execution with HTML Accept header (standard GraphiQL detection)
+      accept_header = request.headers.get('Accept', '')
+      if 'text/html' in accept_header:
+        return next(root, info, **kwargs)
+      
+      # Also support cookie bypass for educational purposes
+      cookie = request.cookies.get('env')
+      if cookie and cookie == 'graphiql:enable':
+        return next(root, info, **kwargs)
+      
+      # In beginner mode, allow execution for GraphiQL interface by default
+      # This creates the vulnerable condition that tools like GraphQL Cop detect
       return next(root, info, **kwargs)
 
+    # Default behavior for other modes
     raise werkzeug.exceptions.SecurityError('GraphiQL Access Rejected')
