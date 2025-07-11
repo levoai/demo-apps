@@ -505,21 +505,45 @@ class CustomBackend(GraphQLCoreBackend):
         super().__init__(executor)
         self.execute_params['allow_subscriptions'] = True
 
-app.add_url_rule('/graphql', view_func=OverriddenView.as_view(
-  'graphql',
-  schema=schema,
-  middleware=gql_middlew,
-  backend=CustomBackend(),
-  batch=True
-))
+# Configure the main GraphQL endpoint with tracing vulnerability
+app.add_url_rule(
+    "/graphql",
+    view_func=OverriddenView.as_view(
+        "graphql", 
+        schema=schema, 
+        middleware=gql_middlew,
+        backend=CustomBackend(),
+        batch=True,
+        context={"session": db.session},
+        format_error=format_custom_error  # Add tracing vulnerability to main endpoint
+    ),
+    methods=["GET", "POST"],
+)
 
-app.add_url_rule('/graphiql', view_func=OverriddenView.as_view(
+# GraphiQL interface endpoints - multiple paths for realistic vulnerability testing
+graphiql_view = OverriddenView.as_view(
   'graphiql',
   schema = schema,
   backend=CustomBackend(),
   graphiql = True,
   middleware = igql_middlew,
   format_error=format_custom_error
-))
+)
+
+# Common GraphiQL paths found in real-world applications
+graphiql_paths = [
+  '/graphiql',        # Standard GraphiQL path
+  '/console',         # Common alternative  
+  '/playground',      # GraphQL Playground
+  '/graphql-playground', # Explicit playground
+  '/api/graphiql',    # API-specific path
+  '/admin/graphiql',  # Admin interface
+  '/dev/graphql',     # Development interface
+  '/debug/graphql'    # Debug interface
+]
+
+# Register GraphiQL on all common paths for realistic testing
+for path in graphiql_paths:
+  app.add_url_rule(path, view_func=graphiql_view)
 
 
