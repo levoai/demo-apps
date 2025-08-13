@@ -1,0 +1,61 @@
+{
+  "name": "yagta",
+  "version": "1.0.0",
+  "description": "A GraphQL API for security testing with users, vehicles, and parking slots",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "nodemon --exec ts-node src/index.ts",
+    "clean": "rm -rf dist",
+    "prebuild": "yarn clean",
+    "test:quick": "./quick-test.sh",
+    "test:traffic": "node generate-traffic.js",
+    "test:continuous": "node continuous-traffic.js",
+    "test:remote": "./remote-test.sh",
+    "test:remote:quick": "echo 'Usage: ./remote-test.sh <target-url> quick'",
+    "test:remote:traffic": "echo 'Usage: ./remote-test.sh <target-url> traffic'",
+    "test:remote:continuous": "echo 'Usage: ./remote-test.sh <target-url> continuous'"
+  },
+  "keywords": [
+    "graphql",
+    "api",
+    "security",
+    "testing",
+    "typescript",
+    "nodejs"
+  ],
+  "author": "Security Testing Team",
+  "license": "MIT",
+  "dependencies": {
+    "apollo-server-express": "^3.13.0",
+    "axios": "^1.11.0",
+    "bcryptjs": "^3.0.2",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.2",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.1",
+    "express": "^5.1.0",
+    "graphql": "^16.11.0",
+    "graphql-scalars": "^1.24.2",
+    "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "morgan": "^1.10.1",
+    "node-fetch": "^3.3.2",
+    "reflect-metadata": "^0.2.2",
+    "type-graphql": "^2.0.0-rc.2"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^3.0.0",
+    "@types/cors": "^2.8.19",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/morgan": "^1.9.10",
+    "@types/node": "^24.2.0",
+    "nodemon": "^3.1.10",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
