@@ -27,7 +27,7 @@ RUN NODE_OPTIONS=--max_old_space_size=2048 npm run build
 RUN ls /app/build
 
 # Main Image
-FROM openresty/openresty:1.17.8.2-alpine
+FROM openresty/openresty:1.27.1.2-alpine
 RUN apk add gettext curl 
 # React
 RUN rm /etc/nginx/conf.d/default.conf
