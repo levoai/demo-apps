@@ -273,12 +273,13 @@ class Query(graphene.ObjectType):
   system_diagnostics = graphene.String(username=graphene.String(), password=graphene.String(), cmd=graphene.String())
   system_debug = graphene.String(arg=graphene.String())
   system_health = graphene.String()
-  users = graphene.List(UserObject, id=graphene.Int())
+  users = graphene.List(UserObject, id=graphene.Int(), filter=graphene.String())
   read_and_burn = graphene.Field(PasteObject, id=graphene.Int())
   search = graphene.List(SearchResult, keyword=graphene.String())
-  audits = graphene.List(AuditObject)
+  audits = graphene.List(AuditObject, filter=graphene.String())
   delete_all_pastes = graphene.Boolean()
   me = graphene.Field(UserObject, token=graphene.String())
+  pastes_by_owner = graphene.List(PasteObject, owner_filter=graphene.String())
 
   def resolve_me(self, info, token):
     Audit.create_audit_entry(info)
@@ -312,14 +313,29 @@ class Query(graphene.ObjectType):
     return items
 
   def resolve_pastes(self, info, public=False, limit=1000, filter=None):
-    query = PasteObject.get_query(info)
     Audit.create_audit_entry(info)
-    result = query.filter_by(public=public, burn=False)
-
+    
+    # SQL Injection vulnerability - using raw SQL with string interpolation
     if filter:
-      result = result.filter(text("title = '%s' or content = '%s'" % (filter, filter)))
-
-    return result.order_by(Paste.id.desc()).limit(limit)
+      # Vulnerable SQL query with direct string interpolation
+      sql_query = "SELECT id, title, content, public, user_agent, ip_addr, owner_id, burn FROM pastes WHERE public = %d AND burn = 0 AND (title = '%s' OR content = '%s') ORDER BY id DESC LIMIT %d" % (1 if public else 0, filter, filter, limit)
+      result = db.session.execute(text(sql_query))
+      pastes = []
+      for row in result:
+        paste = Paste()
+        paste.id = row[0]
+        paste.title = row[1]
+        paste.content = row[2]
+        paste.public = row[3]
+        paste.user_agent = row[4]
+        paste.ip_addr = row[5]
+        paste.owner_id = row[6]
+        paste.burn = row[7]
+        pastes.append(paste)
+      return pastes
+    else:
+      # Regular query without filter
+      return Paste.query.filter_by(public=public, burn=False).order_by(Paste.id.desc()).limit(limit).all()
 
   def resolve_paste(self, info, id=None, title=None):
     query = PasteObject.get_query(info)
@@ -367,26 +383,79 @@ class Query(graphene.ObjectType):
       helpers.run_cmd("uptime | awk -F': ' '{print $2}' | awk -F',' '{print $1}'")
     )
 
-  def resolve_users(self, info, id=None):
-    query = UserObject.get_query(info)
+  def resolve_users(self, info, id=None, filter=None):
     Audit.create_audit_entry(info)
-    if id:
-      result = query.filter_by(id=id)
+    
+    # SQL Injection vulnerability - using raw SQL with string interpolation
+    if filter:
+      # Vulnerable SQL query with direct string interpolation
+      sql_query = "SELECT id, username, email, password FROM users WHERE username = '%s' OR email = '%s'" % (filter, filter)
+      result = db.session.execute(text(sql_query))
+      users = []
+      for row in result:
+        user = User()
+        user.id = row[0]
+        user.username = row[1]
+        user.email = row[2]
+        user.password = row[3]
+        users.append(user)
+      return users
+    elif id:
+      # Regular query for specific ID
+      return User.query.filter_by(id=id).all()
     else:
-      result = query
+      return User.query.all()
 
-    return result
-
-  def resolve_audits(self, info):
-    query = Audit.query.all()
+  def resolve_audits(self, info, filter=None):
     Audit.create_audit_entry(info)
-    return query
+    
+    # SQL Injection vulnerability - using raw SQL with string interpolation
+    if filter:
+      # Vulnerable SQL query with direct string interpolation
+      sql_query = "SELECT id, gqloperation, gqlquery, timestamp FROM audits WHERE gqloperation = '%s' OR gqlquery LIKE '%%%s%%'" % (filter, filter)
+      result = db.session.execute(text(sql_query))
+      audits = []
+      for row in result:
+        audit = Audit()
+        audit.id = row[0]
+        audit.gqloperation = row[1]
+        audit.gqlquery = row[2]
+        audit.timestamp = row[3]
+        audits.append(audit)
+      return audits
+    else:
+      return Audit.query.all()
 
   def resolve_delete_all_pastes(self, info):
     Audit.create_audit_entry(info)
     Paste.query.delete()
     db.session.commit()
     return Paste.query.count() == 0
+
+  def resolve_pastes_by_owner(self, info, owner_filter=None):
+    Audit.create_audit_entry(info)
+    
+    # SQL Injection vulnerability - using raw SQL with string interpolation
+    if owner_filter:
+      # Vulnerable SQL query with JOIN and direct string interpolation
+      sql_query = "SELECT p.id, p.title, p.content, p.public, p.user_agent, p.ip_addr, p.owner_id, p.burn FROM pastes p JOIN owners o ON p.owner_id = o.id WHERE o.name = '%s' AND p.burn = 0" % owner_filter
+      result = db.session.execute(text(sql_query))
+      pastes = []
+      for row in result:
+        paste = Paste()
+        paste.id = row[0]
+        paste.title = row[1]
+        paste.content = row[2]
+        paste.public = row[3]
+        paste.user_agent = row[4]
+        paste.ip_addr = row[5]
+        paste.owner_id = row[6]
+        paste.burn = row[7]
+        pastes.append(paste)
+      return pastes
+    else:
+      # Regular query without filter
+      return Paste.query.join(Owner).filter_by(burn=False).all()
 
 
 @app.route('/')

