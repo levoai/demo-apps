@@ -133,6 +133,47 @@ def test_sql_injection():
     assert r.status_code == 200
     assert len(r.json()['data']['pastes']) > 1
 
+def test_sql_injection_users():
+    query = """
+        query {
+           users(filter:"admin' OR '1'='1") {
+                username
+            }
+        }
+    """
+
+    r = graph_query(GRAPHQL_URL, query)
+    assert r.status_code == 200
+    assert len(r.json()['data']['users']) > 1
+
+def test_sql_injection_audits():
+    query = """
+        query {
+           audits(filter:"test' OR '1'='1") {
+                gqloperation
+                gqlquery
+            }
+        }
+    """
+
+    r = graph_query(GRAPHQL_URL, query)
+    assert r.status_code == 200
+    assert len(r.json()['data']['audits']) > 0
+
+def test_sql_injection_pastes_by_owner():
+    query = """
+        query {
+           pastesByOwner(ownerFilter:"DVGAUser' OR '1'='1") {
+                title
+                content
+            }
+        }
+    """
+
+    r = graph_query(GRAPHQL_URL, query)
+    assert r.status_code == 200
+    assert len(r.json()['data']['pastesByOwner']) > 0
+
 def test_deny_list_expert_mode():
     query = """
         query {
