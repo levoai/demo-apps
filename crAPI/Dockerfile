@@ -50,7 +50,7 @@ RUN mkdir -p /app/gocode \
 
 # Final Docker image. Basing it off of Postgres so that we don't have to
 # go through the pain of adding Postgres ourselves.
-FROM postgres:13-buster
+FROM postgres:13-bullseye
 WORKDIR /app
 ENV DB_NAME=crapi \
     DB_USER=admin \
@@ -75,27 +75,28 @@ ENV GO_SERVICE=localhost:8087 \
 # Add openresty for web
 ARG RESTY_DEB_FLAVOR=""
 # ARG RESTY_DEB_VERSION="=1.19.9.1-1~buster1"
-ARG RESTY_APT_REPO="http://openresty.org/package/debian"
+ARG RESTY_APT_REPO="https://openresty.org/package/debian"
+ARG RESTY_APT_DIST="bullseye"
 ARG RESTY_APT_PGP="https://openresty.org/package/pubkey.gpg"
 
 RUN DEBIAN_FRONTEND=noninteractive apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-        apt-utils \
         ca-certificates \
-        gettext-base \
-        gnupg gnupg2 \
-        lsb-base lsb-release \
+        curl \
+        gnupg \
+        gnupg2 \
+        lsb-release \
         software-properties-common \
-        wget curl gettext \
+        wget \
+        gettext \
+        gettext-base \
         openjdk-11-jre \
         netcat \
         vim \
         dumb-init \
         procps \
-    && wget -qO /tmp/pubkey.gpg ${RESTY_APT_PGP} \
-    && DEBIAN_FRONTEND=noninteractive apt-key add /tmp/pubkey.gpg \
-    && rm /tmp/pubkey.gpg \
-    && DEBIAN_FRONTEND=noninteractive add-apt-repository -y "deb ${RESTY_APT_REPO} $(lsb_release -sc) openresty" \
+    && curl -fsSL ${RESTY_APT_PGP} | gpg --dearmor -o /usr/share/keyrings/openresty.gpg \
+    && echo "deb [signed-by=/usr/share/keyrings/openresty.gpg] ${RESTY_APT_REPO} ${RESTY_APT_DIST} openresty" > /etc/apt/sources.list.d/openresty.list \
     && DEBIAN_FRONTEND=noninteractive apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
         openresty \
