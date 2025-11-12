@@ -1,3 +1,5 @@
+import base64
+import json
 import time
 import random
 import string
@@ -46,6 +48,34 @@ class QuickstartUser(HttpUser):
         with self.client.get("/identity/api/v2/vehicle/vehicles", catch_response = True) as response:
             if response.status_code >= 400:
                 print(f"Couldn't get vehicle: response {response.status_code}")
+        #mirror endpoint
+        original_payload = {
+            "request_id": f"mirror-{int(time.time() * 1000)}",
+            "metadata": {
+                "source": "locust-loadgen",
+                "scenario": "default-user-journey",
+            },
+            "data": {
+                "message": "Mirror endpoint payload",
+                "timestamp": int(time.time()),
+            },
+        }
+        encoded_payload = base64.b64encode(json.dumps(original_payload).encode("utf-8")).decode("utf-8")
+        payload = {"payload": encoded_payload}
+        with self.client.post("/identity/api/mirror", json=payload, catch_response = True) as response:
+            if response.status_code >= 400:
+                print(f"Mirror endpoint failed: response {response.status_code}")
+            else:
+                try:
+                    echoed = response.json()
+                    if echoed != payload:
+                        print(f"Unexpected mirror response: {response.text}")
+                    else:
+                        decoded = json.loads(base64.b64decode(echoed["payload"]).decode("utf-8"))
+                        if decoded != original_payload:
+                            print(f"Decoded mirror payload mismatch: {decoded}")
+                except ValueError:
+                    print(f"Mirror endpoint returned non-JSON: {response.text}")
         #get mechanics
         with self.client.get("/workshop/api/mechanic", catch_response = True) as response:
             if response.status_code >= 400:

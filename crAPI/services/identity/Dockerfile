@@ -22,7 +22,7 @@ COPY ./src /app/src
 RUN mvn -f /app/pom.xml clean package -DskipTests
 
 # Main Image
-FROM openjdk:11-jre-slim-buster
+FROM openjdk:22-ea-19-jdk-slim-bookworm
 
 #Java
 RUN apt-get -y update && apt-get -y install curl && apt-get -y clean
