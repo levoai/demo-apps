@@ -16,10 +16,11 @@
 
 package com.crapi.controller;
 
-import io.swagger.v3.oas.annotations.security.SecurityRequirements;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import java.util.Collections;
 import java.util.Map;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -29,7 +30,9 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * Simple echo controller that returns whatever JSON payload is provided.
  */
-@SecurityRequirements
+
+@SecurityRequirement(name = "JWT")
+@PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
 @RestController
 @CrossOrigin
 @RequestMapping("/identity/api")

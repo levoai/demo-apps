@@ -19,7 +19,7 @@ COPY ./services/identity/src /app/src
 RUN mvn -f /app/pom.xml clean package -DskipTests
 
 # Build image for Community service
-FROM golang:1.21-bullseye AS community-builder
+FROM golang:1.24rc1-bullseye AS community-builder
 ENV GO111MODULE=on \
     CGO_ENABLED=0 \
     GOOS=linux \
@@ -36,17 +36,20 @@ RUN go build -o main .
 WORKDIR /dist
 RUN cp /build/main .
 
-# Build image for Mailhog
-FROM golang:1.21-bullseye AS mailhog-builder
-RUN apt-get update && apt-get install -y \
+# Build image for Mailhog - use stable Go 1.24
+FROM golang:1.24.0-bullseye AS mailhog-builder
+RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
-    git
+  && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
-RUN mkdir -p /app/gocode \
-  && export GOPATH=/app/gocode \
-  && go install github.com/mailhog/MailHog@v1.0.1 \
-  && mv /app/gocode/bin/MailHog /usr/local/bin \
-  && rm -rf /app/gocode
+ARG TARGETARCH
+RUN mkdir -p /app/gocode
+ENV GOPATH=/app/gocode
+ENV GOBIN=/usr/local/bin
+RUN GOARCH=${TARGETARCH:-amd64} GOOS=linux go install github.com/mailhog/MailHog@v1.0.1
+
+# OpenResty base image to copy binaries
+FROM openresty/openresty:1.25.3.1-0-bullseye-fat AS openresty-builder
 
 # Final Docker image. Basing it off of Postgres so that we don't have to
 # go through the pain of adding Postgres ourselves.
@@ -72,13 +75,7 @@ ENV GO_SERVICE=localhost:8087 \
     PYTHON_SERVICE=localhost:8000 \
     MAILHOG_UI=localhost:8025
 
-# Add openresty for web
-ARG RESTY_DEB_FLAVOR=""
-# ARG RESTY_DEB_VERSION="=1.19.9.1-1~buster1"
-ARG RESTY_APT_REPO="https://openresty.org/package/debian"
-ARG RESTY_APT_DIST="bullseye"
-ARG RESTY_APT_PGP="https://openresty.org/package/pubkey.gpg"
-
+# Install runtime dependencies
 RUN DEBIAN_FRONTEND=noninteractive apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
         ca-certificates \
@@ -95,26 +92,28 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update \
         vim \
         dumb-init \
         procps \
-    && curl -fsSL ${RESTY_APT_PGP} | gpg --dearmor -o /usr/share/keyrings/openresty.gpg \
-    && echo "deb [signed-by=/usr/share/keyrings/openresty.gpg] ${RESTY_APT_REPO} ${RESTY_APT_DIST} openresty" > /etc/apt/sources.list.d/openresty.list \
-    && DEBIAN_FRONTEND=noninteractive apt-get update \
-    && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-        openresty \
     && DEBIAN_FRONTEND=noninteractive apt-get autoremove -y \
-    && rm -rf /var/lib/apt/lists/* \
-    && mkdir -p /var/run/openresty \
-    && ln -sf /dev/stdout /usr/local/openresty${RESTY_DEB_FLAVOR}/nginx/logs/access.log \
-    && ln -sf /dev/stderr /usr/local/openresty${RESTY_DEB_FLAVOR}/nginx/logs/error.log
+    && rm -rf /var/lib/apt/lists/*
+
+COPY --from=openresty-builder /usr/local/openresty /usr/local/openresty
+
+RUN mkdir -p /var/run/openresty \
+    && ln -sf /dev/stdout /usr/local/openresty/nginx/logs/access.log \
+    && ln -sf /dev/stderr /usr/local/openresty/nginx/logs/error.log
 
 # Add additional binaries into PATH for convenience
 ENV PATH="$PATH:/usr/local/openresty${RESTY_DEB_FLAVOR}/luajit/bin:/usr/local/openresty${RESTY_DEB_FLAVOR}/nginx/sbin:/usr/local/openresty${RESTY_DEB_FLAVOR}/bin"
 
-# Add MongoDB
-RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
-RUN wget -qO - https://www.mongodb.org/static/pgp/server-4.2.asc | apt-key add -
-RUN echo "deb [ arch=amd64 ] https://repo.mongodb.org/apt/ubuntu bionic/mongodb-org/4.2 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-4.2.list
-RUN apt-get update && apt-get install -y mongodb-org
-RUN sed -i "s,\\(^[[:blank:]]*bindIp:\\) .*,\\1 0.0.0.0," /etc/mongod.conf
+# Add MongoDB - pull from official Docker image instead of apt
+COPY --from=mongo:7.0 /usr/bin/mongod /usr/bin/mongod
+COPY --from=mongo:7.0 /usr/bin/mongos /usr/bin/mongos
+COPY --from=mongo:7.0 /usr/bin/mongosh /usr/bin/mongosh
+RUN mkdir -p /data/db /var/log/mongodb \
+    && echo "net:" > /etc/mongod.conf \
+    && echo "  bindIp: 0.0.0.0" >> /etc/mongod.conf \
+    && echo "  port: 27017" >> /etc/mongod.conf \
+    && echo "storage:" >> /etc/mongod.conf \
+    && echo "  dbPath: /data/db" >> /etc/mongod.conf
 
 # Python for Workshop service
 ENV PYTHONDONTWRITEBYTECODE 1 \
