@@ -67,7 +67,7 @@ pyyaml==5.4
     #   clickclick
     #   connexion
     #   openapi-spec-validator
-requests==2.22.0
+requests==2.31.0
     # via connexion
 six==1.13.0
     # via
