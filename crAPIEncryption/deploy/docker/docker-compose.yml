@@ -1,0 +1,110 @@
+# Copyright 2020 Traceable, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the “License”);
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#         http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an “AS IS” BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+
+version: '3.7'
+services: 
+
+  crapi-identity:
+    container_name: crapi-encryption-identity
+    build: ../../services/identity
+    ports:
+      - "127.0.0.1:8080:8080"
+    environment:
+      - DB_NAME=crapi
+      - DB_USER=admin
+      - DB_PASSWORD=crapisecretpassword
+      - DB_HOST=postgresdb
+      - DB_PORT=5432
+      - BLOCK_SHELL_INJECTION=false
+      - JWT_SECRET=crapi
+      - MAILHOG_HOST=mailhog
+      - MAILHOG_PORT=1025
+      - MAILHOG_DOMAIN=example.com
+      - SMTP_HOST=smtp.example.com
+      - SMTP_PORT=587
+      - SMTP_EMAIL=user@example.com
+      - SMTP_PASS=xxxxxxxxxxxxxx
+      - SMTP_FROM=no-reply@example.com
+      - SMTP_AUTH=true
+      - SMTP_STARTTLS=true
+      - RESTRICT_CMDI=true
+      - WAIT_HOSTS=postgresdb:5432
+      - WAIT_HOSTS_TIMEOUT=240
+      - WAIT_SLEEP_INTERVAL=5
+    depends_on:
+      postgresdb:
+        condition: service_healthy
+    networks:
+      - crapi-network
+    healthcheck:
+        test: curl 0.0.0.0:8080/identity/health_check
+        interval: 15s
+        timeout: 15s
+        retries: 15
+    deploy:
+      resources:
+        limits:
+          cpus: '0.8'
+          memory: 512M
+
+  postgresdb:
+    container_name: postgresdb
+    image: 'postgres:13'
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: crapisecretpassword
+      POSTGRES_DB: crapi
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - postgresql-data:/var/lib/postgresql/data/
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d crapi"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - crapi-network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: 128M
+  
+  mongodb:
+    container_name: mongodb
+    image: 'mongo:7.0.0'
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: crapisecretpassword
+    #ports:
+    #  - "127.0.0.1:27017:27017"
+    volumes:
+      - mongodb-data:/data/db
+    networks:
+      - crapi-network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: 128M
+
+networks:
+  crapi-network:
+    driver: bridge
+
+volumes:
+  mongodb-data:
+  postgresql-data:
