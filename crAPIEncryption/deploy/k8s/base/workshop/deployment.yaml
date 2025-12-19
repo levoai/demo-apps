@@ -27,7 +27,7 @@ spec:
             - "crapi-community"
       containers:
       - name: crapi-workshop
-        image: levoai/crapi-workshop:latest
+        image: levoai/crapi-encryption-workshop:latest
         imagePullPolicy: Always  
         ports:
         - containerPort: 8000

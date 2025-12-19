@@ -5,7 +5,7 @@ metadata:
 subjects:
 - kind: ServiceAccount
   name: default
-  namespace: NAMESPACE
+  namespace: crapi
   apiGroup: ""
 roleRef:
   kind: ClusterRole

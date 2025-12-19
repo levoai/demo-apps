@@ -33,7 +33,7 @@ spec:
             - "crapi-identity"
       containers:
       - name: crapi-community
-        image: levoai/crapi-community:latest
+        image: levoai/crapi-encryption-community:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 8087
