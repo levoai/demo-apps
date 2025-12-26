@@ -1,0 +1,1181 @@
+{
+    "openapi": "3.0.1",
+    "info": {
+        "title": "crAPI Identity Service APIs",
+        "version": "1.0"
+    },
+    "security": [
+        {
+            "JWT": []
+        }
+    ],
+    "paths": {
+        "/identity/api/v2/user/videos/{video_id}": {
+            "get": {
+                "tags": [
+                    "profile-controller"
+                ],
+                "operationId": "getProfileVideo",
+                "parameters": [
+                    {
+                        "name": "video_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "profile-controller"
+                ],
+                "operationId": "updateProfileVideo",
+                "parameters": [
+                    {
+                        "name": "video_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/VideoForm"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "profile-controller"
+                ],
+                "operationId": "deleteVideo",
+                "parameters": [
+                    {
+                        "name": "video_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/identity/api/v2/user/videos/list_sample_videos": {
+            "get": {
+                "tags": [
+                    "profile-controller"
+                ],
+                "operationId": "listSampleVideos",
+                "summary": "List a selection of sample videos.",
+                "responses": {
+                    "200": {
+                        "description": "The file names of the sample videos.",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ]
+            },
+            "parameters": [
+                {
+                    "name": "number",
+                    "description": "The number of sample videos to return.",
+                    "in": "query",
+                    "required": true,
+                    "schema": {
+                        "type": "integer"
+                    },
+                    "example": 10
+                }
+            ]
+        },
+        "/identity/api/v2/vehicle/resend_email": {
+            "post": {
+                "tags": [
+                    "vehicle-controller"
+                ],
+                "operationId": "getVehicleDetails",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CRAPIResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/identity/api/v2/vehicle/add_vehicle": {
+            "post": {
+                "tags": [
+                    "vehicle-controller"
+                ],
+                "operationId": "addVehicle",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/VehicleForm"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CRAPIResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/identity/api/v2/user/videos": {
+            "post": {
+                "tags": [
+                    "profile-controller"
+                ],
+                "operationId": "uploadProfileVideo",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "file"
+                                ],
+                                "type": "object",
+                                "properties": {
+                                    "file": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/identity/api/v2/user/verify-email-token": {
+            "post": {
+                "tags": [
+                    "change-email-controller"
+                ],
+                "operationId": "verifyEmailToken",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ChangeEmailForm"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CRAPIResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/identity/api/v2/user/reset-password": {
+            "post": {
+                "tags": [
+                    "user-controller"
+                ],
+                "operationId": "resetPassword",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LoginForm"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CRAPIResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/identity/api/v2/user/pictures": {
+            "post": {
+                "tags": [
+                    "profile-controller"
+                ],
+                "operationId": "updateProfilePicture",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "file"
+                                ],
+                                "type": "object",
+                                "properties": {
+                                    "file": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/identity/api/v2/user/change-email": {
+            "post": {
+                "tags": [
+                    "change-email-controller"
+                ],
+                "operationId": "changesEmail",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ChangeEmailForm"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CRAPIResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/identity/api/auth/v4.0/user/login-with-token": {
+            "post": {
+                "tags": [
+                    "auth-controller"
+                ],
+                "operationId": "loginWithToken",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LoginWithEmailToken"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CRAPIResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": []
+            }
+        },
+        "/identity/api/auth/v3/check-otp": {
+            "post": {
+                "tags": [
+                    "auth-controller"
+                ],
+                "operationId": "secureCheckOtp",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/OtpForm"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CRAPIResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": []
+            }
+        },
+        "/identity/api/auth/v2/check-otp": {
+            "post": {
+                "tags": [
+                    "auth-controller"
+                ],
+                "operationId": "checkOtp",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/OtpForm"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CRAPIResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": []
+            }
+        },
+        "/identity/api/auth/v2.7/user/login-with-token": {
+            "post": {
+                "tags": [
+                    "auth-controller"
+                ],
+                "operationId": "loginWithTokenV2",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LoginWithEmailToken"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/JwtResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": []
+            }
+        },
+        "/identity/api/auth/signup": {
+            "post": {
+                "tags": [
+                    "auth-controller"
+                ],
+                "operationId": "registerUser",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SignUpForm"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CRAPIResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": []
+            }
+        },
+        "/identity/api/auth/login": {
+            "post": {
+                "tags": [
+                    "auth-controller"
+                ],
+                "operationId": "authenticateUser",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LoginForm"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/JwtResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": []
+            }
+        },
+        "/identity/api/auth/forget-password": {
+            "post": {
+                "tags": [
+                    "auth-controller"
+                ],
+                "operationId": "forgetPassword",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ForgetPassword"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CRAPIResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": []
+            }
+        },
+        "/identity/health_check": {
+            "get": {
+                "tags": [
+                    "health-check-controller"
+                ],
+                "operationId": "healthCheck",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": []
+            }
+        },
+        "/identity/privacy/user_agent": {
+            "get": {
+                "tags": [
+                    "privacy-controller"
+                ],
+                "operationId": "userAgent",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": []
+            }
+        },
+        "/identity/api/v2/vehicle/{carId}/location": {
+            "get": {
+                "tags": [
+                    "vehicle-controller"
+                ],
+                "operationId": "getLocationBOLA",
+                "parameters": [
+                    {
+                        "name": "carId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/identity/api/v2/vehicle/vehicles": {
+            "get": {
+                "tags": [
+                    "vehicle-controller"
+                ],
+                "operationId": "getVehicle",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/identity/api/v2/user/videos/convert_video": {
+            "get": {
+                "tags": [
+                    "profile-controller"
+                ],
+                "operationId": "convertVideoEndPoint",
+                "parameters": [
+                    {
+                        "name": "video_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/identity/api/v2/user/dashboard": {
+            "get": {
+                "tags": [
+                    "user-controller"
+                ],
+                "operationId": "dashboard",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+    
+        "/identity/api/v2/admin/videos/{video_id}": {
+            "x-levo-allowed-roles": [
+                "ROLE_ADMIN"
+            ],
+            "delete": {
+                "summary": "As admin, delete the video identified by video_id.",
+                "operationId": "OP_IDENT_ADMIN_DEL_PROFILE_VIDEO",
+                "tags": [
+                    "Identity / Admin"
+                ],
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "video_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CRAPIResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/identity/api/v1/admin/users/find": {
+            "x-levo-allowed-roles": [
+                "ROLE_ADMIN"
+            ],
+            "get": {
+                "tags": [
+                    "Identity / Admin"
+                ],
+                "operationId": "OP_IDENT_ADMIN_USERS_FIND",
+                "summary": "Get details of a User given their phone number.",
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "number",
+                                        "password",
+                                        "role",
+                                        "created_on",
+                                        "id",
+                                        "email"
+                                    ],
+                                    "properties": {
+                                        "number": {
+                                            "type": "string"
+                                        },
+                                        "password": {
+                                            "type": "string"
+                                        },
+                                        "role": {
+                                            "type": "integer"
+                                        },
+                                        "created_on": {
+                                            "type": "string",
+                                            "format": "date"
+                                        },
+                                        "id": {
+                                            "type": "integer"
+                                        },
+                                        "email": {
+                                            "type": "string",
+                                            "format": "email"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": "User details corresponding to the phone number."
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "message",
+                                        "status"
+                                    ],
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "status": {
+                                            "type": "number"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": "User not found."
+                    }
+                },
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ]
+            },
+            "parameters": [
+                {
+                    "name": "number",
+                    "in": "query",
+                    "description": "Phone number of the user to locate.",
+                    "required": true,
+                    "schema": {
+                        "type": "string",
+                        "example": "4156895423"
+                    }
+                }
+            ]
+        },
+        "/identity/api/v1/admin/users/list": {
+            "x-levo-allowed-roles": [
+                "ROLE_MECHANIC",
+                "ROLE_ADMIN"
+            ],
+            "get": {
+                "tags": [
+                    "Identity / Admin"
+                ],
+                "operationId": "OP_IDENT_ADMIN_USERS_LIST",
+                "summary": "List all registered User(s).",
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "required": [
+                                            "number",
+                                            "role",
+                                            "created_on",
+                                            "id",
+                                            "email"
+                                        ],
+                                        "properties": {
+                                            "number": {
+                                                "type": "string"
+                                            },
+                                            "role": {
+                                                "type": "integer"
+                                            },
+                                            "created_on": {
+                                                "type": "string",
+                                                "format": "date"
+                                            },
+                                            "id": {
+                                                "type": "integer"
+                                            },
+                                            "email": {
+                                                "type": "string",
+                                                "format": "email"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": "Array of registered User objects."
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "required": [
+                                            "number",
+                                            "role",
+                                            "created_on",
+                                            "id",
+                                            "email"
+                                        ],
+                                        "properties": {
+                                            "number": {
+                                                "type": "string"
+                                            },
+                                            "role": {
+                                                "type": "integer"
+                                            },
+                                            "created_on": {
+                                                "type": "string",
+                                                "format": "date"
+                                            },
+                                            "id": {
+                                                "type": "integer"
+                                            },
+                                            "email": {
+                                                "type": "string",
+                                                "format": "email"
+                                            }
+                                        }
+                                    }
+                                },
+                                "example": []
+                            }
+                        },
+                        "description": "No User(s) found."
+                    }
+                },
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ]
+            },
+            "parameters": []
+        }
+    },
+    "components": {
+        "schemas": {
+            "VideoForm": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "videoName": {
+                        "type": "string"
+                    },
+                    "video_url": {
+                        "type": "string"
+                    },
+                    "conversion_params": {
+                        "type": "string"
+                    }
+                }
+            },
+            "CRAPIResponse": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "integer",
+                        "format": "int32"
+                    }
+                }
+            },
+            "VehicleForm": {
+                "required": [
+                    "pincode",
+                    "vin"
+                ],
+                "type": "object",
+                "properties": {
+                    "pincode": {
+                        "maxLength": 8,
+                        "minLength": 4,
+                        "type": "string"
+                    },
+                    "vin": {
+                        "maxLength": 20,
+                        "minLength": 4,
+                        "type": "string"
+                    }
+                }
+            },
+            "ChangeEmailForm": {
+                "required": [
+                    "new_email",
+                    "old_email"
+                ],
+                "type": "object",
+                "properties": {
+                    "old_email": {
+                        "maxLength": 40,
+                        "minLength": 3,
+                        "type": "string"
+                    },
+                    "new_email": {
+                        "maxLength": 40,
+                        "minLength": 3,
+                        "type": "string"
+                    },
+                    "token": {
+                        "type": "string"
+                    }
+                }
+            },
+            "LoginForm": {
+                "required": [
+                    "email",
+                    "password"
+                ],
+                "type": "object",
+                "properties": {
+                    "email": {
+                        "maxLength": 60,
+                        "minLength": 3,
+                        "type": "string"
+                    },
+                    "password": {
+                        "maxLength": 40,
+                        "minLength": 4,
+                        "type": "string"
+                    },
+                    "number": {
+                        "type": "string"
+                    }
+                }
+            },
+            "LoginWithEmailToken": {
+                "required": [
+                    "email",
+                    "token"
+                ],
+                "type": "object",
+                "properties": {
+                    "email": {
+                        "maxLength": 60,
+                        "minLength": 3,
+                        "type": "string"
+                    },
+                    "token": {
+                        "maxLength": 60,
+                        "minLength": 3,
+                        "type": "string"
+                    }
+                }
+            },
+            "OtpForm": {
+                "required": [
+                    "email",
+                    "otp",
+                    "password"
+                ],
+                "type": "object",
+                "properties": {
+                    "otp": {
+                        "maxLength": 4,
+                        "minLength": 3,
+                        "type": "string"
+                    },
+                    "password": {
+                        "maxLength": 30,
+                        "minLength": 5,
+                        "type": "string"
+                    },
+                    "email": {
+                        "maxLength": 30,
+                        "minLength": 5,
+                        "type": "string"
+                    }
+                }
+            },
+            "JwtResponse": {
+                "type": "object",
+                "properties": {
+                    "token": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "string"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "role": {
+                        "type": "string",
+                        "enum": [
+                            "ROLE_UNDEFINED",
+                            "ROLE_USER",
+                            "ROLE_MECHANIC",
+                            "ROLE_ADMIN"
+                        ]
+                    }
+                }
+            },
+            "SignUpForm": {
+                "required": [
+                    "email",
+                    "name",
+                    "number",
+                    "password"
+                ],
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "name": {
+                        "maxLength": 40,
+                        "minLength": 3,
+                        "type": "string"
+                    },
+                    "password": {
+                        "maxLength": 40,
+                        "minLength": 6,
+                        "type": "string"
+                    },
+                    "email": {
+                        "maxLength": 60,
+                        "minLength": 0,
+                        "type": "string"
+                    },
+                    "number": {
+                        "maxLength": 15,
+                        "minLength": 0,
+                        "type": "string"
+                    }
+                }
+            },
+            "ForgetPassword": {
+                "required": [
+                    "email"
+                ],
+                "type": "object",
+                "properties": {
+                    "email": {
+                        "maxLength": 60,
+                        "minLength": 3,
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "securitySchemes": {
+            "JWT": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT"
+            }
+        }
+    }
+}

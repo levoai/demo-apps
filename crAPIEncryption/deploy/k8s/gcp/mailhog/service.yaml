@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mailhog
+spec:
+  ports:
+  - name: smtp
+    port: 1025
+    protocol: TCP
+    targetPort: 1025
+  selector:
+    app: mailhog
+  sessionAffinity: None
+  type: ClusterIP
+  

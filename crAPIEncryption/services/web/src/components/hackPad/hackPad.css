@@ -1,0 +1,19 @@
+.hackpad__header {
+    text-align: left;
+}
+
+.hackpad__header__description {
+    margin: 5px;
+}
+
+.hackpad__header__token {
+    margin-top: 10px;
+}
+
+.hackpad__header__token__text {
+    color:crimson
+}
+
+.hackpad__card {
+    margin: 5px;
+}

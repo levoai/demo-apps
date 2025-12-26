@@ -1,0 +1,1848 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "OWASP crAPI Workshop API",
+    "version": "1.0"
+  },
+  "externalDocs": {
+    "description": "Completely Ridiculous API - Highly Vulnerable Demo App",
+    "url": "https://github.com/levoai/demo-apps/tree/main/crAPI"
+  },
+  "paths": {
+    "/workshop/api/shop/products": {
+      "parameters": [],
+      "get": {
+        "operationId": "OP_WORKSHOP_SHOP_GET_PRODUCTS",
+        "summary": "Get products for the shop",
+        "tags": [
+          "Workshop / Shop"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "credit",
+                    "products"
+                  ],
+                  "properties": {
+                    "credit": {
+                      "type": "number"
+                    },
+                    "products": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "id",
+                          "image_url",
+                          "name",
+                          "price"
+                        ],
+                        "properties": {
+                          "id": {
+                            "type": "number"
+                          },
+                          "image_url": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "price": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "operationId": "OP_WORKSHOP_SHOP_CREATE_PRODUCT",
+        "summary": "Add the specified product to the product catalog.",
+        "tags": [
+          "Workshop / Shop"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewProduct"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Product"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request!",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/workshop/api/shop/orders": {
+      "post": {
+        "operationId": "OP_WORKSHOP_SHOP_CREATE_ORDER",
+        "summary": "Create a new order for a product in the shop.",
+        "tags": [
+          "Workshop / Shop"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductQuantity"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "id",
+                    "message",
+                    "credit"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "credit": {
+                      "type": "number",
+                      "format": "float"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "message"
+                  ],
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "Insufficient Balance. Please apply coupons to get more\nbalance!"
+                  }
+                }
+              }
+            },
+            "description": "Bad Request!"
+          }
+        }
+      }
+    },
+    "/workshop/api/shop/orders/{token}": {
+      "put": {
+        "operationId": "OP_WORKSHOP_SHOP_UPDATE_ORDER",
+        "summary": "Update the order specified by the token.",
+        "tags": [
+          "Workshop / Shop"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "token",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductQuantity"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "orders"
+                  ],
+                  "properties": {
+                    "orders": {
+                      "$ref": "#/components/schemas/Order"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "message"
+                  ],
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "The value of 'status' has to be 'delivered', 'return pending' or 'returned'"
+                  }
+                }
+              }
+            },
+            "description": "Bad Request!"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "message"
+                  ],
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "You are not allowed to access this resource!'"
+                  }
+                }
+              }
+            },
+            "description": "Forbidden!"
+          }
+        }
+      },
+      "get": {
+        "operationId": "OP_WORKSHOP_SHOP_GET_TOKEN",
+        "summary": "Get the order details for order identified by token.",
+        "tags": [
+          "Workshop / Shop"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "token",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "orders"
+                  ],
+                  "properties": {
+                    "orders": {
+                      "$ref": "#/components/schemas/Order"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "message"
+                  ],
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "You are not allowed to access this resource!'"
+                  }
+                }
+              }
+            },
+            "description": "Forbidden!"
+          }
+        }
+      }
+    },
+    "/workshop/api/shop/orders/all": {
+      "get": {
+        "operationId": "OP_WORKSHOP_SHOP_GET_ORDERS",
+        "summary": "Get user's past orders",
+        "tags": [
+          "Workshop / Shop"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "orders"
+                  ],
+                  "properties": {
+                    "orders": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "created_on",
+                          "id",
+                          "product",
+                          "quantity",
+                          "status",
+                          "user"
+                        ],
+                        "properties": {
+                          "quantity": {
+                            "type": "number"
+                          },
+                          "id": {
+                            "type": "number"
+                          },
+                          "status": {
+                            "type": "string"
+                          },
+                          "created_on": {
+                            "type": "string"
+                          },
+                          "user": {
+                            "type": "object",
+                            "required": [
+                              "email",
+                              "number"
+                            ],
+                            "properties": {
+                              "email": {
+                                "type": "string"
+                              },
+                              "number": {
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "product": {
+                            "type": "object",
+                            "required": [
+                              "id",
+                              "image_url",
+                              "name",
+                              "price"
+                            ],
+                            "properties": {
+                              "id": {
+                                "type": "number"
+                              },
+                              "image_url": {
+                                "type": "string"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "price": {
+                                "type": "string"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      },
+      "parameters": []
+    },
+    "/workshop/api/shop/orders/return_order": {
+      "post": {
+        "operationId": "OP_WORKSHOP_SHOP_RETURN_PURCHASE",
+        "summary": "Return order specified by the token",
+        "tags": [
+          "Workshop / Shop"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "token",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "message",
+                    "order",
+                    "qr_code_url"
+                  ],
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "order": {
+                      "$ref": "#/components/schemas/Order"
+                    },
+                    "qr_code_url": {
+                      "type": "string",
+                      "format": "url"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "message"
+                  ],
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "This order has already been returned!"
+                  }
+                }
+              }
+            },
+            "description": "Bad Request!"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "message"
+                  ],
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "You are not allowed to access this resource!'"
+                  }
+                }
+              }
+            },
+            "description": "Forbidden!"
+          }
+        }
+      }
+    },
+    "/workshop/api/shop/apply_coupon": {
+      "post": {
+        "operationId": "OP_WORKSHOP_SHOP_APPLY_COUPON",
+        "summary": "Apply the coupon for the current user",
+        "tags": [
+          "Workshop / Shop"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "amount",
+                  "coupon_code"
+                ],
+                "properties": {
+                  "amount": {
+                    "type": "number"
+                  },
+                  "coupon_code": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "credit",
+                    "message"
+                  ],
+                  "properties": {
+                    "credit": {
+                      "type": "number"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "description": ""
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "message"
+                  ],
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      },
+      "parameters": []
+    },
+    "/workshop/api/shop/return_qr_code": {
+      "get": {
+        "operationId": "OP_WORKSHOP_SHOP_GET_QRCODE",
+        "summary": "Get the return qr code image for UPS shipments.",
+        "tags": [
+          "Workshop / Shop"
+        ],
+        "security": [
+          {}
+        ],
+        "parameters": [
+          {
+            "name": "Accept",
+            "in": "header",
+            "description": "The server doesn't like image/png in accept!",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "string",
+              "example": "*/*"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            },
+            "description": "QR Code PNG Image"
+          }
+        }
+      }
+    },
+    "/workshop/api/mechanic/": {
+      "get": {
+        "operationId": "OP_WORKSHOP_MECHANIC_GET_MECHANICS",
+        "summary": "Get the available mechanics",
+        "tags": [
+          "Workshop / Mechanic"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "Transfer-Encoding": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "chunked"
+                  }
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "mechanics"
+                  ],
+                  "properties": {
+                    "mechanics": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "id",
+                          "mechanic_code",
+                          "user"
+                        ],
+                        "properties": {
+                          "id": {
+                            "type": "number"
+                          },
+                          "mechanic_code": {
+                            "type": "string"
+                          },
+                          "user": {
+                            "type": "object",
+                            "required": [
+                              "email",
+                              "number"
+                            ],
+                            "properties": {
+                              "email": {
+                                "type": "string"
+                              },
+                              "number": {
+                                "type": "string"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "mechanics": [
+                    {
+                      "id": 1,
+                      "mechanic_code": "TRAC_MECH1",
+                      "user": {
+                        "email": "mechanic.one@example.com",
+                        "number": ""
+                      }
+                    },
+                    {
+                      "id": 2,
+                      "mechanic_code": "TRAC_MECH2",
+                      "user": {
+                        "email": "mechanic.two@example.com",
+                        "number": ""
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "parameters": []
+    },
+    "/workshop/api/merchant/contact_mechanic": {
+      "post": {
+        "operationId": "OP_WORKSHOP_MECHANIC_CONTACT_MECHANIC",
+        "summary": "Contact a mechanic for a service request on your vehicle",
+        "tags": [
+          "Workshop / Mechanic"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "mechanic_api",
+                  "mechanic_code",
+                  "number_of_repeats",
+                  "problem_details",
+                  "repeat_request_if_failed",
+                  "vin"
+                ],
+                "properties": {
+                  "number_of_repeats": {
+                    "type": "number"
+                  },
+                  "mechanic_api": {
+                    "type": "string"
+                  },
+                  "vin": {
+                    "type": "string"
+                  },
+                  "repeat_request_if_failed": {
+                    "type": "boolean"
+                  },
+                  "problem_details": {
+                    "type": "string"
+                  },
+                  "mechanic_code": {
+                    "type": "string"
+                  }
+                }
+              },
+              "example": {
+                "mechanic_api": "http://localhost:8000/workshop/api/mechanic/receive_report",
+                "mechanic_code": "TRAC_MECH1",
+                "number_of_repeats": 0,
+                "repeat_request_if_failed": false,
+                "problem_details": "My car has engine trouble, and I need urgent help!",
+                "vin": "0BZCX25UTBJ987271"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "response_from_mechanic_api",
+                    "status"
+                  ],
+                  "properties": {
+                    "response_from_mechanic_api": {
+                      "type": "object",
+                      "required": [
+                        "id",
+                        "sent",
+                        "report_link"
+                      ],
+                      "properties": {
+                        "id": {
+                          "type": "integer",
+                          "format": "int32"
+                        },
+                        "sent": {
+                          "type": "boolean"
+                        },
+                        "report_link": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "status": {
+                      "type": "integer",
+                      "format": "int32"
+                    }
+                  }
+                },
+                "example": {
+                  "response_from_mechanic_api": {
+                    "id": 17,
+                    "sent": true,
+                    "report_link": "http://localhost:8888/workshop/api/mechanic/mechanic_report?report_id=17"
+                  },
+                  "status": 200
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "message"
+                  ],
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "Bad Request!"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "message"
+                  ],
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      },
+      "parameters": []
+    },
+    "/workshop/api/mechanic/receive_report": {
+      "post": {
+        "operationId": "OP_WORKSHOP_MECHANIC_CREATE_SERVICE_REPORT",
+        "summary": "Create the service report and assign to the mechanic",
+        "tags": [
+          "Workshop / Mechanic"
+        ],
+        "security": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "description": "Service report details",
+                "required": [
+                  "mechanic_code",
+                  "problem_details",
+                  "vin"
+                ],
+                "properties": {
+                  "mechanic_code": {
+                    "type": "string"
+                  },
+                  "problem_details": {
+                    "type": "string"
+                  },
+                  "vin": {
+                    "type": "string"
+                  },
+                  "owner_id": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "id",
+                    "sent",
+                    "report_link"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "sent": {
+                      "type": "string"
+                    },
+                    "report_link": {
+                      "type": "string",
+                      "format": "url"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request!",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/workshop/api/mechanic/user_reports": {
+      "get": {
+        "summary": "Get all the service reports for the currently logged in user",
+        "operationId": "OP_WORKSHOP_MECHANIC_GET_SVC_REPORTS",
+        "tags": [
+          "Workshop / Mechanic"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "Host",
+            "in": "header",
+            "description": "",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "string",
+              "example": "workshop:8000"
+            }
+          },
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "description": "",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "string",
+              "example": "application/json"
+            }
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "description": "",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "string",
+              "example": "*/*"
+            }
+          },
+          {
+            "name": "Accept-Encoding",
+            "in": "header",
+            "description": "",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "string",
+              "example": "gzip, deflate"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "Date": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "Tue, 21 Sep 2021 21:17:24 GMT"
+                  }
+                }
+              },
+              "Server": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "WSGIServer/0.2 CPython/3.8.12"
+                  }
+                }
+              },
+              "Allow": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "GET, HEAD, OPTIONS"
+                  }
+                }
+              },
+              "Content-Length": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "3131"
+                  }
+                }
+              },
+              "Vary": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "Origin, Cookie"
+                  }
+                }
+              },
+              "Access-Control-Allow-Origin": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "*"
+                  }
+                }
+              },
+              "X-Frame-Options": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "SAMEORIGIN"
+                  }
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Service Requests",
+                  "required": [
+                    "service_requests"
+                  ],
+                  "type": "object",
+                  "properties": {
+                    "service_requests": {
+                      "type": "array",
+                      "items": {
+                        "items": {
+                          "title": "Service Request",
+                          "required": [
+                            "id",
+                            "mechanic",
+                            "vehicle",
+                            "problem_details",
+                            "status",
+                            "created_on"
+                          ],
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "integer",
+                              "format": "int32"
+                            },
+                            "mechanic": {
+                              "title": "Mechanic",
+                              "required": [
+                                "id",
+                                "mechanic_code",
+                                "user"
+                              ],
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "integer",
+                                  "format": "int32"
+                                },
+                                "mechanic_code": {
+                                  "type": "string"
+                                },
+                                "user": {
+                                  "title": "user",
+                                  "required": [
+                                    "email",
+                                    "number"
+                                  ],
+                                  "type": "object",
+                                  "properties": {
+                                    "email": {
+                                      "type": "string"
+                                    },
+                                    "number": {
+                                      "type": "string"
+                                    }
+                                  }
+                                }
+                              },
+                              "example": {
+                                "id": 1,
+                                "mechanic_code": "TRAC_MECH1",
+                                "user": {
+                                  "email": "mechanic.one@example.com",
+                                  "number": "415-654-3212"
+                                }
+                              }
+                            },
+                            "vehicle": {
+                              "title": "vehicle",
+                              "required": [
+                                "id",
+                                "vin",
+                                "owner"
+                              ],
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "integer",
+                                  "format": "int32"
+                                },
+                                "vin": {
+                                  "type": "string"
+                                },
+                                "owner": {
+                                  "title": "owner",
+                                  "required": [
+                                    "email",
+                                    "number"
+                                  ],
+                                  "type": "object",
+                                  "properties": {
+                                    "email": {
+                                      "type": "string"
+                                    },
+                                    "number": {
+                                      "type": "string"
+                                    }
+                                  }
+                                }
+                              },
+                              "example": {
+                                "id": 23,
+                                "vin": "0FOPP90TFEE927859",
+                                "owner": {
+                                  "email": "victim.one@example.com",
+                                  "number": "4156895423"
+                                }
+                              }
+                            },
+                            "problem_details": {
+                              "type": "string"
+                            },
+                            "status": {
+                              "enum": [
+                                "Pending",
+                                "Finished"
+                              ],
+                              "type": "string"
+                            },
+                            "created_on": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      },
+                      "description": "The array of vehicle service requests for the user"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/workshop/api/mechanic/mechanic_report": {
+      "get": {
+        "summary": "Get the service report specified by the report_id query parameter",
+        "operationId": "OP_WORKSHOP_MECHANIC_GET_SVC_REPORT",
+        "tags": [
+          "Workshop / Mechanic"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "report_id",
+            "in": "query",
+            "description": "",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "example": 2
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "Server": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "openresty/1.17.8.2"
+                  }
+                }
+              },
+              "Date": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "Tue, 21 Sep 2021 22:33:37 GMT"
+                  }
+                }
+              },
+              "Transfer-Encoding": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "chunked"
+                  }
+                }
+              },
+              "Allow": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "GET, HEAD, OPTIONS"
+                  }
+                }
+              },
+              "Vary": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "Origin, Cookie"
+                  }
+                }
+              },
+              "X-Frame-Options": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "SAMEORIGIN"
+                  }
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Service Request",
+                  "required": [
+                    "id",
+                    "mechanic",
+                    "vehicle",
+                    "problem_details",
+                    "status",
+                    "created_on"
+                  ],
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer",
+                      "format": "int32"
+                    },
+                    "mechanic": {
+                      "title": "Mechanic",
+                      "required": [
+                        "id",
+                        "mechanic_code",
+                        "user"
+                      ],
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer",
+                          "format": "int32"
+                        },
+                        "mechanic_code": {
+                          "type": "string"
+                        },
+                        "user": {
+                          "title": "user",
+                          "required": [
+                            "email",
+                            "number"
+                          ],
+                          "type": "object",
+                          "properties": {
+                            "email": {
+                              "type": "string"
+                            },
+                            "number": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      },
+                      "example": {
+                        "id": 1,
+                        "mechanic_code": "TRAC_MECH1",
+                        "user": {
+                          "email": "mechanic.one@example.com",
+                          "number": "415-654-3212"
+                        }
+                      }
+                    },
+                    "vehicle": {
+                      "title": "vehicle",
+                      "required": [
+                        "id",
+                        "vin",
+                        "owner"
+                      ],
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer",
+                          "format": "int32"
+                        },
+                        "vin": {
+                          "type": "string"
+                        },
+                        "owner": {
+                          "title": "owner",
+                          "required": [
+                            "email",
+                            "number"
+                          ],
+                          "type": "object",
+                          "properties": {
+                            "email": {
+                              "type": "string"
+                            },
+                            "number": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      },
+                      "example": {
+                        "id": 23,
+                        "vin": "0FOPP90TFEE927859",
+                        "owner": {
+                          "email": "victim.one@example.com",
+                          "number": "4156895423"
+                        }
+                      }
+                    },
+                    "problem_details": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string"
+                    },
+                    "created_on": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/workshop/api/mechanic/service_requests": {
+      "x-levo-allowed-roles": [
+        "ROLE_MECHANIC"
+      ],
+      "get": {
+        "operationId": "OP_WORKSHOP_MECHANIC_GET_MECH_SVC_REPORTS",
+        "summary": "Fetch all service requests assigned to this specific mechanic.",
+        "tags": [
+          "Workshop / Mechanic"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceRequests"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceRequests"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/workshop/api/mechanic/signup": {
+      "post": {
+        "operationId": "OP_WORKSHOP_MECHANIC_SIGNUP",
+        "summary": "Register a new mechanic in the workshop.",
+        "tags": [
+          "Workshop / Mechanic"
+        ],
+        "security": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "number": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  },
+                  "mechanic_code": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "email",
+                  "mechanic_code",
+                  "name",
+                  "number",
+                  "password"
+                ]
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "message"
+                  ],
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "Mechanic created with email: john@workshop.com"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "message"
+                  ],
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "message": "Mechanic code already exists!'"
+                  }
+                }
+              }
+            },
+            "description": "Bad Request!"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Order": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "readOnly": true
+          },
+          "user": {
+            "$ref": "#/components/schemas/User"
+          },
+          "product": {
+            "$ref": "#/components/schemas/Product"
+          },
+          "quantity": {
+            "type": "integer"
+          },
+          "status": {
+            "$ref": "#/components/schemas/OrderStatusEnum"
+          },
+          "created_on": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "created_on",
+          "id",
+          "product",
+          "user"
+        ]
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "number": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "email"
+        ]
+      },
+      "NewProduct": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "price": {
+            "type": "string",
+            "format": "decimal",
+            "pattern": "^\\d{0,18}(\\.\\d{0,2})?$"
+          },
+          "image_url": {
+            "type": "string",
+            "format": "url"
+          }
+        },
+        "required": [
+          "image_url",
+          "name",
+          "price"
+        ]
+      },
+      "Product": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "readOnly": true
+          },
+          "name": {
+            "type": "string"
+          },
+          "price": {
+            "type": "string",
+            "format": "decimal",
+            "pattern": "^\\d{0,18}(\\.\\d{0,2})?$"
+          },
+          "image_url": {
+            "type": "string",
+            "format": "url"
+          }
+        },
+        "required": [
+          "id",
+          "image_url",
+          "name",
+          "price"
+        ]
+      },
+      "OrderStatusEnum": {
+        "enum": [
+          "delivered",
+          "return pending",
+          "returned"
+        ],
+        "type": "string"
+      },
+      "ProductQuantity": {
+        "type": "object",
+        "properties": {
+          "product_id": {
+            "type": "integer"
+          },
+          "quantity": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "product_id",
+          "quantity"
+        ]
+      },
+      "ServiceRequests": {
+        "title": "Service Requests",
+        "type": "object",
+        "required": [
+          "service_requests"
+        ],
+        "properties": {
+          "service_requests": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "created_on",
+                "id",
+                "mechanic",
+                "vehicle"
+              ],
+              "properties": {
+                "id": {
+                  "type": "integer",
+                  "readOnly": true
+                },
+                "mechanic": {
+                  "type": "object",
+                  "required": [
+                    "id",
+                    "mechanic_code",
+                    "user"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "integer",
+                      "readOnly": true
+                    },
+                    "mechanic_code": {
+                      "type": "string"
+                    },
+                    "user": {
+                      "type": "object",
+                      "required": [
+                        "email"
+                      ],
+                      "properties": {
+                        "email": {
+                          "type": "string"
+                        },
+                        "number": {
+                          "type": "string",
+                          "nullable": true
+                        }
+                      }
+                    }
+                  }
+                },
+                "vehicle": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer",
+                      "readOnly": true
+                    },
+                    "vin": {
+                      "type": "string"
+                    },
+                    "owner": {
+                      "type": "object",
+                      "properties": {
+                        "email": {
+                          "type": "string"
+                        },
+                        "number": {
+                          "type": "string",
+                          "nullable": true
+                        }
+                      },
+                      "required": [
+                        "email"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "owner",
+                    "vin"
+                  ]
+                },
+                "problem_details": {
+                  "type": "string"
+                },
+                "status": {
+                  "enum": [
+                    "Pending",
+                    "Finished"
+                  ],
+                  "type": "string"
+                },
+                "created_on": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}
