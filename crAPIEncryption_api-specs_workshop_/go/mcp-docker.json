@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "mcp-server-docker": {
+      "command": "docker",
+      "args": [
+        "run", "--rm", "-i",
+        "-p", "8080:8080",
+        "-e", "API_BASE_URL=https://your.api.url",
+        "-e", "BEARER_TOKEN=your-token-here",
+        "${IMAGE_NAME}"
+      ]
+    }
+  }
+}

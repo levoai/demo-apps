@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "mcp-server-http": {
+      "url": "http://localhost:8080/mcp",
+      "headers": {
+        "API_BASE_URL": "https://your-api-base-url",
+        "BEARER_TOKEN": "your-bearer-token"
+        //Refer to the README.md
+      }
+    }
+  }
+}

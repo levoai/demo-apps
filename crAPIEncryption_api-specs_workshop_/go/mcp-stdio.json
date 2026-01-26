@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "go-github-mcp-server-stdio": {
+      "command": "./bin/mcp-server",
+      "env": {
+        "API_BASE_URL": "https://your.api.url",
+        "BEARER_TOKEN": "your-token-here"
+      }
+    }
+  }
+}

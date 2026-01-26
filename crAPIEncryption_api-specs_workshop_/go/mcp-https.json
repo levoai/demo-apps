@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "mcp-server-https": {
+      "url": "https://localhost:8443/mcp",
+      "headers": {
+        //Refer to the README.md
+        "API_BASE_URL": "https://your-api-base-url",
+        "BEARER_TOKEN": "your-bearer-token",
+        "CERT_FILE": "./certs/cert.pem",
+        "KEY_FILE": "./certs/key.pem"
+      }
+    }
+  }
+}
