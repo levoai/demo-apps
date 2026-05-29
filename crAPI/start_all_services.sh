@@ -29,8 +29,13 @@ waitport 5432
 print_banner "Starting MongoDB"
 /usr/bin/mongod -f /etc/mongod.conf --auth --fork --quiet --logpath /var/log/mongodb.log --logappend
 
+# Wait for MongoDB to accept connections before initializing users
+waitport 27017
+
 # Initialize the MongoDB with init users.
-mongo --authenticationDatabase admin <<EOF
+# MongoDB 6.0+ ships only the new "mongosh" shell; the legacy "mongo" shell
+# was removed, so use mongosh here.
+mongosh --authenticationDatabase admin <<EOF
 use admin;
 db.createUser({user: 'admin', pwd: 'crapisecretpassword', roles: ["userAdminAnyDatabase", "dbAdminAnyDatabase", "readWriteAnyDatabase"]})
 EOF
