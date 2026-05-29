@@ -104,16 +104,32 @@ RUN mkdir -p /var/run/openresty \
 # Add additional binaries into PATH for convenience
 ENV PATH="$PATH:/usr/local/openresty${RESTY_DEB_FLAVOR}/luajit/bin:/usr/local/openresty${RESTY_DEB_FLAVOR}/nginx/sbin:/usr/local/openresty${RESTY_DEB_FLAVOR}/bin"
 
-# Add MongoDB - pull from official Docker image instead of apt
-COPY --from=mongo:7.0 /usr/bin/mongod /usr/bin/mongod
-COPY --from=mongo:7.0 /usr/bin/mongos /usr/bin/mongos
-COPY --from=mongo:7.0 /usr/bin/mongosh /usr/bin/mongosh
-RUN mkdir -p /data/db /var/log/mongodb \
-    && echo "net:" > /etc/mongod.conf \
-    && echo "  bindIp: 0.0.0.0" >> /etc/mongod.conf \
-    && echo "  port: 27017" >> /etc/mongod.conf \
-    && echo "storage:" >> /etc/mongod.conf \
-    && echo "  dbPath: /data/db" >> /etc/mongod.conf
+# Add MongoDB 7.0 from the official MongoDB Debian (bullseye) apt repo.
+#
+# NOTE: do NOT copy the mongod binary out of the mongo:7.0 Docker image. That
+# image is built on Ubuntu 22.04 (glibc 2.35, OpenSSL 3), while this image is
+# based on postgres:13-bullseye (Debian 11, glibc 2.31, OpenSSL 1.1). A binary
+# copied across distros fails to start at runtime with
+#   "libc.so.6: version `GLIBC_2.34' not found"
+# plus missing libcurl.so.4 / libssl.so.3, so mongod never comes up and every
+# Mongo client (community service, MailHog) gets "connection refused".
+# Installing the bullseye-native package via apt pulls in the matching libs.
+# amd64 only: MongoDB does not publish arm64 packages for the Debian repo.
+RUN curl -fsSL https://www.mongodb.org/static/pgp/server-7.0.asc \
+        | gpg -o /usr/share/keyrings/mongodb-server-7.0.gpg --dearmor \
+    && echo "deb [ signed-by=/usr/share/keyrings/mongodb-server-7.0.gpg arch=amd64 ] http://repo.mongodb.org/apt/debian bullseye/mongodb-org/7.0 main" \
+        > /etc/apt/sources.list.d/mongodb-org-7.0.list \
+    && apt-get update \
+    # mongodb-org-server's postinst invokes systemctl, which is absent in a
+    # container; shim it with /bin/true so dpkg configuration succeeds.
+    && ln -sf /bin/true /usr/local/bin/systemctl \
+    && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+        mongodb-org-server mongodb-mongosh \
+    && rm -f /usr/local/bin/systemctl \
+    && rm -rf /var/lib/apt/lists/* \
+    && mkdir -p /data/db /var/log/mongodb \
+    && printf 'net:\n  bindIp: 0.0.0.0\n  port: 27017\nstorage:\n  dbPath: /data/db\n' \
+        > /etc/mongod.conf
 
 # Python for Workshop service
 ENV PYTHONDONTWRITEBYTECODE 1 \
