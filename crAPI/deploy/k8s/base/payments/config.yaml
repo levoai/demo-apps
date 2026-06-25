@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: crapi-payments-configmap
+  labels:
+    app: crapi-payments
+data:
+  DB_HOST:     postgresdb
+  DB_NAME:     crapi
+  DB_USER:     admin
+  DB_PASSWORD: crapisecretpassword
+  DB_PORT:     "5432"
+  SERVER_PORT: "8001"
+  ALLOWED_HOSTS: "*"
+  DJANGO_KEY:  payments-insecure-dev-key-00001
+  PAYMENTS_ALLOWED_MERCHANT_IDS: "merch_7f2a91,merch_4b8c12,merch_0d3e55,merch_load01"

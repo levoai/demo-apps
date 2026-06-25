@@ -156,16 +156,25 @@ class GetReportView(APIView):
     """
     View to get only particular service request
     """
-    def get(self, request):
+    @jwt_auth_required
+    def get(self, request, user=None):
         """
         fetch service request details from report_link
         :param request: http request for the view
             method allowed: GET
+            http request should be authorised by the jwt token of the user
+        :param user: User object of the requesting user
         :returns Response object with
             service request object and 200 status if no error
             message and corresponding status if error
         """
-        report_id = request.GET['report_id']
+        if not user:
+            return Response(
+                {'message': messages.UNAUTHORIZED},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+        
+        report_id = request.GET.get('report_id')
         if not report_id:
             return Response(
                 {'message': messages.REPORT_ID_MISSING},
@@ -183,6 +192,13 @@ class GetReportView(APIView):
                 {'message': messages.REPORT_DOES_NOT_EXIST},
                 status=status.HTTP_400_BAD_REQUEST
             )
+        
+        if service_request.vehicle.owner != user and service_request.mechanic.user != user:
+            return Response(
+                {'message': messages.UNAUTHORIZED},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
         serializer = ServiceRequestSerializer(service_request)
         response_data = dict(serializer.data)
         return Response(response_data, status=status.HTTP_200_OK)
