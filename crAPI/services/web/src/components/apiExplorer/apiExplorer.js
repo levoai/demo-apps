@@ -29,8 +29,8 @@ const { TabPane } = Tabs;
 
 const ApiExplorer = ({history, accessToken}) => {
 
-  const fullSpecUrl="https://raw.githubusercontent.com/levoai/demo-apps/main/crAPI/api-specs/openapi.json"
-  const demoSpecUrl="https://raw.githubusercontent.com/levoai/demo-apps/main/crAPI/api-specs/demo%20scenarios/onboarding-scenarios.json"
+  const fullSpecUrl=`${window.location.origin}/api-specs/openapi.json`
+  const demoSpecUrl=`${window.location.origin}/api-specs/demo-scenarios/onboarding-scenarios.json`
 
   const renderOasUI = () => {
     return (<Tabs defaultActiveKey="1" className="apiexplorer__tabs">
