@@ -77,6 +77,7 @@ ENV DB_NAME=crapi \
 ENV GO_SERVICE=localhost:8087 \
     JAVA_SERVICE=localhost:8080 \
     PYTHON_SERVICE=localhost:8000 \
+    PAYMENTS_SERVICE=localhost:8001 \
     MAILHOG_UI=localhost:8025
 
 # Install runtime dependencies
@@ -139,7 +140,7 @@ RUN curl -fsSL https://www.mongodb.org/static/pgp/server-7.0.asc \
 ENV PYTHONDONTWRITEBYTECODE 1 \
     PYTHONUNBUFFERED 1
 RUN apt-get update && apt-get install -y libpq-dev \
-    python3-dev python3-pip python3-setuptools libffi-dev gcc && \
+    python3-dev python3-pip python3-setuptools python3-venv libffi-dev gcc && \
     # There is an issue with psycopg2 version 2.9, hence pin it to lower version. See https://stackoverflow.com/a/68025007/467969
     pip3 install psycopg2==2.8.5
 
@@ -175,6 +176,19 @@ RUN ls -al /app/community
 WORKDIR /app/workshop
 COPY ./services/workshop/ /app/workshop
 RUN pip3 install -r requirements.txt
+
+# Add Payments service in an isolated virtualenv.
+# Payments runs Django 3.2 while Workshop pins Django ~2.2; installing both into
+# the global site-packages would clobber one of them, so payments gets its own venv.
+ENV PAYMENTS_VENV=/opt/payments-venv \
+    DJANGO_KEY=payments-insecure-dev-key-00001 \
+    SERVER_PORT=8001 \
+    PAYMENTS_ALLOWED_MERCHANT_IDS=merch_7f2a91,merch_4b8c12,merch_0d3e55,merch_load01
+WORKDIR /app/payments
+COPY ./services/payments/ /app/payments
+RUN python3 -m venv "$PAYMENTS_VENV" \
+    && "$PAYMENTS_VENV"/bin/pip install --no-cache-dir --upgrade pip \
+    && "$PAYMENTS_VENV"/bin/pip install --no-cache-dir -r requirements.txt
 
 # Copy Nginx related config form web
 COPY --from=web-build /app/build /usr/share/nginx/html

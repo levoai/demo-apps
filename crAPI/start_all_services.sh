@@ -71,6 +71,16 @@ sh ./runner.sh &
 # Wait for workshop service to fully come up
 wait_endpoint 0.0.0.0:8000/workshop/health_check/
 
+# Start payments service (isolated virtualenv, Django 3.2)
+print_banner "Starting Payments Service"
+cd "$(dirname "${BASH_SOURCE[0]}")/payments"
+PAYMENTS_VENV="${PAYMENTS_VENV:-/opt/payments-venv}"
+"${PAYMENTS_VENV}/bin/python" manage.py migrate --noinput
+"${PAYMENTS_VENV}/bin/python" manage.py runserver 0.0.0.0:"${SERVER_PORT:-8001}" &
+
+# Wait for payments service to fully come up
+wait_endpoint 0.0.0.0:8001/payments/api/payments/health
+
 cd "$(dirname "${BASH_SOURCE[0]}")"
 
 # Start Nginx to start web at the end

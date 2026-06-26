@@ -55,6 +55,64 @@ jobs:
       - name: Build
         run: docker build -t levoai/crapi-all crAPI
 
+      - name: Verify crapi-all boots and serves all services
+        run: |
+          set -euo pipefail
+          docker run -d --name crapi-all -p 8888:80 levoai/crapi-all
+
+          echo "Waiting for crAPI web (nginx) to come up..."
+          up=0
+          for i in $(seq 1 90); do
+            if curl -fsS -o /dev/null http://localhost:8888/; then
+              echo "nginx is serving on :80 (attempt $i)"
+              up=1
+              break
+            fi
+            sleep 5
+          done
+          if [ "$up" -ne 1 ]; then
+            echo "::error::crAPI web (nginx) did not come up in time"
+            docker logs crapi-all || true
+            exit 1
+          fi
+
+          # Probe each upstream through nginx. This catches the class of bug where
+          # nginx starts but a proxied service (e.g. payments) is unwired.
+          check() {
+            local path="$1"
+            echo "Checking $path ..."
+            for i in $(seq 1 60); do
+              if curl -fsS -o /dev/null "http://localhost:8888${path}"; then
+                echo "  OK: $path"
+                return 0
+              fi
+              sleep 5
+            done
+            echo "::error::Endpoint did not become healthy: $path"
+            return 1
+          }
+
+          rc=0
+          check /identity/health_check || rc=1
+          check /workshop/health_check/ || rc=1
+          check /community/home || rc=1
+          check /payments/api/payments/health || rc=1
+
+          if [ "$rc" -ne 0 ]; then
+            echo "::group::crapi-all container logs"
+            docker logs crapi-all || true
+            echo "::endgroup::"
+          fi
+          exit "$rc"
+
+      - name: Dump crapi-all logs
+        if: failure()
+        run: docker logs crapi-all || true
+
+      - name: Tear down crapi-all
+        if: always()
+        run: docker rm -f crapi-all || true
+
   push-crapi-all-to-dockerhub:
     name: Publish
     if: ${{ github.ref == 'refs/heads/main' && (github.event_name != 'pull_request' || github.event.pull_request.draft == false) }}
