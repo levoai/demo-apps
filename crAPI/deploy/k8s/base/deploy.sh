@@ -103,6 +103,7 @@ kubectl apply -n ${NAMESPACE} -f ./mailhog
 kubectl apply -n ${NAMESPACE} -f ./identity
 kubectl apply -n ${NAMESPACE} -f ./community
 kubectl apply -n ${NAMESPACE} -f ./workshop
+kubectl apply -n ${NAMESPACE} -f ./payments
 kubectl apply -n ${NAMESPACE} -f ./web
 
 echo ""

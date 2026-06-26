@@ -1,0 +1,848 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "crAPI Payments Service API",
+    "version": "1.0",
+    "description": "Payment processing simulation microservice. All endpoints (except /health) require five request headers: X-RequestID (UUID, 10-min dedup window), X-Levo-Merchant-Id (must be in server allowlist), X-Levo-Terminal-Id, X-Levo-Request-Timestamp (ISO 8601 UTC, within ±5 min of server time), and X-Levo-Idempotency-Key (5-min TTL, SHA-256 body hash check). Amounts are always in minor units (cents)."
+  },
+  "externalDocs": {
+    "description": "Completely Ridiculous API - Highly Vulnerable Demo App",
+    "url": "https://github.com/levoai/demo-apps/tree/main/crAPI"
+  },
+  "components": {
+    "parameters": {
+      "XRequestID": {
+        "name": "X-RequestID",
+        "in": "header",
+        "required": true,
+        "description": "Unique UUID per request. Reusing a value within 10 minutes returns 409.",
+        "schema": { "type": "string", "format": "uuid", "example": "b3d4f5a6-7890-4abc-def0-1234567890ab" }
+      },
+      "XLevoMerchantId": {
+        "name": "X-Levo-Merchant-Id",
+        "in": "header",
+        "required": true,
+        "description": "Merchant identifier. Must be in the server-side PAYMENTS_ALLOWED_MERCHANT_IDS allowlist.",
+        "schema": { "type": "string", "example": "merch_7f2a91" }
+      },
+      "XLevoTerminalId": {
+        "name": "X-Levo-Terminal-Id",
+        "in": "header",
+        "required": true,
+        "description": "Terminal / POS identifier.",
+        "schema": { "type": "string", "example": "TERM-001" }
+      },
+      "XLevoRequestTimestamp": {
+        "name": "X-Levo-Request-Timestamp",
+        "in": "header",
+        "required": true,
+        "description": "ISO 8601 UTC timestamp. Must be within ±5 minutes of server time.",
+        "schema": { "type": "string", "format": "date-time", "example": "2026-06-25T14:30:00Z" }
+      },
+      "XLevoIdempotencyKey": {
+        "name": "X-Levo-Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "description": "Client key for idempotent retries. Same key + same body returns cached response (5-min window). Same key + different body → 409.",
+        "schema": { "type": "string", "format": "uuid", "example": "c4e5f6a7-8901-4bcd-ef01-2345678901bc" }
+      }
+    },
+    "schemas": {
+      "AmountObject": {
+        "type": "object",
+        "required": ["value", "currency"],
+        "properties": {
+          "value":    { "type": "integer", "description": "Amount in minor units (cents). e.g. 10000 = $100.00", "example": 10000 },
+          "currency": { "type": "string", "minLength": 3, "maxLength": 3, "example": "USD" }
+        }
+      },
+      "TransactionSummary": {
+        "type": "object",
+        "required": ["transaction_id", "status", "operation", "created_at", "idempotency_hit"],
+        "properties": {
+          "transaction_id":          { "type": "string", "format": "uuid" },
+          "original_transaction_id": { "type": "string", "format": "uuid", "nullable": true },
+          "auth_id":                 { "type": "string", "example": "AUTH-5042" },
+          "status": {
+            "type": "string",
+            "enum": ["authorized","settled","reversed","captured","void_capture_complete","refunded","void_refund_complete","credited"]
+          },
+          "operation": {
+            "type": "string",
+            "enum": ["auth","sale","reversal","capture","void-capture","refund","void-refund","credit"]
+          },
+          "created_at":      { "type": "string", "format": "date-time" },
+          "idempotency_hit": { "type": "boolean" }
+        }
+      },
+      "NetworkBlock": {
+        "type": "object",
+        "properties": {
+          "acquirer_id":            { "type": "string" },
+          "network_transaction_id": { "type": "string" },
+          "response_code":          { "type": "string", "example": "00" },
+          "response_message":       { "type": "string", "example": "Approved" },
+          "processing_host":        { "type": "string" },
+          "round_trip_ms":          { "type": "integer" }
+        }
+      },
+      "MetaBlock": {
+        "type": "object",
+        "properties": {
+          "request_id":         { "type": "string", "format": "uuid" },
+          "processing_time_ms": { "type": "integer" },
+          "api_version":        { "type": "string", "example": "2026-06" },
+          "scenario":           { "type": "string" },
+          "gateway_node":       { "type": "string" },
+          "correlation_id":     { "type": "string", "nullable": true }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "required": ["error"],
+        "properties": {
+          "error":          { "type": "string", "example": "missing_header" },
+          "detail":         { "type": "string" },
+          "header":         { "type": "string" },
+          "field":          { "type": "string" },
+          "current_status": { "type": "string" }
+        }
+      },
+      "HealthResponse": {
+        "type": "object",
+        "required": ["status", "service"],
+        "properties": {
+          "status":  { "type": "string", "enum": ["ok"], "example": "ok" },
+          "service": { "type": "string", "example": "crapi-payments" }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/payments/api/payments/health": {
+      "get": {
+        "operationId": "OP_PAYMENTS_HEALTH",
+        "summary": "Health / liveness probe",
+        "description": "Returns service status. No auth headers required. Used by K8s readiness and liveness probes.",
+        "tags": ["Payments / Health"],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Service is healthy",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HealthResponse" },
+                "example": { "status": "ok", "service": "crapi-payments" }
+              }
+            }
+          }
+        }
+      },
+      "parameters": []
+    },
+    "/payments/api/payments/auth": {
+      "post": {
+        "operationId": "OP_PAYMENTS_AUTH",
+        "summary": "Authorize a card payment",
+        "description": "Places a pre-authorization hold. Returns `auth_id` (for reversal path param) and `transaction_id` (for capture body). Status: `authorized`.",
+        "tags": ["Payments / Transactions"],
+        "parameters": [
+          { "$ref": "#/components/parameters/XRequestID" },
+          { "$ref": "#/components/parameters/XLevoMerchantId" },
+          { "$ref": "#/components/parameters/XLevoTerminalId" },
+          { "$ref": "#/components/parameters/XLevoRequestTimestamp" },
+          { "$ref": "#/components/parameters/XLevoIdempotencyKey" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "transaction": {
+                    "type": "object",
+                    "required": ["amount"],
+                    "properties": {
+                      "amount": { "$ref": "#/components/schemas/AmountObject" },
+                      "order": {
+                        "type": "object",
+                        "properties": {
+                          "order_id": { "type": "string" },
+                          "line_items": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "sku":                    { "type": "string" },
+                                "quantity":               { "type": "integer" },
+                                "unit_price":             { "type": "integer" },
+                                "merchant_category_code": { "type": "string", "example": "5999" }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "card": {
+                    "type": "object",
+                    "properties": {
+                      "number":    { "type": "string", "example": "4111111111111111" },
+                      "exp_month": { "type": "integer", "minimum": 1, "maximum": 12 },
+                      "exp_year":  { "type": "integer" },
+                      "cvv":       { "type": "string" }
+                    }
+                  }
+                }
+              },
+              "example": {
+                "transaction": {
+                  "amount": { "value": 10000, "currency": "USD" },
+                  "order": { "order_id": "ORD-001", "line_items": [] }
+                },
+                "card": { "number": "4111111111111111", "exp_month": 12, "exp_year": 2030, "cvv": "123" }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Authorization approved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["transaction", "authorization", "settlement_routing", "meta"],
+                  "properties": {
+                    "transaction": { "$ref": "#/components/schemas/TransactionSummary" },
+                    "authorization": {
+                      "type": "object",
+                      "properties": {
+                        "authorized_amount": { "$ref": "#/components/schemas/AmountObject" },
+                        "approval_code":     { "type": "string", "example": "APR-5042" },
+                        "hold_type":         { "type": "string", "example": "pre-authorization" },
+                        "avs_result": {
+                          "type": "object",
+                          "properties": {
+                            "code": { "type": "string" }, "address_match": { "type": "boolean" },
+                            "postal_code_match": { "type": "boolean" }, "description": { "type": "string" }
+                          }
+                        },
+                        "cvv_result": {
+                          "type": "object",
+                          "properties": {
+                            "code": { "type": "string" }, "match": { "type": "boolean" }, "description": { "type": "string" }
+                          }
+                        },
+                        "network": { "$ref": "#/components/schemas/NetworkBlock" },
+                        "risk": {
+                          "type": "object",
+                          "properties": {
+                            "score": { "type": "integer" }, "band": { "type": "string" },
+                            "signals": { "type": "array", "items": { "type": "string" } },
+                            "decision": { "type": "string" }, "model_version": { "type": "string" }
+                          }
+                        }
+                      }
+                    },
+                    "settlement_routing": {
+                      "type": "object",
+                      "properties": {
+                        "acquirer": { "type": "string" }, "mcc": { "type": "string" },
+                        "batch_id": { "type": "string", "nullable": true },
+                        "settlement_currency": { "type": "string" },
+                        "interchange_category": { "type": "string" },
+                        "estimated_settlement_date": { "type": "string", "format": "date" }
+                      }
+                    },
+                    "meta": { "$ref": "#/components/schemas/MetaBlock" }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "description": "Missing or invalid header", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
+          "403": { "description": "Merchant not in allowlist", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
+          "409": { "description": "Duplicate X-RequestID or idempotency conflict", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } }
+        }
+      },
+      "parameters": []
+    },
+    "/payments/api/payments/sale": {
+      "post": {
+        "operationId": "OP_PAYMENTS_SALE",
+        "summary": "Sale (authorize + capture in one step)",
+        "description": "Immediately authorizes and settles. No separate capture needed. Status: `settled`.",
+        "tags": ["Payments / Transactions"],
+        "parameters": [
+          { "$ref": "#/components/parameters/XRequestID" },
+          { "$ref": "#/components/parameters/XLevoMerchantId" },
+          { "$ref": "#/components/parameters/XLevoTerminalId" },
+          { "$ref": "#/components/parameters/XLevoRequestTimestamp" },
+          { "$ref": "#/components/parameters/XLevoIdempotencyKey" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "transaction": {
+                    "type": "object",
+                    "required": ["amount"],
+                    "properties": { "amount": { "$ref": "#/components/schemas/AmountObject" } }
+                  },
+                  "card": {
+                    "type": "object",
+                    "properties": {
+                      "number": { "type": "string" }, "exp_month": { "type": "integer" },
+                      "exp_year": { "type": "integer" }, "cvv": { "type": "string" }
+                    }
+                  }
+                }
+              },
+              "example": {
+                "transaction": { "amount": { "value": 3500, "currency": "USD" } },
+                "card": { "number": "4111111111111111", "exp_month": 12, "exp_year": 2030, "cvv": "123" }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Sale settled",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["transaction", "authorization", "settlement", "meta"],
+                  "properties": {
+                    "transaction":   { "$ref": "#/components/schemas/TransactionSummary" },
+                    "authorization": { "type": "object" },
+                    "settlement": {
+                      "type": "object",
+                      "properties": {
+                        "batch_id":        { "type": "string" },
+                        "settlement_date": { "type": "string", "format": "date" },
+                        "net_amount":      { "$ref": "#/components/schemas/AmountObject" },
+                        "interchange_fee": { "type": "object" },
+                        "processing_fee":  { "type": "object" },
+                        "funding_date":    { "type": "string", "format": "date" }
+                      }
+                    },
+                    "meta": { "$ref": "#/components/schemas/MetaBlock" }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "description": "Missing header", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
+          "403": { "description": "Merchant not allowed", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } }
+        }
+      },
+      "parameters": []
+    },
+    "/payments/api/payments/reversal/{auth_id}": {
+      "post": {
+        "operationId": "OP_PAYMENTS_REVERSAL",
+        "summary": "Reverse (void) an authorization",
+        "description": "Cancels an authorized-but-not-captured transaction. `auth_id` (e.g. `AUTH-1234`) goes in the URL path. State guard: auth must be in `authorized` status.",
+        "tags": ["Payments / Transactions"],
+        "parameters": [
+          {
+            "name": "auth_id",
+            "in": "path",
+            "required": true,
+            "description": "Short auth code from the /auth response (e.g. AUTH-1234).",
+            "schema": { "type": "string", "example": "AUTH-1234" }
+          },
+          { "$ref": "#/components/parameters/XRequestID" },
+          { "$ref": "#/components/parameters/XLevoMerchantId" },
+          { "$ref": "#/components/parameters/XLevoTerminalId" },
+          { "$ref": "#/components/parameters/XLevoRequestTimestamp" },
+          { "$ref": "#/components/parameters/XLevoIdempotencyKey" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "reversal": {
+                    "type": "object",
+                    "properties": {
+                      "reason": {
+                        "type": "object",
+                        "properties": {
+                          "code": { "type": "string", "example": "CUSTOMER_REQUEST" },
+                          "description": { "type": "string" }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "example": { "reversal": { "reason": { "code": "CUSTOMER_REQUEST", "description": "Customer cancelled order" } } }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Authorization reversed. Hold released.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["transaction", "reversal", "settlement_impact", "audit_trail", "meta"],
+                  "properties": {
+                    "transaction": { "$ref": "#/components/schemas/TransactionSummary" },
+                    "reversal": {
+                      "type": "object",
+                      "properties": {
+                        "reversed_amount":        { "$ref": "#/components/schemas/AmountObject" },
+                        "full_reversal":          { "type": "boolean" },
+                        "void_approval_code":     { "type": "string" },
+                        "network":                { "$ref": "#/components/schemas/NetworkBlock" },
+                        "hold_released":          { "type": "boolean" },
+                        "hold_release_timestamp": { "type": "string", "format": "date-time" }
+                      }
+                    },
+                    "settlement_impact": { "type": "object" },
+                    "audit_trail":       { "type": "object" },
+                    "meta":              { "$ref": "#/components/schemas/MetaBlock" }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "description": "Missing header", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
+          "403": { "description": "Merchant not allowed", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
+          "404": { "description": "auth_id not found", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
+          "422": { "description": "Auth already reversed or captured", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } }
+        }
+      }
+    },
+    "/payments/api/payments/capture": {
+      "post": {
+        "operationId": "OP_PAYMENTS_CAPTURE",
+        "summary": "Capture an authorized payment",
+        "description": "Settles an authorized transaction for settlement. Capture ≤ authorized amount. State guard: `original_transaction_id` must reference an `auth` in `authorized` status.",
+        "tags": ["Payments / Transactions"],
+        "parameters": [
+          { "$ref": "#/components/parameters/XRequestID" },
+          { "$ref": "#/components/parameters/XLevoMerchantId" },
+          { "$ref": "#/components/parameters/XLevoTerminalId" },
+          { "$ref": "#/components/parameters/XLevoRequestTimestamp" },
+          { "$ref": "#/components/parameters/XLevoIdempotencyKey" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["original_transaction_id"],
+                "properties": {
+                  "original_transaction_id": {
+                    "type": "string", "format": "uuid",
+                    "description": "transaction_id from the /auth response"
+                  },
+                  "capture": {
+                    "type": "object",
+                    "properties": {
+                      "amount":     { "$ref": "#/components/schemas/AmountObject" },
+                      "descriptor": { "type": "string", "example": "ACME STORE #42" }
+                    }
+                  }
+                }
+              },
+              "example": {
+                "original_transaction_id": "00000000-0000-0000-0000-000000000000",
+                "capture": { "amount": { "value": 10000, "currency": "USD" }, "descriptor": "ACME STORE #42" }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Capture queued for settlement",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["transaction", "capture", "settlement_schedule", "meta"],
+                  "properties": {
+                    "transaction": { "$ref": "#/components/schemas/TransactionSummary" },
+                    "capture": {
+                      "type": "object",
+                      "properties": {
+                        "captured_amount":            { "$ref": "#/components/schemas/AmountObject" },
+                        "original_authorized_amount": { "$ref": "#/components/schemas/AmountObject" },
+                        "delta":         { "type": "object" },
+                        "approval_code": { "type": "string" },
+                        "network":       { "$ref": "#/components/schemas/NetworkBlock" }
+                      }
+                    },
+                    "settlement_schedule": { "type": "object" },
+                    "meta": { "$ref": "#/components/schemas/MetaBlock" }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "description": "Invalid UUID or missing field", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
+          "404": { "description": "Transaction not found", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
+          "422": { "description": "Capture exceeds authorized amount, or wrong state", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } }
+        }
+      },
+      "parameters": []
+    },
+    "/payments/api/payments/void-capture": {
+      "post": {
+        "operationId": "OP_PAYMENTS_VOID_CAPTURE",
+        "summary": "Void a capture before settlement",
+        "description": "Removes a capture from the open settlement batch, restoring the auth as re-capturable. State guard: `original_transaction_id` must reference a `capture` in `captured` status.",
+        "tags": ["Payments / Transactions"],
+        "parameters": [
+          { "$ref": "#/components/parameters/XRequestID" },
+          { "$ref": "#/components/parameters/XLevoMerchantId" },
+          { "$ref": "#/components/parameters/XLevoTerminalId" },
+          { "$ref": "#/components/parameters/XLevoRequestTimestamp" },
+          { "$ref": "#/components/parameters/XLevoIdempotencyKey" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["original_transaction_id"],
+                "properties": {
+                  "original_transaction_id": {
+                    "type": "string", "format": "uuid",
+                    "description": "transaction_id from the /capture response"
+                  },
+                  "void": {
+                    "type": "object",
+                    "properties": {
+                      "reason": { "type": "object", "properties": { "code": { "type": "string" } } },
+                      "timing": { "type": "object", "properties": { "batch_id": { "type": "string" } } }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Capture voided. Auth restored and re-capturable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["transaction", "void_capture", "auth_status", "meta"],
+                  "properties": {
+                    "transaction":  { "$ref": "#/components/schemas/TransactionSummary" },
+                    "void_capture": {
+                      "type": "object",
+                      "properties": {
+                        "voided_amount": { "$ref": "#/components/schemas/AmountObject" },
+                        "approval_code": { "type": "string" },
+                        "network":       { "$ref": "#/components/schemas/NetworkBlock" },
+                        "batch_status":  { "type": "object" }
+                      }
+                    },
+                    "auth_status": {
+                      "type": "object",
+                      "properties": {
+                        "auth_transaction_id":   { "type": "string", "format": "uuid" },
+                        "auth_id":               { "type": "string" },
+                        "auth_status_post_void": { "type": "string" },
+                        "re_capturable":         { "type": "boolean" },
+                        "auth_expires_at":       { "type": "string", "format": "date-time" }
+                      }
+                    },
+                    "meta": { "$ref": "#/components/schemas/MetaBlock" }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "description": "Invalid input", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
+          "404": { "description": "Capture not found", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
+          "422": { "description": "Capture already voided or in wrong state", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } }
+        }
+      },
+      "parameters": []
+    },
+    "/payments/api/payments/refund": {
+      "post": {
+        "operationId": "OP_PAYMENTS_REFUND",
+        "summary": "Refund a captured amount",
+        "description": "Issues a credit back to the cardholder. Supports partial refunds. Cumulative refunds cannot exceed the captured amount — checked server-side. State guard: `original_transaction_id` must reference a `capture` in `captured` status.",
+        "tags": ["Payments / Transactions"],
+        "parameters": [
+          { "$ref": "#/components/parameters/XRequestID" },
+          { "$ref": "#/components/parameters/XLevoMerchantId" },
+          { "$ref": "#/components/parameters/XLevoTerminalId" },
+          { "$ref": "#/components/parameters/XLevoRequestTimestamp" },
+          { "$ref": "#/components/parameters/XLevoIdempotencyKey" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["original_transaction_id"],
+                "properties": {
+                  "original_transaction_id": {
+                    "type": "string", "format": "uuid",
+                    "description": "transaction_id from the /capture response"
+                  },
+                  "refund": {
+                    "type": "object",
+                    "properties": {
+                      "amount": { "$ref": "#/components/schemas/AmountObject" },
+                      "reason": {
+                        "type": "object",
+                        "properties": {
+                          "code": { "type": "string", "example": "CUSTOMER_REQUEST" },
+                          "description": { "type": "string" }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "example": {
+                "original_transaction_id": "00000000-0000-0000-0000-000000000000",
+                "refund": { "amount": { "value": 5000, "currency": "USD" }, "reason": { "code": "CUSTOMER_REQUEST" } }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Refund issued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["transaction", "refund", "settlement", "meta"],
+                  "properties": {
+                    "transaction": { "$ref": "#/components/schemas/TransactionSummary" },
+                    "refund": {
+                      "type": "object",
+                      "required": ["refunded_amount", "remaining_refundable"],
+                      "properties": {
+                        "refunded_amount":      { "$ref": "#/components/schemas/AmountObject" },
+                        "remaining_refundable": { "$ref": "#/components/schemas/AmountObject" },
+                        "approval_code":        { "type": "string" },
+                        "network":              { "$ref": "#/components/schemas/NetworkBlock" },
+                        "customer_notification": { "type": "object" }
+                      }
+                    },
+                    "settlement": {
+                      "type": "object",
+                      "properties": {
+                        "credit_batch_id":         { "type": "string" },
+                        "expected_credit_date":    { "type": "string", "format": "date" },
+                        "business_days_to_credit": { "type": "integer" },
+                        "interchange_recovery":    { "$ref": "#/components/schemas/AmountObject" }
+                      }
+                    },
+                    "meta": { "$ref": "#/components/schemas/MetaBlock" }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "description": "Invalid input", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
+          "404": { "description": "Capture not found", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
+          "422": {
+            "description": "Refund would exceed captured amount, or capture in wrong state",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } }
+          }
+        }
+      },
+      "parameters": []
+    },
+    "/payments/api/payments/void-refund": {
+      "post": {
+        "operationId": "OP_PAYMENTS_VOID_REFUND",
+        "summary": "Void a refund before credit posts",
+        "description": "Cancels a pending refund, restoring the refundable balance on the original capture. State guard: `original_transaction_id` must reference a `refund` in `refunded` status.",
+        "tags": ["Payments / Transactions"],
+        "parameters": [
+          { "$ref": "#/components/parameters/XRequestID" },
+          { "$ref": "#/components/parameters/XLevoMerchantId" },
+          { "$ref": "#/components/parameters/XLevoTerminalId" },
+          { "$ref": "#/components/parameters/XLevoRequestTimestamp" },
+          { "$ref": "#/components/parameters/XLevoIdempotencyKey" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["original_transaction_id"],
+                "properties": {
+                  "original_transaction_id": {
+                    "type": "string", "format": "uuid",
+                    "description": "transaction_id from the /refund response"
+                  },
+                  "void": {
+                    "type": "object",
+                    "properties": {
+                      "reason": { "type": "object", "properties": { "code": { "type": "string" } } },
+                      "timing": { "type": "object", "properties": { "credit_batch_id": { "type": "string" } } }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Refund voided. Refundable balance restored.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["transaction", "void_refund", "capture_status", "meta"],
+                  "properties": {
+                    "transaction":  { "$ref": "#/components/schemas/TransactionSummary" },
+                    "void_refund": {
+                      "type": "object",
+                      "properties": {
+                        "voided_refund_amount": { "$ref": "#/components/schemas/AmountObject" },
+                        "approval_code":        { "type": "string" },
+                        "network":              { "$ref": "#/components/schemas/NetworkBlock" },
+                        "credit_batch_status":  { "type": "object" }
+                      }
+                    },
+                    "capture_status": {
+                      "type": "object",
+                      "properties": {
+                        "capture_transaction_id":  { "type": "string", "format": "uuid" },
+                        "status_post_void_refund": { "type": "string" },
+                        "remaining_refundable":    { "$ref": "#/components/schemas/AmountObject" }
+                      }
+                    },
+                    "meta": { "$ref": "#/components/schemas/MetaBlock" }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "description": "Invalid input", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
+          "404": { "description": "Refund not found", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
+          "422": { "description": "Refund already voided or in wrong state", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } }
+        }
+      },
+      "parameters": []
+    },
+    "/payments/api/payments/credit": {
+      "post": {
+        "operationId": "OP_PAYMENTS_CREDIT",
+        "summary": "Standalone credit (loyalty / goodwill)",
+        "description": "Direct credit to a cardholder not linked to a prior capture. Used for loyalty payouts, goodwill credits, etc. Status: `credited`.",
+        "tags": ["Payments / Transactions"],
+        "parameters": [
+          { "$ref": "#/components/parameters/XRequestID" },
+          { "$ref": "#/components/parameters/XLevoMerchantId" },
+          { "$ref": "#/components/parameters/XLevoTerminalId" },
+          { "$ref": "#/components/parameters/XLevoRequestTimestamp" },
+          { "$ref": "#/components/parameters/XLevoIdempotencyKey" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "credit": {
+                    "type": "object",
+                    "required": ["amount"],
+                    "properties": {
+                      "amount":      { "$ref": "#/components/schemas/AmountObject" },
+                      "description": { "type": "string" },
+                      "funding_source": {
+                        "type": "object",
+                        "properties": {
+                          "account_id": { "type": "string" },
+                          "type":       { "type": "string", "example": "loyalty_pool" }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "example": {
+                "credit": {
+                  "amount": { "value": 2500, "currency": "USD" },
+                  "description": "Loyalty points cashback",
+                  "funding_source": { "account_id": "LOYALTY-ACC-001", "type": "loyalty_pool" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Credit issued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["transaction", "credit", "funding", "compliance", "meta"],
+                  "properties": {
+                    "transaction": { "$ref": "#/components/schemas/TransactionSummary" },
+                    "credit": {
+                      "type": "object",
+                      "properties": {
+                        "credited_amount":        { "$ref": "#/components/schemas/AmountObject" },
+                        "approval_code":          { "type": "string" },
+                        "network":                { "$ref": "#/components/schemas/NetworkBlock" },
+                        "recipient_notification": { "type": "object" }
+                      }
+                    },
+                    "funding": {
+                      "type": "object",
+                      "properties": {
+                        "funding_source_id":  { "type": "string" },
+                        "debit_confirmation": { "type": "string" },
+                        "gl_posted":          { "type": "boolean" },
+                        "gl_post_timestamp":  { "type": "string", "format": "date-time" }
+                      }
+                    },
+                    "compliance": {
+                      "type": "object",
+                      "properties": {
+                        "reporting_triggered": { "type": "boolean" },
+                        "aml_clear":           { "type": "boolean" },
+                        "sanctions_clear":     { "type": "boolean" }
+                      }
+                    },
+                    "meta": { "$ref": "#/components/schemas/MetaBlock" }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "description": "Missing header or invalid body", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
+          "403": { "description": "Merchant not allowed", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } }
+        }
+      },
+      "parameters": []
+    }
+  }
+}
