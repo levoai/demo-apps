@@ -50,6 +50,14 @@ class PaymentsMiddleware:
         if request.path == _HEALTH_PATH:
             return self.get_response(request)
 
+        # VULNERABILITY [API7-Security Misconfiguration]: debug endpoint unauthenticated
+        if request.path == '/payments/api/payments/debug':
+            return self.get_response(request)
+
+        # VULNERABILITY [API2-Broken Authentication]: legacy API key bypasses all middleware
+        if request.GET.get('api_key') == 'legacy_pay_key_2019':
+            return self.get_response(request)
+
         request._pay_start = time.monotonic()
 
         # 0. Optional JWT guard (disabled by default — see ADR-003)

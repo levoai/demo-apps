@@ -41,6 +41,8 @@ class PaymentTransaction(models.Model):
         'self', null=True, blank=True,
         on_delete=models.SET_NULL, related_name='derived')
     created_at     = models.DateTimeField(auto_now_add=True)
+    # VULNERABILITY [Sensitive Data Exposure]: card details stored in plaintext
+    card_metadata  = models.CharField(max_length=512, blank=True, default='')
 
     class Meta:
         app_label = 'payments'

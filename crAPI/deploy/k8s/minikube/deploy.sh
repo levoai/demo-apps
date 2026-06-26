@@ -25,6 +25,11 @@ kubectl apply -n crapi -f ../base/mailhog
 kubectl apply -n crapi -f ../base/identity
 kubectl apply -n crapi -f ../base/community
 kubectl apply -n crapi -f ../base/workshop
+kubectl apply -n crapi -f ../base/payments
 kubectl apply -n crapi -f ../base/web
 kubectl apply -n crapi -f ./mailhog
 kubectl apply -n crapi -f ./web
+
+# Use locally-loaded images instead of pulling from registry
+kubectl patch deployment crapi-payments -n crapi -p '{"spec":{"template":{"spec":{"containers":[{"name":"crapi-payments","imagePullPolicy":"IfNotPresent"}]}}}}'
+kubectl patch deployment crapi-web -n crapi -p '{"spec":{"template":{"spec":{"containers":[{"name":"crapi-web","imagePullPolicy":"IfNotPresent"}]}}}}'

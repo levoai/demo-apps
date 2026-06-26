@@ -5695,6 +5695,324 @@
           }
         ]
       }
+    },
+    "/payments/api/payments/transactions": {
+      "get": {
+        "tags": [
+          "Payments / Transactions"
+        ],
+        "summary": "List transactions [VULN: API3-Excessive Data Exposure, API4-No Rate Limit]",
+        "description": "VULNERABILITY: Returns ALL merchants' transactions when no merchant_id filter is provided (no tenant isolation). No pagination \u2014 unbounded response possible.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/XRequestID"
+          },
+          {
+            "$ref": "#/components/parameters/XLevoMerchantId"
+          },
+          {
+            "$ref": "#/components/parameters/XLevoTerminalId"
+          },
+          {
+            "$ref": "#/components/parameters/XLevoRequestTimestamp"
+          },
+          {
+            "$ref": "#/components/parameters/XLevoIdempotencyKey"
+          },
+          {
+            "name": "merchant_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by merchant \u2014 accepts ANY merchant_id, exposing cross-tenant data"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransactionListResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/payments/api/payments/transactions/{transaction_id}": {
+      "get": {
+        "tags": [
+          "Payments / Transactions"
+        ],
+        "summary": "Get transaction by ID [VULN: API1-BOLA]",
+        "description": "VULNERABILITY: No ownership check \u2014 any valid merchant can read any other merchant's transaction by guessing or enumerating transaction_id.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/XRequestID"
+          },
+          {
+            "$ref": "#/components/parameters/XLevoMerchantId"
+          },
+          {
+            "$ref": "#/components/parameters/XLevoTerminalId"
+          },
+          {
+            "$ref": "#/components/parameters/XLevoRequestTimestamp"
+          },
+          {
+            "$ref": "#/components/parameters/XLevoIdempotencyKey"
+          },
+          {
+            "name": "transaction_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransactionSummary"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Payments / Transactions"
+        ],
+        "summary": "Delete transaction [VULN: API5-BFLA]",
+        "description": "VULNERABILITY: Any authenticated merchant can delete ANY transaction. No ownership check, not restricted to admins.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/XRequestID"
+          },
+          {
+            "$ref": "#/components/parameters/XLevoMerchantId"
+          },
+          {
+            "$ref": "#/components/parameters/XLevoTerminalId"
+          },
+          {
+            "$ref": "#/components/parameters/XLevoRequestTimestamp"
+          },
+          {
+            "$ref": "#/components/parameters/XLevoIdempotencyKey"
+          },
+          {
+            "name": "transaction_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deleted"
+          }
+        }
+      }
+    },
+    "/payments/api/payments/admin/transactions": {
+      "get": {
+        "tags": [
+          "Payments / Admin"
+        ],
+        "summary": "Admin: list all transactions [VULN: API5-BFLA]",
+        "description": "VULNERABILITY: 'Admin' access controlled only by guessable X-Admin-Key header (values: admin123, payments_admin, supersecret). No proper RBAC.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/XRequestID"
+          },
+          {
+            "$ref": "#/components/parameters/XLevoMerchantId"
+          },
+          {
+            "$ref": "#/components/parameters/XLevoTerminalId"
+          },
+          {
+            "$ref": "#/components/parameters/XLevoRequestTimestamp"
+          },
+          {
+            "$ref": "#/components/parameters/XLevoIdempotencyKey"
+          },
+          {
+            "name": "X-Admin-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "admin123"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "403": {
+            "description": "Forbidden \u2014 wrong key"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Payments / Admin"
+        ],
+        "summary": "Admin: purge all transactions [VULN: API5-BFLA]",
+        "description": "VULNERABILITY: Bulk delete of ALL transactions gated only by guessable X-Admin-Key.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/XRequestID"
+          },
+          {
+            "$ref": "#/components/parameters/XLevoMerchantId"
+          },
+          {
+            "$ref": "#/components/parameters/XLevoTerminalId"
+          },
+          {
+            "$ref": "#/components/parameters/XLevoRequestTimestamp"
+          },
+          {
+            "$ref": "#/components/parameters/XLevoIdempotencyKey"
+          },
+          {
+            "name": "X-Admin-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Purged"
+          }
+        }
+      }
+    },
+    "/payments/api/payments/debug": {
+      "get": {
+        "tags": [
+          "Payments / Debug"
+        ],
+        "summary": "Debug config dump [VULN: API7-Security Misconfiguration]",
+        "description": "VULNERABILITY: Unauthenticated endpoint that returns DB credentials, secret key, and all environment variables.",
+        "responses": {
+          "200": {
+            "description": "Config dump with credentials"
+          }
+        }
+      }
+    },
+    "/payments/api/payments/webhook/test": {
+      "post": {
+        "tags": [
+          "Payments / Webhooks"
+        ],
+        "summary": "Webhook reachability test [VULN: SSRF]",
+        "description": "VULNERABILITY: Server makes HTTP POST to caller-supplied webhook_url with no validation. Can probe internal network including cloud metadata endpoints (169.254.169.254).",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/XRequestID"
+          },
+          {
+            "$ref": "#/components/parameters/XLevoMerchantId"
+          },
+          {
+            "$ref": "#/components/parameters/XLevoTerminalId"
+          },
+          {
+            "$ref": "#/components/parameters/XLevoRequestTimestamp"
+          },
+          {
+            "$ref": "#/components/parameters/XLevoIdempotencyKey"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "webhook_url": {
+                    "type": "string",
+                    "example": "https://webhook.site/test"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Probe result"
+          }
+        }
+      }
+    },
+    "/payments/api/v1/payments/auth": {
+      "post": {
+        "tags": [
+          "Payments / Legacy"
+        ],
+        "summary": "Legacy v1 auth [VULN: API9-Improper Inventory, API2-Broken Auth]",
+        "description": "VULNERABILITY: Deprecated v1 endpoint still active. Bypasses PaymentsMiddleware entirely \u2014 no required headers, no replay protection, no idempotency. Accepts negative amounts. Caller can supply their own auth_id.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "amount": {
+                    "type": "object",
+                    "properties": {
+                      "value": {
+                        "type": "integer",
+                        "description": "Negative values accepted"
+                      },
+                      "currency": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "auth_id": {
+                    "type": "string",
+                    "description": "VULN: caller-supplied, not generated server-side"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Legacy auth response"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -7135,6 +7453,86 @@
           },
           "meta": {
             "$ref": "#/components/schemas/MetaBlock"
+          }
+        }
+      },
+      "AmountObject": {
+        "type": "object",
+        "required": [
+          "value",
+          "currency"
+        ],
+        "properties": {
+          "value": {
+            "type": "integer",
+            "description": "Amount in minor units (cents). e.g. 10000 = $100.00",
+            "example": 10000
+          },
+          "currency": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 3,
+            "example": "USD"
+          }
+        }
+      },
+      "HealthResponse": {
+        "type": "object",
+        "required": [
+          "status",
+          "service"
+        ],
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "ok"
+            ],
+            "example": "ok"
+          },
+          "service": {
+            "type": "string",
+            "example": "crapi-payments"
+          }
+        }
+      },
+      "CardMetadata": {
+        "type": "object",
+        "description": "VULNERABILITY [Sensitive Data Exposure]: card details stored/returned in plaintext",
+        "properties": {
+          "card_number": {
+            "type": "string",
+            "example": "4111111111111111"
+          },
+          "last4": {
+            "type": "string",
+            "example": "1111"
+          },
+          "expiry": {
+            "type": "string",
+            "example": "12/28"
+          },
+          "holder_name": {
+            "type": "string",
+            "example": "John Doe"
+          },
+          "bin": {
+            "type": "string",
+            "example": "411111"
+          }
+        }
+      },
+      "TransactionListResponse": {
+        "type": "object",
+        "properties": {
+          "transactions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TransactionSummary"
+            }
+          },
+          "total": {
+            "type": "integer"
           }
         }
       }

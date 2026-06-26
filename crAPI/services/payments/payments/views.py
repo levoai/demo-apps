@@ -1,10 +1,13 @@
+import os
 import uuid
 import json
 import time
 import random
 import string
+import urllib.request as _urllib_req
 from datetime import timezone, timedelta
 
+from django.conf import settings as _django_settings
 from django.db import models as db_models
 from django.http import JsonResponse
 from django.utils.decorators import method_decorator
@@ -101,6 +104,28 @@ def _create(operation, status, amount_value, currency, merchant_id, request_id,
     )
 
 
+def _txn_to_dict(txn):
+    """Serialize a PaymentTransaction — includes merchant_id for cross-tenant exposure."""
+    d = {
+        'transaction_id':            str(txn.transaction_id),
+        'auth_id':                   txn.auth_id,
+        'operation':                 txn.operation,
+        'status':                    txn.status,
+        'amount':                    {'value': txn.amount_value, 'currency': txn.currency},
+        'merchant_id':               txn.merchant_id,
+        'request_id':                txn.request_id,
+        'created_at':                _isodate(txn.created_at),
+        'original_transaction_id':   str(txn.original_transaction_id) if txn.original_transaction_id else None,
+    }
+    # VULNERABILITY [Sensitive Data Exposure]: card data returned in plaintext
+    if txn.card_metadata:
+        try:
+            d['card'] = json.loads(txn.card_metadata)
+        except Exception:
+            pass
+    return d
+
+
 # ── Health ─────────────────────────────────────────────────────────────────────
 
 class HealthView(APIView):
@@ -124,9 +149,31 @@ class AuthView(APIView):
         amount_val  = amt.get('value', 0)
         currency    = amt.get('currency', 'USD')
 
-        aid = _auth_id()
+        # VULNERABILITY [API6-Mass Assignment]: caller can override auth_id and status directly
+        override_auth_id = txn_data.get('auth_id')
+        override_status  = txn_data.get('status')
+        # VULNERABILITY [Sensitive Data Exposure]: card details accepted and stored in plaintext
+        card_data = body.get('card', {})
+        card_meta = json.dumps({k: v for k, v in card_data.items()
+                                if k in ('last4', 'expiry', 'holder_name', 'bin', 'card_number')}) if card_data else ''
+
+        aid = override_auth_id if override_auth_id else _auth_id()
+        effective_status = (override_status if override_status in TransactionStatus.values
+                            else TransactionStatus.AUTHORIZED)
+
         txn = _create(TransactionOperation.AUTH, TransactionStatus.AUTHORIZED,
                       amount_val, currency, merchant_id, request_id, auth_id=aid)
+
+        save_fields = []
+        if card_meta:
+            txn.card_metadata = card_meta
+            save_fields.append('card_metadata')
+        if effective_status != TransactionStatus.AUTHORIZED:
+            txn.status = effective_status
+            save_fields.append('status')
+        if save_fields:
+            txn.save(update_fields=save_fields)
+
         created = _isodate(txn.created_at)
         expires = _isodate(txn.created_at + timedelta(hours=24))
         line_items = txn_data.get('order', {}).get('line_items', [])
@@ -589,4 +636,158 @@ class CreditView(APIView):
             'compliance': {
                 'reporting_triggered': False, 'aml_clear': True, 'sanctions_clear': True},
             'meta': _meta(request),
+        })
+
+
+# ── VULNERABILITY ENDPOINTS ────────────────────────────────────────────────────
+# All endpoints below are intentionally vulnerable for security testing education.
+
+
+# API1 - BOLA: any valid merchant reads any transaction (no ownership check)
+@method_decorator(csrf_exempt, name='dispatch')
+class TransactionDetailView(APIView):
+    def get(self, request, transaction_id):
+        try:
+            txn = PaymentTransaction.objects.get(transaction_id=uuid.UUID(str(transaction_id)))
+        except (PaymentTransaction.DoesNotExist, ValueError):
+            return JsonResponse(
+                {'error': 'transaction_not_found', 'transaction_id': str(transaction_id)}, status=404)
+        # VULNERABILITY [API1-BOLA]: merchant_id on txn never compared to requesting merchant
+        return JsonResponse({'transaction': _txn_to_dict(txn)})
+
+    def delete(self, request, transaction_id):
+        try:
+            txn = PaymentTransaction.objects.get(transaction_id=uuid.UUID(str(transaction_id)))
+            # VULNERABILITY [API5-BFLA]: any merchant can delete any transaction
+            txn_id_str = str(txn.transaction_id)
+            txn.delete()
+            return JsonResponse({'deleted': True, 'transaction_id': txn_id_str})
+        except (PaymentTransaction.DoesNotExist, ValueError):
+            return JsonResponse({'error': 'transaction_not_found'}, status=404)
+
+
+# API3 - Excessive Data Exposure + API4 - Lack of Rate Limiting
+@method_decorator(csrf_exempt, name='dispatch')
+class TransactionListView(APIView):
+    def get(self, request):
+        filter_merchant = request.GET.get('merchant_id', '')
+        if filter_merchant:
+            # VULNERABILITY [API3]: accepts any merchant_id — exposes cross-tenant data
+            txns = PaymentTransaction.objects.filter(merchant_id=filter_merchant).order_by('-created_at')
+        else:
+            # VULNERABILITY [API3]: no merchant filter = all tenants' data returned
+            txns = PaymentTransaction.objects.all().order_by('-created_at')
+        # VULNERABILITY [API4]: no pagination, no rate limit
+        return JsonResponse({
+            'transactions': [_txn_to_dict(t) for t in txns],
+            'total': txns.count(),
+        })
+
+
+# API5 - Broken Function Level Authorization
+@method_decorator(csrf_exempt, name='dispatch')
+class AdminTransactionListView(APIView):
+    def _check_admin(self, request):
+        # VULNERABILITY [API5-BFLA]: weak header-based auth with guessable secrets
+        return request.META.get('HTTP_X_ADMIN_KEY', '') in ('admin123', 'payments_admin', 'supersecret')
+
+    def get(self, request):
+        if not self._check_admin(request):
+            return JsonResponse(
+                {'error': 'forbidden', 'hint': 'provide X-Admin-Key header'}, status=403)
+        txns = PaymentTransaction.objects.all().order_by('-created_at')
+        return JsonResponse({
+            'transactions': [_txn_to_dict(t) for t in txns],
+            'total': txns.count(),
+            'all_merchants': True,
+        })
+
+    def delete(self, request):
+        # VULNERABILITY [API5-BFLA]: bulk delete with same weak check
+        if not self._check_admin(request):
+            return JsonResponse({'error': 'forbidden'}, status=403)
+        count, _ = PaymentTransaction.objects.all().delete()
+        return JsonResponse({'deleted': count, 'message': 'all transactions purged'})
+
+
+# API7 - Security Misconfiguration: exposes DB creds and env vars (no auth required via middleware bypass)
+class DebugView(APIView):
+    def get(self, request):
+        db_cfg = _django_settings.DATABASES.get('default', {})
+        return JsonResponse({
+            'config': {
+                'debug':              _django_settings.DEBUG,
+                'db_host':            db_cfg.get('HOST', ''),
+                'db_name':            db_cfg.get('NAME', ''),
+                'db_user':            db_cfg.get('USER', ''),
+                'db_password':        db_cfg.get('PASSWORD', ''),
+                'allowed_merchants':  _django_settings.PAYMENTS_ALLOWED_MERCHANT_IDS,
+                'secret_key':         _django_settings.SECRET_KEY,
+            },
+            'environment': dict(os.environ),
+        })
+
+
+# SSRF: server makes HTTP request to caller-supplied URL
+@method_decorator(csrf_exempt, name='dispatch')
+class WebhookTestView(APIView):
+    def post(self, request):
+        body, err = _body(request)
+        if err:
+            return err
+        url = body.get('webhook_url', '')
+        if not url:
+            return JsonResponse({'error': 'missing_field', 'field': 'webhook_url'}, status=400)
+        try:
+            # VULNERABILITY [SSRF]: no URL validation — http://169.254.169.254/ and internal addrs work
+            req = _urllib_req.Request(
+                url, method='POST',
+                headers={'Content-Type': 'application/json', 'X-Levo-Webhook-Test': 'true'},
+                data=json.dumps({'event': 'test.ping',
+                                 'merchant_id': request.META.get('HTTP_X_LEVO_MERCHANT_ID', '')}).encode())
+            with _urllib_req.urlopen(req, timeout=5) as resp:
+                return JsonResponse({
+                    'reachable':     True,
+                    'status_code':   resp.status,
+                    'response_body': resp.read(2048).decode(errors='replace'),
+                    'headers':       dict(resp.headers),
+                })
+        except Exception as exc:
+            return JsonResponse({'reachable': False, 'error': str(exc)})
+
+
+# API9 - Improper Inventory Management: deprecated v1 endpoint with no middleware protection
+@method_decorator(csrf_exempt, name='dispatch')
+class LegacyAuthView(APIView):
+    """Deprecated v1 endpoint — bypasses all middleware (path not matched by PaymentsMiddleware).
+    Accepts negative amounts, caller-supplied auth_id, no replay protection."""
+    def post(self, request):
+        try:
+            body = json.loads(request.body) if request.body else {}
+        except Exception:
+            body = {}
+        merchant_id = request.META.get('HTTP_X_LEVO_MERCHANT_ID',
+                                       request.GET.get('merchant_id', 'unknown'))
+        # VULNERABILITY [API9]: no amount validation — negative values accepted
+        amount_val = body.get('amount', {}).get('value', 0)
+        currency   = body.get('amount', {}).get('currency', 'USD')
+        # VULNERABILITY [Mass Assignment]: caller supplies auth_id directly
+        aid = body.get('auth_id') or _auth_id()
+
+        txn = PaymentTransaction.objects.create(
+            operation=TransactionOperation.AUTH,
+            status=TransactionStatus.AUTHORIZED,
+            amount_value=amount_val,
+            currency=currency,
+            auth_id=aid,
+            merchant_id=merchant_id,
+            request_id=request.META.get('HTTP_X_REQUESTID', f'v1-{uuid.uuid4()}'),
+        )
+        return JsonResponse({
+            'transaction_id': str(txn.transaction_id),
+            'auth_id':        txn.auth_id,
+            'status':         txn.status,
+            'amount':         {'value': amount_val, 'currency': currency},
+            'created_at':     _isodate(txn.created_at),
+            '_note':          'v1 API deprecated — migrate to /payments/api/payments/auth',
         })
