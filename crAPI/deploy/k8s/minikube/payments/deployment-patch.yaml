@@ -1,0 +1,10 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: crapi-payments
+spec:
+  template:
+    spec:
+      containers:
+        - name: crapi-payments
+          imagePullPolicy: IfNotPresent
