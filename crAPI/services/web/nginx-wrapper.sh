@@ -16,5 +16,14 @@
 
 
 envsubst '${MAILHOG_UI} ${GO_SERVICE} ${JAVA_SERVICE} ${PYTHON_SERVICE} ${PAYMENTS_SERVICE}' < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf
+
+# Validate the generated config before launching. Previously a bad config let
+# `openresty` exit and the caller moved on silently, so nginx never bound with
+# no clear reason in the logs. Fail loudly instead.
+if ! openresty -t; then
+  echo "ERROR: nginx config test failed; generated /etc/nginx/conf.d/default.conf is invalid" >&2
+  exit 1
+fi
+
 openresty
 exec "$@"
