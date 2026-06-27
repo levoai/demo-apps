@@ -77,6 +77,7 @@ ENV DB_NAME=crapi \
 ENV GO_SERVICE=localhost:8087 \
     JAVA_SERVICE=localhost:8080 \
     PYTHON_SERVICE=localhost:8000 \
+    PAYMENTS_SERVICE=localhost:8001 \
     MAILHOG_UI=localhost:8025
 
 # Install runtime dependencies
@@ -139,7 +140,7 @@ RUN curl -fsSL https://www.mongodb.org/static/pgp/server-7.0.asc \
 ENV PYTHONDONTWRITEBYTECODE 1 \
     PYTHONUNBUFFERED 1
 RUN apt-get update && apt-get install -y libpq-dev \
-    python3-dev python3-pip python3-setuptools libffi-dev gcc && \
+    python3-dev python3-pip python3-setuptools python3-venv libffi-dev gcc && \
     # There is an issue with psycopg2 version 2.9, hence pin it to lower version. See https://stackoverflow.com/a/68025007/467969
     pip3 install psycopg2==2.8.5
 
@@ -175,6 +176,24 @@ RUN ls -al /app/community
 WORKDIR /app/workshop
 COPY ./services/workshop/ /app/workshop
 RUN pip3 install -r requirements.txt
+
+# Add Payments service in an isolated virtualenv.
+# Payments runs Django 3.2 while Workshop pins Django ~2.2; installing both into
+# the global site-packages would clobber one of them, so payments gets its own venv.
+# NOTE: use a payments-specific PAYMENTS_PORT, NOT SERVER_PORT. The Spring Boot
+# identity service uses relaxed binding and would read a global SERVER_PORT as
+# server.port, hijacking payments' port and breaking identity on 8080.
+# DJANGO_KEY is intentionally NOT set here: this image is published, so baking a
+# fixed key in would ship a known secret. Payments settings.py already falls back
+# to an insecure dev default; real deployments should pass DJANGO_KEY at runtime.
+ENV PAYMENTS_VENV=/opt/payments-venv \
+    PAYMENTS_PORT=8001 \
+    PAYMENTS_ALLOWED_MERCHANT_IDS=merch_7f2a91,merch_4b8c12,merch_0d3e55,merch_load01
+WORKDIR /app/payments
+COPY ./services/payments/ /app/payments
+RUN python3 -m venv "$PAYMENTS_VENV" \
+    && "$PAYMENTS_VENV"/bin/pip install --no-cache-dir --upgrade pip \
+    && "$PAYMENTS_VENV"/bin/pip install --no-cache-dir -r requirements.txt
 
 # Copy Nginx related config form web
 COPY --from=web-build /app/build /usr/share/nginx/html
