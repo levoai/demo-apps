@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: crapi-payments
+  labels:
+    app: crapi-payments
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: crapi-payments
+  template:
+    metadata:
+      labels:
+        app: crapi-payments
+    spec:
+      initContainers:
+        - name: wait-for-postgres
+          image: busybox
+          command:
+            - sh
+            - -c
+            - until nc -z postgresdb 5432; do echo "waiting for postgres..."; sleep 2; done
+      containers:
+        - name: crapi-payments
+          image: levoai/crapi-encryption-payments:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8001
+              name: payments
+          envFrom:
+            - configMapRef:
+                name: crapi-payments-configmap
+          readinessProbe:
+            httpGet:
+              path: /payments/api/payments/health
+              port: 8001
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            failureThreshold: 5
+          livenessProbe:
+            httpGet:
+              path: /payments/api/payments/health
+              port: 8001
+            initialDelaySeconds: 20
+            periodSeconds: 15
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi

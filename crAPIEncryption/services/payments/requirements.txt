@@ -1,0 +1,6 @@
+Django==3.2.25
+djangorestframework==3.14.0
+psycopg2-binary==2.9.9
+PyJWT==2.8.0
+requests==2.31.0
+pycryptodome==3.20.0
