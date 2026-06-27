@@ -76,7 +76,16 @@ print_banner "Starting Payments Service"
 cd "$(dirname "${BASH_SOURCE[0]}")/payments"
 PAYMENTS_VENV="${PAYMENTS_VENV:-/opt/payments-venv}"
 PAYMENTS_PORT="${PAYMENTS_PORT:-8001}"
-"${PAYMENTS_VENV}/bin/python" manage.py migrate --noinput
+# Fail fast: a missing venv or a failed migration must stop the container so the
+# error surfaces, instead of backgrounding runserver and hanging in wait_endpoint.
+if [ ! -x "${PAYMENTS_VENV}/bin/python" ]; then
+  echo "ERROR: payments virtualenv interpreter not found at ${PAYMENTS_VENV}/bin/python" >&2
+  exit 1
+fi
+if ! "${PAYMENTS_VENV}/bin/python" manage.py migrate --noinput; then
+  echo "ERROR: payments migrations failed" >&2
+  exit 1
+fi
 "${PAYMENTS_VENV}/bin/python" manage.py runserver 0.0.0.0:"${PAYMENTS_PORT}" &
 
 # Wait for payments service to fully come up

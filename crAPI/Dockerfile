@@ -183,8 +183,10 @@ RUN pip3 install -r requirements.txt
 # NOTE: use a payments-specific PAYMENTS_PORT, NOT SERVER_PORT. The Spring Boot
 # identity service uses relaxed binding and would read a global SERVER_PORT as
 # server.port, hijacking payments' port and breaking identity on 8080.
+# DJANGO_KEY is intentionally NOT set here: this image is published, so baking a
+# fixed key in would ship a known secret. Payments settings.py already falls back
+# to an insecure dev default; real deployments should pass DJANGO_KEY at runtime.
 ENV PAYMENTS_VENV=/opt/payments-venv \
-    DJANGO_KEY=payments-insecure-dev-key-00001 \
     PAYMENTS_PORT=8001 \
     PAYMENTS_ALLOWED_MERCHANT_IDS=merch_7f2a91,merch_4b8c12,merch_0d3e55,merch_load01
 WORKDIR /app/payments
