@@ -119,7 +119,12 @@ ENV PATH="$PATH:/usr/local/openresty${RESTY_DEB_FLAVOR}/luajit/bin:/usr/local/op
 # plus missing libcurl.so.4 / libssl.so.3, so mongod never comes up and every
 # Mongo client (community service, MailHog) gets "connection refused".
 # Installing the bullseye-native package via apt pulls in the matching libs.
-# amd64 only: MongoDB does not publish arm64 packages for the Debian repo.
+# arch is pinned to amd64 on purpose: the MongoDB Debian 7.0 repo publishes an
+# arm64 index, but it contains only mongosh/atlas tooling — mongodb-org-server
+# is amd64-ONLY for Debian (verified against the repo Packages index). So this
+# whole image is amd64: build it with `docker build --platform linux/amd64 .`
+# (which is also how CI builds the published image); a native arm64 build cannot
+# install the Mongo server and fails here with "Unable to locate package".
 RUN curl -fsSL https://www.mongodb.org/static/pgp/server-7.0.asc \
         | gpg -o /usr/share/keyrings/mongodb-server-7.0.gpg --dearmor \
     && echo "deb [ signed-by=/usr/share/keyrings/mongodb-server-7.0.gpg arch=amd64 ] http://repo.mongodb.org/apt/debian bullseye/mongodb-org/7.0 main" \
