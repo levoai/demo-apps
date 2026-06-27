@@ -36,8 +36,8 @@ RUN go build -o main .
 WORKDIR /dist
 RUN cp /build/main .
 
-# Build image for Mailhog - use stable Go 1.24
-FROM golang:1.24.0-bullseye AS mailhog-builder
+# Build image for Mailhog - use stable Go 1.25
+FROM golang:1.25-bookworm AS mailhog-builder
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
   && rm -rf /var/lib/apt/lists/*
@@ -46,7 +46,7 @@ ARG TARGETARCH
 RUN mkdir -p /app/gocode
 ENV GOPATH=/app/gocode
 ENV GOBIN=/usr/local/bin
-RUN GOARCH=${TARGETARCH:-amd64} GOOS=linux go install github.com/mailhog/MailHog@v1.0.1
+RUN CGO_ENABLED=0 GOARCH=${TARGETARCH:-amd64} GOOS=linux go install github.com/mailhog/MailHog@v1.0.1
 
 # OpenResty base image to copy binaries
 FROM openresty/openresty:1.25.3.1-0-bullseye-fat AS openresty-builder
