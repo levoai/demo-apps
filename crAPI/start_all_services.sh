@@ -75,7 +75,7 @@ wait_endpoint 0.0.0.0:8000/workshop/health_check/
 print_banner "Starting Payments Service"
 cd "$(dirname "${BASH_SOURCE[0]}")/payments"
 PAYMENTS_VENV="${PAYMENTS_VENV:-/opt/payments-venv}"
-PAYMENTS_PORT="${SERVER_PORT:-8001}"
+PAYMENTS_PORT="${PAYMENTS_PORT:-8001}"
 "${PAYMENTS_VENV}/bin/python" manage.py migrate --noinput
 "${PAYMENTS_VENV}/bin/python" manage.py runserver 0.0.0.0:"${PAYMENTS_PORT}" &
 
