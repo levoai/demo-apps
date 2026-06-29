@@ -3,7 +3,10 @@ import json
 import time
 import random
 import string
+import uuid
 from locust import HttpUser, task, between
+
+MERCHANT_IDS = ["merch_7f2a91", "merch_4b8c12", "merch_0d3e55", "merch_load01"]
 
 class QuickstartUser(HttpUser):
     letters = string.ascii_lowercase
@@ -16,6 +19,8 @@ class QuickstartUser(HttpUser):
     post_id = ""
     host = "http://localhost:8888"
     wait_time = between(1, 5)
+    merchant_id = ""
+    known_transaction_ids = []
 
     def set_name(self):
         self.name = ''.join(random.choice(self.letters) for i in range(8))
@@ -150,11 +155,127 @@ class QuickstartUser(HttpUser):
             if response.status_code >= 400:
                 print(f"Couldn't get QR code: response {response.status_code}")
                 
+    def _payment_headers(self):
+        return {
+            "X-Levo-Merchant-ID": self.merchant_id,
+            "X-RequestID": str(uuid.uuid4()),
+        }
+
+    @task
+    def payments_auth_capture_refund(self):
+        """AUTH → CAPTURE → REFUND happy path"""
+        amount = random.randint(100, 5000)
+        headers = self._payment_headers()
+
+        # AUTH
+        with self.client.post("/payments/api/payments/auth", json={
+            "transaction": {
+                "amount": {"value": amount, "currency": "USD"},
+                "order": {"line_items": [{"merchant_category_code": "5411"}]},
+            },
+            "card": {
+                "card_number": "4111111111111111",
+                "bin": "411111",
+                "expiry": "12/27",
+                "holder_name": self.name,
+                "last4": "1111",
+            },
+        }, headers=headers, catch_response=True) as r:
+            if r.status_code >= 400:
+                r.failure(f"AUTH failed: {r.status_code}")
+                return
+            auth_txn_id = r.json()["transaction"]["transaction_id"]
+            if auth_txn_id:
+                self.known_transaction_ids.append(auth_txn_id)
+
+        # CAPTURE
+        with self.client.post("/payments/api/payments/capture", json={
+            "original_transaction_id": auth_txn_id,
+            "capture": {"amount": {"value": amount, "currency": "USD"}},
+        }, headers=self._payment_headers(), catch_response=True) as r:
+            if r.status_code >= 400:
+                r.failure(f"CAPTURE failed: {r.status_code}")
+                return
+            cap_txn_id = r.json()["transaction"]["transaction_id"]
+
+        # REFUND
+        with self.client.post("/payments/api/payments/refund", json={
+            "original_transaction_id": cap_txn_id,
+            "refund": {"amount": {"value": amount, "currency": "USD"}},
+        }, headers=self._payment_headers(), catch_response=True) as r:
+            if r.status_code >= 400:
+                r.failure(f"REFUND failed: {r.status_code}")
+
+    @task
+    def payments_auth_reversal(self):
+        """AUTH → REVERSAL"""
+        amount = random.randint(100, 3000)
+        with self.client.post("/payments/api/payments/auth", json={
+            "transaction": {"amount": {"value": amount, "currency": "USD"}},
+        }, headers=self._payment_headers(), catch_response=True) as r:
+            if r.status_code >= 400:
+                r.failure(f"AUTH failed: {r.status_code}")
+                return
+            auth_id = r.json()["transaction"]["auth_id"]
+
+        with self.client.post(f"/payments/api/payments/reversal/{auth_id}", json={
+            "reversal": {"reason": {"code": "CUSTOMER_REQUEST"}},
+        }, headers=self._payment_headers(), catch_response=True) as r:
+            if r.status_code >= 400:
+                r.failure(f"REVERSAL failed: {r.status_code}")
+
+    @task
+    def payments_sale(self):
+        """Standalone SALE"""
+        with self.client.post("/payments/api/payments/sale", json={
+            "transaction": {"amount": {"value": random.randint(50, 2000), "currency": "USD"}},
+        }, headers=self._payment_headers(), catch_response=True) as r:
+            if r.status_code >= 400:
+                r.failure(f"SALE failed: {r.status_code}")
+            else:
+                self.known_transaction_ids.append(r.json()["transaction"]["transaction_id"])
+
+    @task
+    def payments_credit(self):
+        """Standalone CREDIT (loyalty/goodwill)"""
+        with self.client.post("/payments/api/payments/credit", json={
+            "credit": {
+                "amount": {"value": random.randint(10, 500), "currency": "USD"},
+                "funding_source": {"account_id": "LOYALTY-POOL"},
+            },
+        }, headers=self._payment_headers(), catch_response=True) as r:
+            if r.status_code >= 400:
+                r.failure(f"CREDIT failed: {r.status_code}")
+
+    @task
+    def payments_list_transactions(self):
+        """List own transactions"""
+        with self.client.get("/payments/api/payments/transactions",
+                             headers=self._payment_headers(),
+                             catch_response=True) as r:
+            if r.status_code >= 400:
+                r.failure(f"LIST transactions failed: {r.status_code}")
+
+    @task
+    def payments_transaction_detail_bola(self):
+        """Fetch a transaction by ID — exercises BOLA (no ownership check)"""
+        if not self.known_transaction_ids:
+            return
+        txn_id = random.choice(self.known_transaction_ids)
+        with self.client.get(f"/payments/api/payments/transactions/{txn_id}",
+                             headers=self._payment_headers(),
+                             catch_response=True) as r:
+            if r.status_code >= 400:
+                r.failure(f"GET transaction failed: {r.status_code}")
+
     #initializing user (logging in/applying coupon)
     def on_start(self):
 
         self.client.verify = False
         
+        self.merchant_id = random.choice(MERCHANT_IDS)
+        self.known_transaction_ids = []
+
         self.set_name()
         self.set_password()
         self.set_number()
