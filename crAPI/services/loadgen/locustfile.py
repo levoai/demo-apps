@@ -20,7 +20,8 @@ class QuickstartUser(HttpUser):
     host = "http://localhost:8888"
     wait_time = between(1, 5)
     merchant_id = ""
-    known_transaction_ids = []
+    # class-level: accumulates IDs across all user instances for BOLA testing
+    all_transaction_ids = []
 
     def set_name(self):
         self.name = ''.join(random.choice(self.letters) for i in range(8))
@@ -157,8 +158,11 @@ class QuickstartUser(HttpUser):
                 
     def _payment_headers(self):
         return {
-            "X-Levo-Merchant-ID": self.merchant_id,
-            "X-RequestID": str(uuid.uuid4()),
+            "X-Levo-Merchant-ID":          self.merchant_id,
+            "X-Levo-Terminal-ID":          "TERM-LOCUST-01",
+            "X-Levo-Request-Timestamp":    time.strftime('%Y-%m-%dT%H:%M:%S.000Z', time.gmtime()),
+            "X-Levo-Idempotency-Key":      str(uuid.uuid4()),
+            "X-RequestID":                 str(uuid.uuid4()),
         }
 
     @task
@@ -184,9 +188,11 @@ class QuickstartUser(HttpUser):
             if r.status_code >= 400:
                 r.failure(f"AUTH failed: {r.status_code}")
                 return
-            auth_txn_id = r.json()["transaction"]["transaction_id"]
-            if auth_txn_id:
-                self.known_transaction_ids.append(auth_txn_id)
+            auth_txn_id = r.json().get("transaction", {}).get("transaction_id")
+            if not auth_txn_id:
+                r.failure("AUTH response missing transaction_id")
+                return
+            QuickstartUser.all_transaction_ids.append(auth_txn_id)
 
         # CAPTURE
         with self.client.post("/payments/api/payments/capture", json={
@@ -233,7 +239,9 @@ class QuickstartUser(HttpUser):
             if r.status_code >= 400:
                 r.failure(f"SALE failed: {r.status_code}")
             else:
-                self.known_transaction_ids.append(r.json()["transaction"]["transaction_id"])
+                txn_id = r.json().get("transaction", {}).get("transaction_id")
+                if txn_id:
+                    QuickstartUser.all_transaction_ids.append(txn_id)
 
     @task
     def payments_credit(self):
@@ -258,10 +266,11 @@ class QuickstartUser(HttpUser):
 
     @task
     def payments_transaction_detail_bola(self):
-        """Fetch a transaction by ID — exercises BOLA (no ownership check)"""
-        if not self.known_transaction_ids:
+        """BOLA: fetch a transaction created by another user (no ownership check on server)"""
+        candidates = [t for t in QuickstartUser.all_transaction_ids]
+        if not candidates:
             return
-        txn_id = random.choice(self.known_transaction_ids)
+        txn_id = random.choice(candidates)
         with self.client.get(f"/payments/api/payments/transactions/{txn_id}",
                              headers=self._payment_headers(),
                              catch_response=True) as r:
@@ -274,7 +283,6 @@ class QuickstartUser(HttpUser):
         self.client.verify = False
         
         self.merchant_id = random.choice(MERCHANT_IDS)
-        self.known_transaction_ids = []
 
         self.set_name()
         self.set_password()
