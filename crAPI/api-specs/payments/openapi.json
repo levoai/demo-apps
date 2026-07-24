@@ -278,6 +278,350 @@
             "type": "integer"
           }
         }
+      },
+      "PlanObject": {
+        "type": "object",
+        "properties": {
+          "plan_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "code": {
+            "type": "string",
+            "example": "PRO-MONTHLY"
+          },
+          "name": {
+            "type": "string",
+            "example": "Pro Monthly"
+          },
+          "amount": {
+            "$ref": "#/components/schemas/AmountObject"
+          },
+          "interval": {
+            "type": "string",
+            "enum": [
+              "day",
+              "week",
+              "month",
+              "year"
+            ]
+          },
+          "interval_count": {
+            "type": "integer",
+            "example": 1
+          },
+          "trial_days": {
+            "type": "integer",
+            "example": 14
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "merchant_id": {
+            "type": "string",
+            "description": "Owning merchant \u2014 returned to any caller"
+          },
+          "metadata": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "PageBlock": {
+        "type": "object",
+        "description": "Pagination envelope. limit has no server-side maximum.",
+        "properties": {
+          "total": {
+            "type": "integer"
+          },
+          "limit": {
+            "type": "integer",
+            "example": 20
+          },
+          "offset": {
+            "type": "integer",
+            "example": 0
+          },
+          "has_more": {
+            "type": "boolean"
+          }
+        }
+      },
+      "CustomerBlock": {
+        "type": "object",
+        "description": "Customer PII, returned on every subscription read.",
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "ada.lovelace@example.com"
+          },
+          "name": {
+            "type": "string",
+            "example": "Ada Lovelace"
+          },
+          "external_ref": {
+            "type": "string",
+            "example": "CUST-40127"
+          }
+        }
+      },
+      "SubscriptionObject": {
+        "type": "object",
+        "properties": {
+          "subscription_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "plan_id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "trialing",
+              "active",
+              "past_due",
+              "paused",
+              "canceled",
+              "incomplete"
+            ]
+          },
+          "customer": {
+            "$ref": "#/components/schemas/CustomerBlock"
+          },
+          "amount": {
+            "$ref": "#/components/schemas/AmountObject"
+          },
+          "price_override": {
+            "type": "integer",
+            "nullable": true,
+            "description": "Overrides the plan price. Zero and negative values are accepted."
+          },
+          "quantity": {
+            "type": "integer",
+            "example": 1
+          },
+          "discount_code": {
+            "type": "string"
+          },
+          "current_period_start": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "current_period_end": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "cancel_at_period_end": {
+            "type": "boolean"
+          },
+          "canceled_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "merchant_id": {
+            "type": "string"
+          },
+          "payment_method_transaction_id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "plan": {
+            "$ref": "#/components/schemas/PlanObject"
+          },
+          "payment_method": {
+            "$ref": "#/components/schemas/TransactionSummary"
+          }
+        }
+      },
+      "PlanResponse": {
+        "type": "object",
+        "properties": {
+          "plan": {
+            "$ref": "#/components/schemas/PlanObject"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/MetaBlock"
+          }
+        }
+      },
+      "PlanListResponse": {
+        "type": "object",
+        "properties": {
+          "plans": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PlanObject"
+            }
+          },
+          "page": {
+            "$ref": "#/components/schemas/PageBlock"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/MetaBlock"
+          }
+        }
+      },
+      "PlanPatchResponse": {
+        "type": "object",
+        "properties": {
+          "plan": {
+            "$ref": "#/components/schemas/PlanObject"
+          },
+          "repricing_impact": {
+            "type": "object",
+            "properties": {
+              "active_subscriptions_affected": {
+                "type": "integer"
+              },
+              "effective": {
+                "type": "string",
+                "example": "immediately"
+              },
+              "customer_notification_sent": {
+                "type": "boolean"
+              }
+            }
+          },
+          "meta": {
+            "$ref": "#/components/schemas/MetaBlock"
+          }
+        }
+      },
+      "SubscriptionResponse": {
+        "type": "object",
+        "properties": {
+          "subscription": {
+            "$ref": "#/components/schemas/SubscriptionObject"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/MetaBlock"
+          }
+        }
+      },
+      "SubscriptionCreateResponse": {
+        "type": "object",
+        "properties": {
+          "subscription": {
+            "$ref": "#/components/schemas/SubscriptionObject"
+          },
+          "billing": {
+            "type": "object",
+            "properties": {
+              "first_charge_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "next_invoice_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "trial_days_granted": {
+                "type": "integer"
+              },
+              "amount_per_period": {
+                "$ref": "#/components/schemas/AmountObject"
+              },
+              "payment_method_verified": {
+                "type": "boolean"
+              }
+            }
+          },
+          "meta": {
+            "$ref": "#/components/schemas/MetaBlock"
+          }
+        }
+      },
+      "SubscriptionListResponse": {
+        "type": "object",
+        "properties": {
+          "subscriptions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SubscriptionObject"
+            }
+          },
+          "page": {
+            "$ref": "#/components/schemas/PageBlock"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/MetaBlock"
+          }
+        }
+      },
+      "SubscriptionCancelResponse": {
+        "type": "object",
+        "properties": {
+          "subscription": {
+            "$ref": "#/components/schemas/SubscriptionObject"
+          },
+          "cancellation": {
+            "type": "object",
+            "properties": {
+              "canceled_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "effective": {
+                "type": "string",
+                "enum": [
+                  "immediate",
+                  "period_end"
+                ]
+              },
+              "reason_code": {
+                "type": "string",
+                "example": "CUSTOMER_REQUEST"
+              },
+              "prorated": {
+                "type": "boolean"
+              },
+              "unused_fraction": {
+                "type": "number",
+                "description": "Remaining time over ONE plan interval. Can exceed 1 or go negative."
+              },
+              "requested_by": {
+                "type": "string"
+              }
+            }
+          },
+          "credit": {
+            "type": "object",
+            "description": "Present only when ?prorate=true. Creates a real CREDIT transaction usable by the core payment endpoints.",
+            "properties": {
+              "transaction_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "credited_amount": {
+                "$ref": "#/components/schemas/AmountObject"
+              },
+              "approval_code": {
+                "type": "string",
+                "example": "CRD-4417"
+              },
+              "network": {
+                "$ref": "#/components/schemas/NetworkBlock"
+              }
+            }
+          },
+          "meta": {
+            "$ref": "#/components/schemas/MetaBlock"
+          }
+        }
       }
     }
   },
@@ -2046,6 +2390,1067 @@
         "responses": {
           "200": {
             "description": "Legacy auth response"
+          }
+        }
+      }
+    },
+    "/payments/api/payments/plans": {
+      "post": {
+        "operationId": "OP_PAYMENTS_PLAN_CREATE",
+        "tags": [
+          "Payments / Lifecycle"
+        ],
+        "summary": "Create a billing plan",
+        "description": "Root of the lifecycle chain. Returns 201 with the new plan id in the Location header. Amounts are in minor units and are not validated \u2014 zero and negative are accepted.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/XRequestID"
+          },
+          {
+            "$ref": "#/components/parameters/XLevoMerchantId"
+          },
+          {
+            "$ref": "#/components/parameters/XLevoTerminalId"
+          },
+          {
+            "$ref": "#/components/parameters/XLevoRequestTimestamp"
+          },
+          {
+            "$ref": "#/components/parameters/XLevoIdempotencyKey"
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string",
+                    "example": "PRO-MONTHLY"
+                  },
+                  "name": {
+                    "type": "string",
+                    "example": "Pro Monthly"
+                  },
+                  "amount": {
+                    "$ref": "#/components/schemas/AmountObject"
+                  },
+                  "interval": {
+                    "type": "string",
+                    "enum": [
+                      "day",
+                      "week",
+                      "month",
+                      "year"
+                    ],
+                    "default": "month"
+                  },
+                  "interval_count": {
+                    "type": "integer",
+                    "default": 1,
+                    "description": "Zero is accepted and yields a zero-length billing period."
+                  },
+                  "trial_days": {
+                    "type": "integer",
+                    "default": 0,
+                    "description": "Negative values are accepted."
+                  },
+                  "active": {
+                    "type": "boolean",
+                    "default": true
+                  },
+                  "metadata": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "headers": {
+              "Location": {
+                "description": "URI of the created plan",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlanResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid_json",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "merchant_not_allowed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "duplicate_request_id or idempotency_conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Payments / Lifecycle"
+        ],
+        "summary": "List plans [VULN: API1-BOLA, API4-No Rate Limit]",
+        "description": "VULNERABILITY: not scoped to the calling merchant \u2014 every tenant's plans are returned. limit has no maximum.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/XRequestID"
+          },
+          {
+            "$ref": "#/components/parameters/XLevoMerchantId"
+          },
+          {
+            "$ref": "#/components/parameters/XLevoTerminalId"
+          },
+          {
+            "$ref": "#/components/parameters/XLevoRequestTimestamp"
+          },
+          {
+            "$ref": "#/components/parameters/XLevoIdempotencyKey"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Page size (default 20). No server-side maximum \u2014 VULNERABILITY [API4]. Negative values return 400."
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Rows to skip (default 0)."
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Field to order by. Related traversals such as plan__merchant_id are accepted \u2014 VULNERABILITY [API3]."
+          },
+          {
+            "name": "order",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            },
+            "description": "asc (default) or desc."
+          },
+          {
+            "name": "code",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by exact plan code."
+          },
+          {
+            "name": "active",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            },
+            "description": "Filter by active flag."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlanListResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid_parameter",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "merchant_not_allowed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/payments/api/payments/plans/{plan_id}": {
+      "get": {
+        "tags": [
+          "Payments / Lifecycle"
+        ],
+        "summary": "Get a plan [VULN: API1-BOLA]",
+        "description": "VULNERABILITY: plan.merchant_id is never compared to the calling merchant, so any allowlisted merchant can read any plan.",
+        "parameters": [
+          {
+            "name": "plan_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Plan UUID."
+          },
+          {
+            "$ref": "#/components/parameters/XRequestID"
+          },
+          {
+            "$ref": "#/components/parameters/XLevoMerchantId"
+          },
+          {
+            "$ref": "#/components/parameters/XLevoTerminalId"
+          },
+          {
+            "$ref": "#/components/parameters/XLevoRequestTimestamp"
+          },
+          {
+            "$ref": "#/components/parameters/XLevoIdempotencyKey"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlanResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid_field \u2014 plan_id is not a UUID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "plan_not_found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Payments / Lifecycle"
+        ],
+        "summary": "Update a plan [VULN: API3-BOPLA/Mass Assignment]",
+        "description": "VULNERABILITY: merchant_id is writable, allowing tenant takeover. amount is writable on an active plan and applies retroactively to every live subscription billing off it; the response reports how many were repriced.",
+        "parameters": [
+          {
+            "name": "plan_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Plan UUID."
+          },
+          {
+            "$ref": "#/components/parameters/XRequestID"
+          },
+          {
+            "$ref": "#/components/parameters/XLevoMerchantId"
+          },
+          {
+            "$ref": "#/components/parameters/XLevoTerminalId"
+          },
+          {
+            "$ref": "#/components/parameters/XLevoRequestTimestamp"
+          },
+          {
+            "$ref": "#/components/parameters/XLevoIdempotencyKey"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "description": "VULNERABILITY [API3-BOPLA]: merchant_id and amount are writable.",
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "amount": {
+                    "$ref": "#/components/schemas/AmountObject"
+                  },
+                  "interval": {
+                    "type": "string"
+                  },
+                  "interval_count": {
+                    "type": "integer"
+                  },
+                  "trial_days": {
+                    "type": "integer"
+                  },
+                  "active": {
+                    "type": "boolean"
+                  },
+                  "currency": {
+                    "type": "string"
+                  },
+                  "metadata": {
+                    "type": "object"
+                  },
+                  "merchant_id": {
+                    "type": "string",
+                    "description": "Writable \u2014 reassigns the plan to another tenant."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlanPatchResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid_json or invalid_field",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "plan_not_found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Payments / Lifecycle"
+        ],
+        "summary": "Delete a plan [VULN: Business Logic]",
+        "description": "VULNERABILITY: deletes a plan that still has live subscriptions. The FK is SET_NULL, so those subscriptions are orphaned and subsequently price at zero. The count is returned in the X-Orphaned-Subscriptions header.",
+        "parameters": [
+          {
+            "name": "plan_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Plan UUID."
+          },
+          {
+            "$ref": "#/components/parameters/XRequestID"
+          },
+          {
+            "$ref": "#/components/parameters/XLevoMerchantId"
+          },
+          {
+            "$ref": "#/components/parameters/XLevoTerminalId"
+          },
+          {
+            "$ref": "#/components/parameters/XLevoRequestTimestamp"
+          },
+          {
+            "$ref": "#/components/parameters/XLevoIdempotencyKey"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Deleted (no body)",
+            "headers": {
+              "X-Orphaned-Subscriptions": {
+                "description": "Subscriptions left without a plan",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid_field",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "plan_not_found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/payments/api/payments/subscriptions": {
+      "post": {
+        "operationId": "OP_PAYMENTS_SUBSCRIPTION_CREATE",
+        "tags": [
+          "Payments / Lifecycle"
+        ],
+        "summary": "Create a subscription",
+        "description": "Creates a subscription against a plan and holds the card with a $0 authorization in the payment_transaction table, so the returned auth is usable by /reversal and the other core endpoints. VULNERABILITY [Sensitive Data Exposure]: the full PAN and CVV are stored in plaintext and are retrievable via ?expand=payment_method.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/XRequestID"
+          },
+          {
+            "$ref": "#/components/parameters/XLevoMerchantId"
+          },
+          {
+            "$ref": "#/components/parameters/XLevoTerminalId"
+          },
+          {
+            "$ref": "#/components/parameters/XLevoRequestTimestamp"
+          },
+          {
+            "$ref": "#/components/parameters/XLevoIdempotencyKey"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "plan_id"
+                ],
+                "properties": {
+                  "plan_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "customer": {
+                    "$ref": "#/components/schemas/CustomerBlock"
+                  },
+                  "quantity": {
+                    "type": "integer",
+                    "default": 1
+                  },
+                  "trial_days": {
+                    "type": "integer",
+                    "description": "Defaults to the plan value."
+                  },
+                  "discount_code": {
+                    "type": "string"
+                  },
+                  "payment_method": {
+                    "type": "object",
+                    "properties": {
+                      "card": {
+                        "$ref": "#/components/schemas/CardMetadata"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "headers": {
+              "Location": {
+                "description": "URI of the created subscription",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscriptionCreateResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "missing_field plan_id, invalid_field or invalid_json",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "plan_not_found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "merchant_not_allowed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Payments / Lifecycle"
+        ],
+        "summary": "List subscriptions [VULN: API1-BOLA, API3-Excessive Data Exposure, API6]",
+        "description": "VULNERABILITY: not scoped to the calling merchant. ?customer_email is an unthrottled exact-match lookup on customer PII usable to enumerate subscribers (API6). ?expand=payment_method inlines stored card data before any tenant check (API3).",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/XRequestID"
+          },
+          {
+            "$ref": "#/components/parameters/XLevoMerchantId"
+          },
+          {
+            "$ref": "#/components/parameters/XLevoTerminalId"
+          },
+          {
+            "$ref": "#/components/parameters/XLevoRequestTimestamp"
+          },
+          {
+            "$ref": "#/components/parameters/XLevoIdempotencyKey"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Page size (default 20). No server-side maximum \u2014 VULNERABILITY [API4]. Negative values return 400."
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Rows to skip (default 0)."
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Field to order by. Related traversals such as plan__merchant_id are accepted \u2014 VULNERABILITY [API3]."
+          },
+          {
+            "name": "order",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            },
+            "description": "asc (default) or desc."
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "trialing",
+                "active",
+                "past_due",
+                "paused",
+                "canceled",
+                "incomplete"
+              ]
+            },
+            "description": "Filter by subscription status."
+          },
+          {
+            "name": "plan_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Filter by plan UUID."
+          },
+          {
+            "name": "customer_email",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Exact-match PII lookup \u2014 unthrottled."
+          },
+          {
+            "name": "expand",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Comma-separated: plan, payment_method. Resolved before tenant scoping."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscriptionListResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid_parameter or invalid_field",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "merchant_not_allowed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/payments/api/payments/subscriptions/{subscription_id}": {
+      "get": {
+        "tags": [
+          "Payments / Lifecycle"
+        ],
+        "summary": "Get a subscription [VULN: API1-BOLA, API3-Excessive Data Exposure]",
+        "description": "VULNERABILITY: no ownership check. With ?expand=payment_method the stored PAN and CVV are returned to any allowlisted merchant, including for subscriptions owned by a different tenant.",
+        "parameters": [
+          {
+            "name": "subscription_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Subscription UUID."
+          },
+          {
+            "$ref": "#/components/parameters/XRequestID"
+          },
+          {
+            "$ref": "#/components/parameters/XLevoMerchantId"
+          },
+          {
+            "$ref": "#/components/parameters/XLevoTerminalId"
+          },
+          {
+            "$ref": "#/components/parameters/XLevoRequestTimestamp"
+          },
+          {
+            "$ref": "#/components/parameters/XLevoIdempotencyKey"
+          },
+          {
+            "name": "expand",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Comma-separated: plan, payment_method."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscriptionResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid_field",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "subscription_not_found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Payments / Lifecycle"
+        ],
+        "summary": "Update a subscription [VULN: API3-BOPLA/Mass Assignment]",
+        "description": "VULNERABILITY: price_override, status, current_period_end and merchant_id are all caller-writable. Setting price_override to 0 bills nothing; setting status to active skips dunning; extending current_period_end inflates the prorated credit returned by /cancel?prorate=true.",
+        "parameters": [
+          {
+            "name": "subscription_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Subscription UUID."
+          },
+          {
+            "$ref": "#/components/parameters/XRequestID"
+          },
+          {
+            "$ref": "#/components/parameters/XLevoMerchantId"
+          },
+          {
+            "$ref": "#/components/parameters/XLevoTerminalId"
+          },
+          {
+            "$ref": "#/components/parameters/XLevoRequestTimestamp"
+          },
+          {
+            "$ref": "#/components/parameters/XLevoIdempotencyKey"
+          },
+          {
+            "name": "expand",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Comma-separated: plan, payment_method."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "description": "VULNERABILITY [API3-BOPLA]: every property here is writable, including price_override, status, current_period_end and merchant_id.",
+                "properties": {
+                  "quantity": {
+                    "type": "integer"
+                  },
+                  "discount_code": {
+                    "type": "string"
+                  },
+                  "cancel_at_period_end": {
+                    "type": "boolean"
+                  },
+                  "customer_email": {
+                    "type": "string"
+                  },
+                  "customer_name": {
+                    "type": "string"
+                  },
+                  "customer_ref": {
+                    "type": "string"
+                  },
+                  "price_override": {
+                    "type": "integer",
+                    "nullable": true,
+                    "description": "Zero or negative accepted."
+                  },
+                  "status": {
+                    "type": "string",
+                    "description": "Set directly \u2014 past_due can be flipped to active without payment."
+                  },
+                  "current_period_start": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "current_period_end": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "Extending this inflates the prorated cancellation credit."
+                  },
+                  "plan_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "merchant_id": {
+                    "type": "string",
+                    "description": "Writable \u2014 tenant takeover."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscriptionResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid_json or invalid_field",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "subscription_not_found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/payments/api/payments/subscriptions/{subscription_id}/cancel": {
+      "post": {
+        "tags": [
+          "Payments / Lifecycle"
+        ],
+        "summary": "Cancel a subscription [VULN: API5-BFLA, Business Logic]",
+        "description": "With ?prorate=true a CREDIT transaction is issued for the unused portion. VULNERABILITY: the unused fraction is remaining time over ONE plan interval rather than over the stored period, so a PATCHed current_period_end pushes it above 1; proration uses the plan price and ignores price_override; there is no guard against cancelling an already-cancelled subscription, so each call issues another credit; and any allowlisted merchant can cancel any tenant's subscription.",
+        "parameters": [
+          {
+            "name": "subscription_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Subscription UUID."
+          },
+          {
+            "$ref": "#/components/parameters/XRequestID"
+          },
+          {
+            "$ref": "#/components/parameters/XLevoMerchantId"
+          },
+          {
+            "$ref": "#/components/parameters/XLevoTerminalId"
+          },
+          {
+            "$ref": "#/components/parameters/XLevoRequestTimestamp"
+          },
+          {
+            "$ref": "#/components/parameters/XLevoIdempotencyKey"
+          },
+          {
+            "name": "prorate",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            },
+            "description": "Issue a prorated credit for unused time (default false)."
+          },
+          {
+            "name": "at_period_end",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            },
+            "description": "Schedule cancellation instead of applying it now (default false)."
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "reason": {
+                    "type": "object",
+                    "properties": {
+                      "code": {
+                        "type": "string",
+                        "example": "CUSTOMER_REQUEST"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscriptionCancelResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid_field or invalid_json",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "subscription_not_found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           }
         }
       }

@@ -1,5 +1,5 @@
 from django.urls import path
-from . import views
+from . import views, lifecycle
 
 urlpatterns = [
     # Core payment operations
@@ -29,4 +29,15 @@ urlpatterns = [
     # VULNERABILITY [API9-Improper Inventory]: deprecated v1 — bypasses PaymentsMiddleware
     # (middleware only guards /payments/api/payments/*, v1 path is /payments/api/v1/*)
     path('api/v1/payments/auth',                 views.LegacyAuthView.as_view()),
+
+    # ── Money lifecycle: plans & subscriptions ────────────────────────────────
+    # VULNERABILITY [API1-BOLA]: no merchant ownership check on any detail route
+    # VULNERABILITY [API3-BOPLA]: PATCH accepts merchant_id, price_override, status
+    path('api/payments/plans',                   lifecycle.PlanListView.as_view()),
+    path('api/payments/plans/<str:plan_id>',     lifecycle.PlanDetailView.as_view()),
+    path('api/payments/subscriptions',           lifecycle.SubscriptionListView.as_view()),
+    path('api/payments/subscriptions/<str:subscription_id>',
+         lifecycle.SubscriptionDetailView.as_view()),
+    path('api/payments/subscriptions/<str:subscription_id>/cancel',
+         lifecycle.SubscriptionCancelView.as_view()),
 ]

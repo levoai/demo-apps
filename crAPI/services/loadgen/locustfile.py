@@ -22,6 +22,8 @@ class QuickstartUser(HttpUser):
     merchant_id = ""
     # class-level: accumulates IDs across all user instances for BOLA testing
     all_transaction_ids = []
+    all_subscription_ids = []
+    all_plan_ids = []
 
     def set_name(self):
         self.name = ''.join(random.choice(self.letters) for i in range(8))
@@ -276,6 +278,113 @@ class QuickstartUser(HttpUser):
                              catch_response=True) as r:
             if r.status_code >= 400:
                 r.failure(f"GET transaction failed: {r.status_code}")
+
+    @task
+    def payments_plan_then_subscription(self):
+        """PLAN -> (Location header) -> SUBSCRIPTION -> GET"""
+        with self.client.post("/payments/api/payments/plans", json={
+            "code": f"LOAD-{random.randint(1000, 9999)}",
+            "name": "Load Test Plan",
+            "amount": {"value": random.randint(500, 20000), "currency": "USD"},
+            "interval": random.choice(["month", "year"]),
+            "interval_count": 1,
+            "trial_days": random.choice([0, 0, 14]),
+        }, headers=self._payment_headers(), catch_response=True) as r:
+            if r.status_code != 201:
+                r.failure(f"PLAN create failed: {r.status_code}")
+                return
+            # the new plan id is only in the Location header
+            plan_url = r.headers.get("Location", "")
+            plan_id = r.json()["plan"]["plan_id"]
+            QuickstartUser.all_plan_ids.append(plan_id)
+
+        if plan_url:
+            with self.client.get(plan_url, headers=self._payment_headers(),
+                                 name="/payments/api/payments/plans/[id]",
+                                 catch_response=True) as r:
+                if r.status_code >= 400:
+                    r.failure(f"PLAN fetch by Location failed: {r.status_code}")
+
+        with self.client.post("/payments/api/payments/subscriptions", json={
+            "plan_id": plan_id,
+            "customer": {"email": self.email, "name": self.name,
+                         "external_ref": f"CUST-{random.randint(10000, 99999)}"},
+            "quantity": random.choice([1, 1, 2, 5]),
+            "payment_method": {"card": {
+                "card_number": "4111111111111111", "bin": "411111",
+                "last4": "1111", "expiry": "12/27", "cvv": "737",
+                "holder_name": self.name,
+            }},
+        }, headers=self._payment_headers(), catch_response=True) as r:
+            if r.status_code != 201:
+                r.failure(f"SUBSCRIPTION create failed: {r.status_code}")
+                return
+            QuickstartUser.all_subscription_ids.append(
+                r.json()["subscription"]["subscription_id"])
+
+    @task
+    def payments_subscription_expand_bola(self):
+        """BOLA: read another user's subscription and expand its stored card"""
+        if not QuickstartUser.all_subscription_ids:
+            return
+        sub_id = random.choice(QuickstartUser.all_subscription_ids)
+        with self.client.get(
+                f"/payments/api/payments/subscriptions/{sub_id}?expand=plan,payment_method",
+                headers=self._payment_headers(),
+                name="/payments/api/payments/subscriptions/[id]?expand",
+                catch_response=True) as r:
+            if r.status_code >= 400:
+                r.failure(f"GET subscription failed: {r.status_code}")
+
+    @task
+    def payments_subscription_patch_then_cancel(self):
+        """PATCH price_override/period_end -> CANCEL with proration"""
+        if not QuickstartUser.all_subscription_ids:
+            return
+        sub_id = random.choice(QuickstartUser.all_subscription_ids)
+        with self.client.patch(f"/payments/api/payments/subscriptions/{sub_id}", json={
+            "quantity": random.choice([1, 2, 3]),
+            "price_override": random.choice([None, 0, 1]),
+        }, headers=self._payment_headers(),
+           name="/payments/api/payments/subscriptions/[id]",
+           catch_response=True) as r:
+            if r.status_code >= 400:
+                r.failure(f"PATCH subscription failed: {r.status_code}")
+                return
+
+        with self.client.post(
+                f"/payments/api/payments/subscriptions/{sub_id}/cancel?prorate=true",
+                json={"reason": {"code": "CUSTOMER_REQUEST"}},
+                headers=self._payment_headers(),
+                name="/payments/api/payments/subscriptions/[id]/cancel",
+                catch_response=True) as r:
+            if r.status_code >= 400:
+                r.failure(f"CANCEL subscription failed: {r.status_code}")
+                return
+            credit = r.json().get("credit")
+            if credit:
+                QuickstartUser.all_transaction_ids.append(credit["transaction_id"])
+
+    @task
+    def payments_list_plans_and_subscriptions(self):
+        """Paginated + sorted + filtered reads"""
+        limit = random.choice([5, 20, 100])
+        with self.client.get(
+                f"/payments/api/payments/plans?limit={limit}&sort=amount_value&order=desc",
+                headers=self._payment_headers(),
+                name="/payments/api/payments/plans?paged",
+                catch_response=True) as r:
+            if r.status_code >= 400:
+                r.failure(f"LIST plans failed: {r.status_code}")
+
+        status = random.choice(["active", "trialing", "past_due", "canceled"])
+        with self.client.get(
+                f"/payments/api/payments/subscriptions?status={status}&limit={limit}",
+                headers=self._payment_headers(),
+                name="/payments/api/payments/subscriptions?paged",
+                catch_response=True) as r:
+            if r.status_code >= 400:
+                r.failure(f"LIST subscriptions failed: {r.status_code}")
 
     #initializing user (logging in/applying coupon)
     def on_start(self):
