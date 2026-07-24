@@ -1495,3 +1495,109 @@ Each view validates the referenced transaction's `operation` and `status` before
 | Reversal on already-reversed auth | 422 — `error: invalid_state` |
 | `docker compose up --build` cold start | All services healthy; payments logs show "running migrations" then "starting server on port 8001" |
 | Payments logs after auth request | No errors; `[25/Jun/2026 ... POST /payments/api/payments/auth HTTP/1.1" 200` |
+
+---
+
+## 18. Money Lifecycle: Plans & Subscriptions
+
+Adds 10 endpoints for recurring billing. They sit under the existing
+`/payments/api/payments/` prefix, so `PaymentsMiddleware` guards them (required headers,
+merchant allowlist, timestamp window, request-ID dedup, idempotency) with no middleware
+change. Code lives in `payments/lifecycle.py`; the fake-gateway helpers shared with
+`views.py` moved to `payments/common.py`.
+
+### 18.1 Endpoints
+
+| Method | Path | Notes |
+|---|---|---|
+| POST | `/plans` | 201; new id **only** in the `Location` header |
+| GET | `/plans` | `?limit&offset&sort&order&code&active` |
+| GET | `/plans/{plan_id}` | |
+| PATCH | `/plans/{plan_id}` | reports `repricing_impact` |
+| DELETE | `/plans/{plan_id}` | 204 + `X-Orphaned-Subscriptions` |
+| POST | `/subscriptions` | 201 + `Location`; holds the card as a $0 auth |
+| GET | `/subscriptions` | `?status&plan_id&customer_email&expand` + paging |
+| GET | `/subscriptions/{subscription_id}` | `?expand=plan,payment_method` |
+| PATCH | `/subscriptions/{subscription_id}` | |
+| POST | `/subscriptions/{subscription_id}/cancel` | `?prorate&at_period_end` |
+
+Method mix: 6 POST/GET pairs plus 2 PATCH and 1 DELETE. New status codes: 201 (with
+`Location`) and 204.
+
+### 18.2 Models
+
+`payment_plan` and `payment_subscription`, migration `0003_plans_subscriptions`. Both
+follow the `PaymentTransaction` conventions: UUID primary key, minor-unit
+`BigIntegerField` amounts, `TextChoices` enums, explicit `db_table`, `merchant_id` on
+every row.
+
+`Subscription.plan` is `SET_NULL` (deleting a plan orphans rather than cascades) and
+`Subscription.payment_method_txn` points at a `PaymentTransaction`, so the lifecycle
+domain reuses the existing state machine instead of shadowing it.
+
+### 18.3 Chain into the core endpoints
+
+```
+POST /plans                          -> 201, id in Location only
+POST /subscriptions                  -> subscription_id + a $0 auth holding the card
+GET  /subscriptions/{id}?expand=payment_method -> PAN, CVV, auth_id
+POST /reversal/{auth_id}             <- pre-existing endpoint, new id
+PATCH /subscriptions/{id}            -> extend current_period_end, set price_override
+POST /subscriptions/{id}/cancel?prorate=true   -> a real CREDIT transaction
+GET  /transactions/{credit_txn_id}   <- pre-existing endpoint, new id
+```
+
+### 18.4 Deliberate vulnerabilities
+
+| Class | Where | Effect |
+|---|---|---|
+| API1-BOLA | all detail + list routes | `merchant_id` never compared to the caller |
+| API3-BOPLA | `PATCH /plans/{id}` | `merchant_id` writable (tenant takeover); `amount` reprices live subscriptions retroactively |
+| API3-BOPLA | `PATCH /subscriptions/{id}` | `price_override` (0/negative), `status` (`past_due`→`active`), `current_period_end`, `merchant_id` all writable |
+| API3-Data Exposure | `?expand=payment_method` | resolved before tenant scoping; returns stored PAN + CVV |
+| API3-Data Exposure | `?sort` | accepts related traversals such as `plan__merchant_id` |
+| API4 | list endpoints | `limit` has no maximum; `total` costs a second full scan |
+| API6 | `?customer_email` | unthrottled exact-match PII lookup, cross-tenant |
+| API5-BFLA | `/cancel` | any allowlisted merchant cancels any tenant's subscription |
+| Business logic | `/cancel?prorate=true` | unused time is divided by **one plan interval**, not the stored period, so a PATCHed `current_period_end` pushes the ratio far above 1; proration uses the plan price and ignores `price_override`; no guard against cancelling twice |
+| Business logic | `DELETE /plans/{id}` | removes a plan with live subscriptions; orphans then price at 0 |
+| Sensitive data | `POST /subscriptions` | full PAN and CVV stored plaintext in `card_metadata` |
+
+Worked example of the proration flaw: a plan at 4999/month with `quantity: 2`, then
+`PATCH current_period_end=2099-01-01` and `price_override=1`, then
+`cancel?prorate=true` — the subscription bills 2 cents per period and is credited
+8,533,189 cents.
+
+### 18.5 Seed data
+
+`manage.py seed_lifecycle` creates 4 plans and 8 subscriptions per allowlisted merchant
+(16 and 32 with the default four), each with a $0 card-holding auth. Idempotent on
+`(merchant_id, code)`. Run automatically by `runner.sh` when `PAYMENTS_SEED=true`, which
+is set in `deploy/docker/docker-compose.yml` and `deploy/k8s/base/payments/config.yaml`.
+Without it the tables start empty and every cross-tenant read needs the victim's data
+created first.
+
+### 18.6 Environment variables
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `PAYMENTS_SEED` | `false` | Run `seed_lifecycle` after migrations |
+
+### 18.7 Verification
+
+| Test | Expected Result |
+|---|---|
+| `POST /plans` | 201, `Location` header set, body id matches |
+| `GET` the `Location` URI | 200 |
+| `POST /subscriptions` with a card | 201; `billing.payment_method_verified: true`; a $0 `auth` row exists |
+| `GET /subscriptions/{id}?expand=payment_method` | 200; `card_number` and `cvv` in plaintext |
+| `POST /reversal/{held auth_id}` | 200 — the lifecycle auth works with the core endpoint |
+| `PATCH /subscriptions/{id}` `{"price_override": 0}` | 200; `amount.value` becomes 0 |
+| `PATCH /plans/{id}` `{"merchant_id": "<other>"}` | 200; plan reassigned |
+| `POST /cancel?prorate=true` after extending the period | 200; `unused_fraction` > 1; credit exceeds one period's price |
+| `POST /cancel?prorate=true` twice | 200 both times, two distinct credit transactions |
+| `DELETE /plans/{id}` with a live subscription | 204; `X-Orphaned-Subscriptions: 1`; the subscription then prices at 0 |
+| `?limit=-1` / `?sort=bogus__x` | 400 `invalid_parameter` (never a 500) |
+| `?limit=1000000` | 200, honoured |
+| Plan with `interval_count: 0` then cancel with proration | 200, credit 0 — no division by zero |
+| Cold start with `PAYMENTS_SEED=true` | logs `seeded 16 plan(s) and 32 subscription(s) across 4 merchant(s)` |
