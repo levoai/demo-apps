@@ -120,6 +120,27 @@ def _txn_to_dict(txn):
     return d
 
 
+#: Rows returned by a transaction listing when the caller does not ask for a size.
+#: The listing itself stays unauthenticated and cross-tenant (API3) and can still be
+#: asked for everything with ?limit=0 (API4) — what this stops is an ordinary GET
+#: loading the whole table, which took the service down for ~7 minutes.
+DEFAULT_TRANSACTION_PAGE_SIZE = 100
+
+
+def _page_limit(request, default=DEFAULT_TRANSACTION_PAGE_SIZE):
+    """Read ?limit=. Returns (limit, error_response); limit 0 means unbounded."""
+    raw = request.GET.get('limit')
+    if raw is None or raw == '':
+        return default, None
+    try:
+        limit = int(raw)
+    except (TypeError, ValueError):
+        return None, JsonResponse({'error': 'invalid_limit', 'limit': raw}, status=400)
+    if limit < 0:
+        return None, JsonResponse({'error': 'invalid_limit', 'limit': raw}, status=400)
+    return limit, None
+
+
 def _merchant(request):
     return request.META.get('HTTP_X_LEVO_MERCHANT_ID', '')
 

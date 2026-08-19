@@ -18,7 +18,7 @@ from .models import PaymentTransaction, TransactionOperation, TransactionStatus
 # Shared fake-gateway helpers live in common.py so the lifecycle views can reuse them.
 from .common import (  # noqa: F401
     _rand_digits, _rand_hex, _auth_id, _aprv, _network, _meta, _isodate,
-    _settle_date, _body, _lookup, _create, _txn_to_dict,
+    _settle_date, _body, _lookup, _create, _txn_to_dict, _page_limit,
 )
 
 
@@ -577,10 +577,18 @@ class TransactionListView(APIView):
         else:
             # VULNERABILITY [API3]: no merchant filter = all tenants' data returned
             txns = PaymentTransaction.objects.all().order_by('-created_at')
-        # VULNERABILITY [API4]: no pagination, no rate limit
+        # VULNERABILITY [API4]: still no rate limit, and ?limit=0 still returns everything.
+        # The default page size only stops an ordinary GET from serializing the whole table,
+        # which blocked the single worker long enough to 502 every other endpoint.
+        limit, err = _page_limit(request)
+        if err:
+            return err
+        total = txns.count()
+        rows = txns if limit == 0 else txns[:limit]
         return JsonResponse({
-            'transactions': [_txn_to_dict(t) for t in txns],
-            'total': txns.count(),
+            'transactions': [_txn_to_dict(t) for t in rows],
+            'total': total,
+            'limit': limit,
         })
 
 
@@ -596,9 +604,15 @@ class AdminTransactionListView(APIView):
             return JsonResponse(
                 {'error': 'forbidden', 'hint': 'provide X-Admin-Key header'}, status=403)
         txns = PaymentTransaction.objects.all().order_by('-created_at')
+        limit, err = _page_limit(request)
+        if err:
+            return err
+        total = txns.count()
+        rows = txns if limit == 0 else txns[:limit]
         return JsonResponse({
-            'transactions': [_txn_to_dict(t) for t in txns],
-            'total': txns.count(),
+            'transactions': [_txn_to_dict(t) for t in rows],
+            'total': total,
+            'limit': limit,
             'all_merchants': True,
         })
 
