@@ -666,6 +666,27 @@ class TransactionDetailView(APIView):
             return JsonResponse({'error': 'transaction_not_found'}, status=404)
 
 
+#: Rows returned by a transaction listing when the caller does not ask for a size.
+#: The listing stays unauthenticated and cross-tenant (API3) and ?limit=0 still returns
+#: everything (API4). What this stops is an ordinary GET serializing the whole table,
+#: which blocked the worker long enough to 502 every other payments endpoint for ~7 min.
+DEFAULT_TRANSACTION_PAGE_SIZE = 100
+
+
+def _page_limit(request, default=DEFAULT_TRANSACTION_PAGE_SIZE):
+    """Read ?limit=. Returns (limit, error_response); limit 0 means unbounded."""
+    raw = request.GET.get('limit')
+    if raw is None or raw == '':
+        return default, None
+    try:
+        limit = int(raw)
+    except (TypeError, ValueError):
+        return None, JsonResponse({'error': 'invalid_limit', 'limit': raw}, status=400)
+    if limit < 0:
+        return None, JsonResponse({'error': 'invalid_limit', 'limit': raw}, status=400)
+    return limit, None
+
+
 # API3 - Excessive Data Exposure + API4 - Lack of Rate Limiting
 @method_decorator(csrf_exempt, name='dispatch')
 class TransactionListView(APIView):
@@ -677,10 +698,18 @@ class TransactionListView(APIView):
         else:
             # VULNERABILITY [API3]: no merchant filter = all tenants' data returned
             txns = PaymentTransaction.objects.all().order_by('-created_at')
-        # VULNERABILITY [API4]: no pagination, no rate limit
+        # VULNERABILITY [API4]: still no rate limit, and ?limit=0 still returns everything.
+        # The default page size only stops an ordinary GET from serializing the whole table,
+        # which blocked the single worker long enough to 502 every other endpoint.
+        limit, err = _page_limit(request)
+        if err:
+            return err
+        total = txns.count()
+        rows = txns if limit == 0 else txns[:limit]
         return JsonResponse({
-            'transactions': [_txn_to_dict(t) for t in txns],
-            'total': txns.count(),
+            'transactions': [_txn_to_dict(t) for t in rows],
+            'total': total,
+            'limit': limit,
         })
 
 
@@ -696,9 +725,15 @@ class AdminTransactionListView(APIView):
             return JsonResponse(
                 {'error': 'forbidden', 'hint': 'provide X-Admin-Key header'}, status=403)
         txns = PaymentTransaction.objects.all().order_by('-created_at')
+        limit, err = _page_limit(request)
+        if err:
+            return err
+        total = txns.count()
+        rows = txns if limit == 0 else txns[:limit]
         return JsonResponse({
-            'transactions': [_txn_to_dict(t) for t in txns],
-            'total': txns.count(),
+            'transactions': [_txn_to_dict(t) for t in rows],
+            'total': total,
+            'limit': limit,
             'all_merchants': True,
         })
 

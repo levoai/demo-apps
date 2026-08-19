@@ -540,3 +540,145 @@ class TestStateMachineChain(TestCase):
                                  content_type='application/json', **h3)
         self.assertEqual(cap_r.status_code, 422)
         self.assertEqual(cap_r.json()['error'], 'invalid_state')
+
+
+@override_settings(**BASE_SETTINGS)
+class TestTransactionListPaging(TestCase):
+    """The listing must not serialize the whole table on an ordinary GET.
+
+    On the dev deployment this endpoint had grown to 17,463 rows for a single merchant.
+    One unpaginated GET blocked the worker long enough that the edge returned 502 and every
+    other payments endpoint — auth, capture, sale, credit — 502'd with it for about seven
+    minutes. The vulnerabilities the endpoint exists to demonstrate are unchanged: it is
+    still unauthenticated, still cross-tenant, still rate-limit free, and ?limit=0 still
+    returns everything.
+    """
+
+    def setUp(self):
+        cache.clear()
+        for i in range(12):
+            PaymentTransaction.objects.create(
+                operation=TransactionOperation.AUTH, status=TransactionStatus.AUTHORIZED,
+                amount_value=100 + i, currency='USD',
+                merchant_id='test_merch_001' if i % 2 else 'test_merch_002',
+                request_id=f'REQ-{i}',
+            )
+
+    def _get(self, query=''):
+        return self.client.get(f'/payments/api/payments/transactions{query}',
+                               **valid_headers())
+
+    def test_an_ordinary_get_is_capped_but_still_reports_the_true_total(self):
+        r = self._get('?limit=5')
+        body = json.loads(r.content)
+
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(len(body['transactions']), 5)
+        self.assertEqual(body['total'], 12, "total must describe the table, not the page")
+
+    def test_the_default_page_size_applies_when_no_limit_is_given(self):
+        r = self._get()
+        body = json.loads(r.content)
+
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(body['limit'], 100)
+        self.assertEqual(len(body['transactions']), 12, "fewer rows than the cap is fine")
+
+    def test_limit_zero_still_returns_everything(self):
+        """API4 stays demonstrable — the caller can still ask for the whole table."""
+        r = self._get('?limit=0')
+        body = json.loads(r.content)
+
+        self.assertEqual(len(body['transactions']), 12)
+        self.assertEqual(body['limit'], 0)
+
+    def test_cross_tenant_exposure_is_unchanged(self):
+        """API3 is the point of this endpoint and must survive the fix."""
+        body = json.loads(self._get('?limit=0').content)
+        merchants = {t['merchant_id'] for t in body['transactions']}
+
+        self.assertEqual(merchants, {'test_merch_001', 'test_merch_002'})
+
+    def test_any_merchant_id_is_still_accepted_from_the_caller(self):
+        body = json.loads(self._get('?merchant_id=test_merch_002&limit=0').content)
+
+        self.assertTrue(body['transactions'])
+        self.assertTrue(all(t['merchant_id'] == 'test_merch_002' for t in body['transactions']))
+
+    def test_a_merchant_filtered_listing_is_capped_too(self):
+        """17,463 of those rows belonged to one merchant, so this branch needs it as well."""
+        body = json.loads(self._get('?merchant_id=test_merch_001&limit=2').content)
+
+        self.assertEqual(len(body['transactions']), 2)
+        self.assertEqual(body['total'], 6)
+
+    def test_a_junk_limit_is_rejected_rather_than_ignored(self):
+        for bad in ('abc', '-1'):
+            r = self._get(f'?limit={bad}')
+            self.assertEqual(r.status_code, 400, f'limit={bad}')
+            self.assertEqual(json.loads(r.content)['error'], 'invalid_limit')
+
+
+@override_settings(**BASE_SETTINGS)
+class TestAdminTransactionListPaging(TestCase):
+    """The admin listing carries the same unbounded query, behind a guessable key.
+
+    Its X-Admin-Key is deliberately weak (API5-BFLA), so anyone who guesses it reaches the
+    same whole-table serialization that took the service down. Paging it is not optional
+    just because it is nominally privileged.
+    """
+
+    ADMIN_KEY = 'admin123'
+
+    def setUp(self):
+        cache.clear()
+        for i in range(12):
+            PaymentTransaction.objects.create(
+                operation=TransactionOperation.AUTH, status=TransactionStatus.AUTHORIZED,
+                amount_value=100 + i, currency='USD',
+                merchant_id='test_merch_001' if i % 2 else 'test_merch_002',
+                request_id=f'ADMIN-REQ-{i}',
+            )
+
+    def _get(self, query='', admin_key=ADMIN_KEY):
+        headers = valid_headers()
+        if admin_key is not None:
+            headers['HTTP_X_ADMIN_KEY'] = admin_key
+        return self.client.get(f'/payments/api/payments/admin/transactions{query}', **headers)
+
+    def test_the_default_page_size_applies(self):
+        body = json.loads(self._get().content)
+
+        self.assertEqual(body['limit'], 100)
+        self.assertEqual(len(body['transactions']), 12)
+        self.assertTrue(body['all_merchants'])
+
+    def test_an_explicit_limit_is_honoured_with_the_true_total(self):
+        body = json.loads(self._get('?limit=4').content)
+
+        self.assertEqual(len(body['transactions']), 4)
+        self.assertEqual(body['total'], 12)
+
+    def test_limit_zero_still_returns_everything(self):
+        body = json.loads(self._get('?limit=0').content)
+
+        self.assertEqual(len(body['transactions']), 12)
+        self.assertEqual(body['limit'], 0)
+
+    def test_a_junk_limit_is_rejected_even_with_a_valid_admin_key(self):
+        for bad in ('abc', '-1'):
+            r = self._get(f'?limit={bad}')
+            self.assertEqual(r.status_code, 400, f'limit={bad}')
+            self.assertEqual(json.loads(r.content)['error'], 'invalid_limit')
+
+    def test_authorization_is_still_checked_before_the_limit(self):
+        """A bad key must 403 rather than leak that the limit was also wrong."""
+        r = self._get('?limit=abc', admin_key='wrong-key')
+
+        self.assertEqual(r.status_code, 403)
+        self.assertEqual(json.loads(r.content)['error'], 'forbidden')
+
+    def test_the_weak_admin_key_still_works(self):
+        """API5-BFLA is the point of this endpoint and must survive the fix."""
+        for key in ('admin123', 'payments_admin', 'supersecret'):
+            self.assertEqual(self._get(admin_key=key).status_code, 200, key)
