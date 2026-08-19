@@ -1,12 +1,24 @@
 import base64
 import json
 import time
+import os
 import random
 import string
 import uuid
 from locust import HttpUser, task, between
 
 MERCHANT_IDS = ["merch_7f2a91", "merch_4b8c12", "merch_0d3e55", "merch_load01"]
+
+# The URL the *workshop service* is asked to call back, so it is resolved from inside the
+# deployment, not from wherever locust runs. The old value (http://localhost:8888/...) is
+# the docker-compose port mapping seen from the host: inside the workshop container nothing
+# listens on 8888, so every call returned
+#   400 {"message":"Could not connect to mechanic api."}
+# `crapi-web` is the service name in both the k8s manifests and docker-compose, and it
+# fronts /workshop, so this resolves in either. Overridable for other deployments.
+MECHANIC_API = os.environ.get(
+    "MECHANIC_API", "http://crapi-web/workshop/api/mechanic/receive_report"
+)
 
 class QuickstartUser(HttpUser):
     letters = string.ascii_lowercase
@@ -87,7 +99,7 @@ class QuickstartUser(HttpUser):
             if response.status_code >= 400:
                 print(f"Couldn't get all mechanics: response {response.status_code}")
         #post mechanic request
-        with self.client.post("/workshop/api/merchant/contact_mechanic", json={"mechanic_api": "http://localhost:8888/workshop/api/mechanic/receive_report",
+        with self.client.post("/workshop/api/merchant/contact_mechanic", json={"mechanic_api": MECHANIC_API,
             "mechanic_code": "TRAC_MECH1",
             "number_of_repeats": 0,
             "repeat_request_if_failed": False,
