@@ -1,0 +1,200 @@
+{
+  "format_version": 1,
+  "source": {
+    "kind": "APIGEE",
+    "collected_at": "2026-08-25T09:15:00Z",
+    "collector": "levo-kong-export",
+    "gateway_version": "3.6.1",
+    "gateway_id": "prod-kong"
+  },
+  "snapshot": {
+    "complete": true,
+    "route_count": 9,
+    "service_count": 5
+  },
+  "routes": [
+    {
+      "route_id": "rt-order-detail",
+      "route_name": "order-detail",
+      "service_id": "sv-orders-service",
+      "service_name": "orders-service",
+      "paths": [
+        "/users/{id}/orders"
+      ],
+      "methods": [
+        "GET"
+      ],
+      "route_tags": [
+        "team:payments",
+        "tier:critical"
+      ],
+      "service_tags": [
+        "service-level:orders"
+      ],
+      "hosts": [
+        "api.example.com"
+      ]
+    },
+    {
+      "route_id": "rt-order-create",
+      "route_name": "order-create",
+      "service_id": "sv-orders-service",
+      "service_name": "orders-service",
+      "paths": [
+        "/orders"
+      ],
+      "methods": [
+        "POST"
+      ],
+      "route_tags": [
+        "team:payments"
+      ],
+      "service_tags": [
+        "service-level:orders"
+      ],
+      "hosts": [
+        "api.example.com"
+      ]
+    },
+    {
+      "route_id": "rt-user-profile",
+      "route_name": "user-profile",
+      "service_id": "sv-users-service",
+      "service_name": "users-service",
+      "paths": [
+        "/users/{id}"
+      ],
+      "methods": [
+        "GET",
+        "PATCH"
+      ],
+      "route_tags": [
+        "team:identity"
+      ],
+      "service_tags": [
+        "env:prod"
+      ],
+      "hosts": [
+        "api.example.com"
+      ]
+    },
+    {
+      "route_id": "rt-user-list",
+      "route_name": "user-list",
+      "service_id": "sv-users-service",
+      "service_name": "users-service",
+      "paths": [
+        "/users"
+      ],
+      "methods": [
+        "GET"
+      ],
+      "route_tags": [
+        "team:identity"
+      ],
+      "service_tags": [
+        "env:prod"
+      ],
+      "hosts": [
+        "api.example.com"
+      ]
+    },
+    {
+      "route_id": "rt-payment-charge",
+      "route_name": "payment-charge",
+      "service_id": "sv-payments-service",
+      "service_name": "payments-service",
+      "paths": [
+        "/payments/charge"
+      ],
+      "methods": [
+        "POST"
+      ],
+      "route_tags": [
+        "team:payments",
+        "tier:critical",
+        "pci:in-scope"
+      ],
+      "service_tags": [],
+      "hosts": [
+        "api.example.com"
+      ]
+    },
+    {
+      "route_id": "rt-payment-refund",
+      "route_name": "payment-refund",
+      "service_id": "sv-payments-service",
+      "service_name": "payments-service",
+      "paths": [
+        "/payments/refund"
+      ],
+      "methods": [
+        "POST"
+      ],
+      "route_tags": [
+        "team:payments"
+      ],
+      "service_tags": [],
+      "hosts": [
+        "api.example.com"
+      ]
+    },
+    {
+      "route_id": "rt-catalog-search",
+      "route_name": "catalog-search",
+      "service_id": "sv-catalog-service",
+      "service_name": "catalog-service",
+      "paths": [
+        "/catalog/search"
+      ],
+      "methods": [
+        "GET"
+      ],
+      "route_tags": [
+        "team:catalog"
+      ],
+      "service_tags": [],
+      "hosts": [
+        "api.example.com"
+      ]
+    },
+    {
+      "route_id": "rt-inventory-check",
+      "route_name": "inventory-check",
+      "service_id": "sv-inventory-service",
+      "service_name": "inventory-service",
+      "paths": [
+        "/inventory/{sku}"
+      ],
+      "methods": [
+        "GET"
+      ],
+      "route_tags": [
+        "team:catalog"
+      ],
+      "service_tags": [
+        "env:prod"
+      ],
+      "hosts": [
+        "api.example.com"
+      ]
+    },
+    {
+      "route_id": "rt-health",
+      "route_name": "health",
+      "service_id": "sv-catalog-service",
+      "service_name": "catalog-service",
+      "paths": [
+        "/health"
+      ],
+      "methods": [
+        "GET"
+      ],
+      "route_tags": [],
+      "service_tags": [],
+      "hosts": [
+        "api.example.com"
+      ]
+    }
+  ]
+}

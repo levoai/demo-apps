@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: kong
+  labels:
+    app.kubernetes.io/name: kong
+    levo.ai/purpose: gateway-metadata-testing

@@ -1,0 +1,90 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kong-declarative-config
+  namespace: kong
+data:
+  # Kong runs DB-less: this file IS the configuration. It mirrors crAPI's real service split so
+  # the tags below are the tags a customer would plausibly have, not invented ones.
+  #
+  # The route paths match the paths Levo has already discovered from crAPI traffic
+  # (/identity/api/..., /workshop/api/...), which is what lets an export of this Kong land labels
+  # on real endpoints without any traffic being repointed through Kong.
+  kong.yml: |
+    _format_version: "3.0"
+    _transform: true
+
+    services:
+      - name: crapi-identity
+        url: http://crapi-identity.crapi.svc.cluster.local:8080
+        tags:
+          - team:identity
+          - service-level:identity
+        routes:
+          - name: identity
+            paths:
+              - /identity
+            tags:
+              - tier:critical
+              - pii:in-scope
+
+      - name: crapi-workshop
+        url: http://crapi-workshop.crapi.svc.cluster.local:8000
+        tags:
+          - team:workshop
+          - service-level:workshop
+        routes:
+          - name: workshop
+            paths:
+              - /workshop
+            tags:
+              - tier:standard
+
+      - name: crapi-community
+        url: http://crapi-community.crapi.svc.cluster.local:8087
+        tags:
+          - team:community
+          - service-level:community
+        routes:
+          - name: community
+            paths:
+              - /community
+            tags:
+              - tier:standard
+
+      - name: crapi-payments
+        url: http://crapi-payments.crapi.svc.cluster.local:8001
+        tags:
+          - team:payments
+          - service-level:payments
+        routes:
+          - name: payments
+            paths:
+              - /payments
+            tags:
+              - tier:critical
+              - pci:in-scope
+
+      # Deliberately awkward routes. Levo must refuse all three, and its response must say so --
+      # these keep the skip logic exercised every time someone verifies the flow.
+      - name: crapi-web
+        url: http://crapi-web.crapi.svc.cluster.local:80
+        tags:
+          - team:platform
+        routes:
+          # A regex path cannot be matched against discovered endpoints.
+          - name: regex-assets
+            paths:
+              - ~/static/.*
+            tags:
+              - tier:standard
+          # A catch-all would otherwise label the entire inventory from one route.
+          - name: catch-all
+            paths:
+              - /
+            tags:
+              - team:platform
+          # Untagged: nothing to contribute, and must not be counted as skipped either.
+          - name: untagged-health
+            paths:
+              - /health

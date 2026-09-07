@@ -1,0 +1,78 @@
+# Kong in front of crAPI
+
+A standing Kong for exercising Levo's gateway-metadata ingestion (CU-86bb7c4zc), so nobody has to
+stand one up by hand to answer a question or reproduce a customer report.
+
+Kong runs in its own namespace with one service and route per crAPI service, tagged the way a
+customer plausibly tags theirs. **No crAPI traffic is repointed** — Kong sits alongside, and the
+route paths deliberately match the paths Levo already discovers from crAPI traffic
+(`/identity/...`, `/workshop/...`, `/community/...`, `/payments/...`). That is what makes an export
+of this Kong land labels on real, already-discovered endpoints.
+
+## Deploy
+
+```bash
+kubectl --context spec-building-e2e apply -f kong/k8s/
+kubectl --context spec-building-e2e -n kong rollout status deploy/kong
+```
+
+Kong 3.6, DB-less: `kong/k8s/01-kong-config.yaml` *is* the configuration. Kong reads it once at
+boot, so after editing it, roll the pod:
+
+```bash
+kubectl --context spec-building-e2e -n kong rollout restart deploy/kong
+```
+
+## Reach the admin API
+
+The Service is ClusterIP on purpose — the admin API must never be reachable from outside the
+cluster.
+
+```bash
+kubectl --context spec-building-e2e -n kong port-forward svc/kong 8101:8001
+curl -s localhost:8101/routes | jq '.data[] | {name, paths, tags}'
+```
+
+## Export and upload
+
+```bash
+curl -O https://docs.levo.ai/scripts/levo_kong_export.py
+python3 levo_kong_export.py \
+    --admin-url http://127.0.0.1:8101 \
+    --gateway-id kong-spec-building \
+    --auth-mode none
+```
+
+Then upload `kong-services.json` in Levo under **APIs → Import → Kong Services File**, or push it
+from a pipeline with [levo_push.py](https://docs.levo.ai/scripts/levo_push.py).
+
+This cluster reports to **api.dev.levo.ai**, so that is where the labels appear.
+
+## What is configured, and why
+
+| Route | Path | Tags | Purpose |
+|---|---|---|---|
+| `identity` | `/identity` | `tier:critical`, `pii:in-scope` + service `team:identity` | Labels land on real endpoints |
+| `workshop` | `/workshop` | `tier:standard` + service `team:workshop` | Labels land on real endpoints |
+| `community` | `/community` | `tier:standard` + service `team:community` | Labels land on real endpoints |
+| `payments` | `/payments` | `tier:critical`, `pci:in-scope` + service `team:payments` | Labels land on real endpoints |
+| `regex-assets` | `~/static/.*` | `tier:standard` | **Must be skipped** — a regex path cannot be matched to endpoints |
+| `catch-all` | `/` | `team:platform` | **Must be skipped** — one route must not label the whole inventory |
+| `untagged-health` | `/health` | none | **Must contribute nothing**, and must not be counted as skipped |
+
+The last three are the point of this fixture as much as the first four: they keep Levo's refusal
+logic exercised every time someone verifies the flow. A successful import should report two skips
+and non-zero labels.
+
+## Samples
+
+`kong/samples/` holds bundles for exercising the upload UI with no Kong at all:
+
+| File | What it is for |
+|---|---|
+| `spec-building-cluster-export.json` | A real export taken from the Kong in this cluster |
+| `healthy.json` | A well-formed multi-service export |
+| `truncated.json` | Declares more routes than it carries — Levo must refuse it whole |
+| `nothing-usable.json` | Every route unusable — a clean "nothing applied" |
+| `partial-export.json` | `complete: false` — Levo must add but never remove |
+| `wrong-gateway.json` | A different `gateway_id` — must not disturb another gateway's labels |

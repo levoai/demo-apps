@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kong
+  namespace: kong
+  labels:
+    app: kong
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kong
+  template:
+    metadata:
+      labels:
+        app: kong
+      annotations:
+        # Roll the pod when the declarative config changes; Kong reads it once at boot.
+        checksum/config: "64e73543f297de7e"
+    spec:
+      containers:
+        - name: kong
+          image: kong:3.6
+          env:
+            - name: KONG_DATABASE
+              value: "off"
+            - name: KONG_DECLARATIVE_CONFIG
+              value: /kong/declarative/kong.yml
+            - name: KONG_PROXY_LISTEN
+              value: 0.0.0.0:8000
+            # Admin API on all interfaces *inside the pod only*; the Service keeps it ClusterIP,
+            # so it is reachable by kubectl port-forward and by nothing outside the cluster.
+            - name: KONG_ADMIN_LISTEN
+              value: 0.0.0.0:8001
+            - name: KONG_PROXY_ACCESS_LOG
+              value: /dev/stdout
+            - name: KONG_ADMIN_ACCESS_LOG
+              value: /dev/stdout
+            - name: KONG_PROXY_ERROR_LOG
+              value: /dev/stderr
+            - name: KONG_ADMIN_ERROR_LOG
+              value: /dev/stderr
+          ports:
+            - name: proxy
+              containerPort: 8000
+            - name: admin
+              containerPort: 8001
+          readinessProbe:
+            httpGet:
+              path: /status
+              port: admin
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /status
+              port: admin
+            initialDelaySeconds: 15
+            periodSeconds: 30
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          volumeMounts:
+            - name: declarative-config
+              mountPath: /kong/declarative
+              readOnly: true
+      volumes:
+        - name: declarative-config
+          configMap:
+            name: kong-declarative-config
