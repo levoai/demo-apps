@@ -1,11 +1,11 @@
 {
   "format_version": 1,
   "source": {
-    "kind": "KONG",
+    "kind": "APIGEE",
     "collected_at": "2026-08-25T09:15:00Z",
     "collector": "levo-kong-export",
     "gateway_version": "3.6.1",
-    "gateway_id": "staging-kong"
+    "gateway_id": "apigee-prod"
   },
   "snapshot": {
     "complete": true,

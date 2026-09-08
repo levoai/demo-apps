@@ -65,8 +65,9 @@ data:
               - tier:critical
               - pci:in-scope
 
-      # Deliberately awkward routes. Levo must refuse all three, and its response must say so --
-      # these keep the skip logic exercised every time someone verifies the flow.
+      # Deliberately awkward routes, kept so Levo's refusal logic is exercised on every check.
+      # Two are skips and are counted as such; the untagged one is not a skip -- it simply has
+      # nothing to contribute, and counting it would overstate what was dropped.
       - name: crapi-web
         url: http://crapi-web.crapi.svc.cluster.local:80
         tags:

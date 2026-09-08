@@ -14,13 +14,10 @@ spec:
     metadata:
       labels:
         app: kong
-      annotations:
-        # Roll the pod when the declarative config changes; Kong reads it once at boot.
-        checksum/config: "64e73543f297de7e"
     spec:
       containers:
         - name: kong
-          image: kong:3.6
+          image: kong:3.6.1
           env:
             - name: KONG_DATABASE
               value: "off"

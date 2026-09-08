@@ -16,7 +16,7 @@ kubectl --context spec-building-e2e apply -f kong/k8s/
 kubectl --context spec-building-e2e -n kong rollout status deploy/kong
 ```
 
-Kong 3.6, DB-less: `kong/k8s/01-kong-config.yaml` *is* the configuration. Kong reads it once at
+Kong is pinned to `3.6.1` and runs DB-less: `kong/k8s/01-kong-config.yaml` *is* the configuration. Kong reads it once at
 boot, so after editing it, roll the pod:
 
 ```bash
@@ -26,7 +26,8 @@ kubectl --context spec-building-e2e -n kong rollout restart deploy/kong
 ## Reach the admin API
 
 The Service is ClusterIP on purpose — the admin API must never be reachable from outside the
-cluster.
+cluster. It is unauthenticated *within* the cluster, which is acceptable for a test fixture in a
+namespace that holds nothing else; do not copy this shape for anything real.
 
 ```bash
 kubectl --context spec-building-e2e -n kong port-forward svc/kong 8101:8001
@@ -58,11 +59,12 @@ This cluster reports to **api.dev.levo.ai**, so that is where the labels appear.
 | `payments` | `/payments` | `tier:critical`, `pci:in-scope` + service `team:payments` | Labels land on real endpoints |
 | `regex-assets` | `~/static/.*` | `tier:standard` | **Must be skipped** — a regex path cannot be matched to endpoints |
 | `catch-all` | `/` | `team:platform` | **Must be skipped** — one route must not label the whole inventory |
-| `untagged-health` | `/health` | none | **Must contribute nothing**, and must not be counted as skipped |
+| `untagged-health` | `/health` | none | Contributes nothing — and is *not* counted as a skip |
 
 The last three are the point of this fixture as much as the first four: they keep Levo's refusal
-logic exercised every time someone verifies the flow. A successful import should report two skips
-and non-zero labels.
+logic exercised every time someone verifies the flow. A correct import reports **two** skips —
+the regex and the catch-all — alongside non-zero labels. The untagged route is not one of them:
+it has nothing to give, and counting it would overstate what was dropped.
 
 ## Samples
 
@@ -75,4 +77,5 @@ and non-zero labels.
 | `truncated.json` | Declares more routes than it carries — Levo must refuse it whole |
 | `nothing-usable.json` | Every route unusable — a clean "nothing applied" |
 | `partial-export.json` | `complete: false` — Levo must add but never remove |
-| `wrong-gateway.json` | A different `gateway_id` — must not disturb another gateway's labels |
+| `wrong-gateway.json` | Same shape, `gateway_id: staging-kong` — must not disturb `prod-kong`'s labels |
+| `wrong-kind.json` | `kind: APIGEE` — a source Levo does not ingest, refused on its own terms |
