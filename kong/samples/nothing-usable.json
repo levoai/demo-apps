@@ -1,0 +1,53 @@
+{
+  "format_version": 1,
+  "source": {
+    "kind": "KONG",
+    "collected_at": "2026-08-25T09:15:00Z",
+    "collector": "levo-kong-export",
+    "gateway_version": "3.6.1",
+    "gateway_id": "prod-kong"
+  },
+  "snapshot": {
+    "complete": true,
+    "route_count": 2,
+    "service_count": 1
+  },
+  "routes": [
+    {
+      "route_id": "rt-catch-all",
+      "route_name": "catch-all",
+      "service_id": "sv-edge-service",
+      "service_name": "edge-service",
+      "paths": [
+        "/"
+      ],
+      "methods": [],
+      "route_tags": [
+        "team:platform"
+      ],
+      "service_tags": [],
+      "hosts": [
+        "api.example.com"
+      ]
+    },
+    {
+      "route_id": "rt-regex-only",
+      "route_name": "regex-only",
+      "service_id": "sv-edge-service",
+      "service_name": "edge-service",
+      "paths": [
+        "~/v1/users/\\d+"
+      ],
+      "methods": [
+        "GET"
+      ],
+      "route_tags": [
+        "team:platform"
+      ],
+      "service_tags": [],
+      "hosts": [
+        "api.example.com"
+      ]
+    }
+  ]
+}

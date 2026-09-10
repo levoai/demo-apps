@@ -1,0 +1,140 @@
+{
+  "format_version": 1,
+  "source": {
+    "kind": "KONG",
+    "collected_at": "2026-09-07T15:07:49Z",
+    "collector": "levo-gateway-export/0.1.0",
+    "gateway_version": "3.6.1",
+    "gateway_id": "kong-spec-building"
+  },
+  "snapshot": {
+    "complete": true,
+    "route_count": 7,
+    "service_count": 5
+  },
+  "routes": [
+    {
+      "route_id": "9a6d48bc-9d12-5f19-a19a-fdfebab2fd1d",
+      "route_name": "identity",
+      "service_id": "7e2fcc3c-3600-5f65-b14f-742d528e8dca",
+      "service_name": "crapi-identity",
+      "paths": [
+        "/identity"
+      ],
+      "methods": [],
+      "route_tags": [
+        "tier:critical",
+        "pii:in-scope"
+      ],
+      "service_tags": [
+        "team:identity",
+        "service-level:identity"
+      ],
+      "hosts": []
+    },
+    {
+      "route_id": "80b4b3a4-b042-58bf-9ad8-ccdd726df91a",
+      "route_name": "catch-all",
+      "service_id": "760afad1-1388-52aa-b187-a3b7a23e2191",
+      "service_name": "crapi-web",
+      "paths": [
+        "/"
+      ],
+      "methods": [],
+      "route_tags": [
+        "team:platform"
+      ],
+      "service_tags": [
+        "team:platform"
+      ],
+      "hosts": []
+    },
+    {
+      "route_id": "9863f73a-8629-5db4-9dc4-a29c76af32da",
+      "route_name": "community",
+      "service_id": "72df85bc-8264-55f1-b795-aa4e94e3e328",
+      "service_name": "crapi-community",
+      "paths": [
+        "/community"
+      ],
+      "methods": [],
+      "route_tags": [
+        "tier:standard"
+      ],
+      "service_tags": [
+        "team:community",
+        "service-level:community"
+      ],
+      "hosts": []
+    },
+    {
+      "route_id": "82839b59-2739-5bd0-bd94-cf80878680b0",
+      "route_name": "payments",
+      "service_id": "f8686ad5-02ac-5d3b-a1cb-314922515395",
+      "service_name": "crapi-payments",
+      "paths": [
+        "/payments"
+      ],
+      "methods": [],
+      "route_tags": [
+        "tier:critical",
+        "pci:in-scope"
+      ],
+      "service_tags": [
+        "team:payments",
+        "service-level:payments"
+      ],
+      "hosts": []
+    },
+    {
+      "route_id": "c1daa56c-e2d2-55cf-aa2d-3b1fefb7cf2d",
+      "route_name": "untagged-health",
+      "service_id": "760afad1-1388-52aa-b187-a3b7a23e2191",
+      "service_name": "crapi-web",
+      "paths": [
+        "/health"
+      ],
+      "methods": [],
+      "route_tags": [],
+      "service_tags": [
+        "team:platform"
+      ],
+      "hosts": []
+    },
+    {
+      "route_id": "74d26fb1-fda5-5c75-bbc9-69f56ed4fbd7",
+      "route_name": "regex-assets",
+      "service_id": "760afad1-1388-52aa-b187-a3b7a23e2191",
+      "service_name": "crapi-web",
+      "paths": [
+        "~/static/.*"
+      ],
+      "methods": [],
+      "route_tags": [
+        "tier:standard"
+      ],
+      "service_tags": [
+        "team:platform"
+      ],
+      "hosts": []
+    },
+    {
+      "route_id": "beaf5aaa-023f-5944-a9f3-0a04e37eebd6",
+      "route_name": "workshop",
+      "service_id": "b620a11c-da9b-54b8-aea5-9092297e843d",
+      "service_name": "crapi-workshop",
+      "paths": [
+        "/workshop"
+      ],
+      "methods": [],
+      "route_tags": [
+        "tier:standard"
+      ],
+      "service_tags": [
+        "team:workshop",
+        "service-level:workshop"
+      ],
+      "hosts": []
+    }
+  ]
+}
