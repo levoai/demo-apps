@@ -1,0 +1,137 @@
+# Drives real traffic down the whole chain: loadgen -> nginx -> Kong -> crAPI.
+#
+# Deliberately separate from whatever already drives crAPI directly. This one only ever talks to
+# nginx, so if a Kong route is wrong only this pod sees errors -- the traffic this cluster exists
+# to produce is untouched.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: loadgen-script
+  namespace: kong
+data:
+  loadgen.py: |
+    """Exercises crAPI through nginx and Kong, forever, at a gentle rate."""
+    import json
+    import logging
+    import os
+    import random
+    import string
+    import time
+    import urllib.error
+    import urllib.request
+
+    BASE = os.getenv("TARGET_URL", "http://nginx.kong.svc.cluster.local")
+    PAUSE = float(os.getenv("PAUSE_SECONDS", "15"))
+
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
+    log = logging.getLogger("loadgen")
+
+
+    def call(method, path, body=None, token=None):
+        """One request through the chain. Returns (status, parsed body or None)."""
+        url = BASE + path
+        data = json.dumps(body).encode() if body is not None else None
+        request = urllib.request.Request(url, data=data, method=method)
+        request.add_header("Content-Type", "application/json")
+        if token:
+            request.add_header("Authorization", "Bearer " + token)
+        try:
+            with urllib.request.urlopen(request, timeout=15) as response:
+                raw = response.read()
+                log.info("%s %s -> %s", method, path, response.status)
+                try:
+                    return response.status, json.loads(raw)
+                except ValueError:
+                    return response.status, None
+        except urllib.error.HTTPError as error:
+            # 4xx is still real traffic through nginx and Kong, which is the point.
+            log.info("%s %s -> %s", method, path, error.code)
+            return error.code, None
+        except Exception as error:
+            log.warning("%s %s -> failed: %s", method, path, error)
+            return None, None
+
+
+    def new_user():
+        suffix = "".join(random.choices(string.ascii_lowercase + string.digits, k=8))
+        return {
+            "name": "levo-loadgen-" + suffix,
+            "email": f"levo-loadgen-{suffix}@example.com",
+            "number": "".join(random.choices(string.digits, k=10)),
+            "password": "Levo@12345",
+        }
+
+
+    def one_pass():
+        user = new_user()
+        call("POST", "/identity/api/auth/signup", user)
+
+        status, body = call(
+            "POST", "/identity/api/auth/login",
+            {"email": user["email"], "password": user["password"]},
+        )
+        token = (body or {}).get("token") if status == 200 else None
+
+        # Authenticated reads if the login worked; the unauthenticated ones still traverse the
+        # chain either way, so a signup that is rejected does not stop the traffic.
+        call("GET", "/identity/api/v2/user/dashboard", token=token)
+        call("GET", "/workshop/api/shop/products", token=token)
+        call("GET", "/workshop/api/mechanic/", token=token)
+        call("GET", "/community/api/v2/community/posts/recent", token=token)
+
+        # Routes Levo must skip -- worth exercising so they show up in traces too.
+        call("GET", "/health")
+
+
+    if __name__ == "__main__":
+        log.info("driving %s every %ss", BASE, PAUSE)
+        while True:
+            try:
+                one_pass()
+            except Exception as error:  # never let one bad pass kill the generator
+                log.warning("pass failed: %s", error)
+            time.sleep(PAUSE)
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: loadgen
+  namespace: kong
+  labels:
+    app: loadgen
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: loadgen
+  template:
+    metadata:
+      labels:
+        app: loadgen
+    spec:
+      containers:
+        - name: loadgen
+          image: python:3.12-slim
+          command: ["python3", "/script/loadgen.py"]
+          env:
+            - name: TARGET_URL
+              value: http://nginx.kong.svc.cluster.local
+            - name: PAUSE_SECONDS
+              value: "15"
+            - name: PYTHONUNBUFFERED
+              value: "1"
+          resources:
+            requests:
+              cpu: 25m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+          volumeMounts:
+            - name: script
+              mountPath: /script
+              readOnly: true
+      volumes:
+        - name: script
+          configMap:
+            name: loadgen-script
