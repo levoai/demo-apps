@@ -53,3 +53,31 @@ jobs:
           USERS: "2"
           RATE: "1"
           RUNTIME: "10m"
+
+  generate-crapi-load-through-kong:
+    name: Generate crAPI load through the Nginx/Kong gateway
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # This host routes through the gateway chain: Cloudflare -> nginx -> Kong -> crAPI. Gate on
+      # it answering first, so a broken Kong route fails the job loudly instead of locust starting
+      # no users, sending nothing, and reporting a green run.
+      - name: Check the gateway is serving
+        run: |
+          code=$(curl -sk -o /dev/null -w "%{http_code}" -m 20 https://crapi-spec-building.levoai.app/)
+          echo "gateway returned $code"
+          [ "$code" = "200" ] || { echo "::error::gateway is not serving traffic (HTTP $code)"; exit 1; }
+
+      - name: Run Load through the gateway
+        uses: apardo04/locust-github-action@master
+        with:
+          LOCUSTFILE: "crAPI/services/loadgen/locustfile.py"
+          URL: "https://crapi-spec-building.levoai.app"
+          # Paced the same way as the dev job above: the edge rate limiter starts returning 429
+          # at higher rates, and a user that cannot sign up never gets a token, so the
+          # authenticated endpoints go unexercised.
+          USERS: "2"
+          RATE: "1"
+          RUNTIME: "10m"

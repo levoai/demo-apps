@@ -1,7 +1,16 @@
-# Kong in front of crAPI
+# Nginx and Kong in front of crAPI
 
-A standing Kong for exercising Levo's gateway-metadata ingestion (CU-86bb7c4zc), so nobody has to
-stand one up by hand to answer a question or reproduce a customer report.
+A standing gateway chain for exercising Levo's gateway-metadata ingestion (CU-86bb7c4zc) and for
+debugging traces that pass through a gateway, so nobody has to stand one up by hand to answer a
+question or reproduce a customer report.
+
+```
+load  ->  nginx  ->  Kong  ->  crAPI services
+          (edge)     (routes + tags)
+```
+
+Two hops rather than one on purpose: the customer's edge is nginx with Kong behind it, so a trace
+taken here has the same shape as a trace taken at the customer.
 
 Kong runs in its own namespace with one service and route per crAPI service, tagged the way a
 customer plausibly tags theirs. **No crAPI traffic is repointed** — Kong sits alongside, and the
@@ -9,11 +18,23 @@ route paths deliberately match the paths Levo already discovers from crAPI traff
 (`/identity/...`, `/workshop/...`, `/community/...`, `/payments/...`). That is what makes an export
 of this Kong land labels on real, already-discovered endpoints.
 
+## What is in `kong/k8s/`
+
+| File | What it creates |
+|---|---|
+| `00-namespace.yaml` | the `kong` namespace |
+| `01-kong-config.yaml` | Kong's declarative config: services, routes, tags |
+| `02-kong-deployment.yaml` | Kong 3.6.1, DB-less |
+| `03-kong-service.yaml` | `kong` Service — proxy on 8000, admin on 8001, ClusterIP only |
+| `04-nginx.yaml` | nginx config, deployment and Service — the edge in front of Kong |
+| `05-loadgen.yaml` | a small generator that drives the chain continuously |
+
 ## Deploy
 
 ```bash
 kubectl --context spec-building-e2e apply -f kong/k8s/
 kubectl --context spec-building-e2e -n kong rollout status deploy/kong
+kubectl --context spec-building-e2e -n kong rollout status deploy/nginx
 ```
 
 Kong is pinned to `3.6.1` and runs DB-less: `kong/k8s/01-kong-config.yaml` *is* the configuration. Kong reads it once at
@@ -49,6 +70,39 @@ from a pipeline with [levo_push.py](https://docs.levo.ai/scripts/levo_push.py).
 
 This cluster reports to **api.dev.levo.ai**, so that is where the labels appear.
 
+## nginx
+
+`04-nginx.yaml`. A plain reverse proxy: everything to Kong, nothing clever.
+
+- `proxy_pass http://kong.kong:8000` for every path
+- `Host` is preserved, because Kong routes on it
+- `X-Real-IP` and `X-Forwarded-For` are set, so the original client survives both hops
+- `/nginx-health` is answered by nginx itself, so a Kong outage does not take nginx's probes down
+
+## Where the traffic comes from
+
+Two sources, deliberately:
+
+**The in-cluster generator** (`05-loadgen.yaml`) runs continuously, one pass every 15 seconds:
+signup, login, then authenticated reads across identity, workshop and community, plus the routes
+Levo is meant to skip. It only ever talks to nginx, so a wrong Kong route shows up as errors in
+that one pod.
+
+**The hourly Locust job** (`.github/workflows/generate_load.yml`, job
+`generate-crapi-load-through-kong`) drives the same chain from outside the cluster through
+`crapi-spec-building.levoai.app`, reusing the same locustfile as the other crAPI load jobs.
+
+For that job to traverse the chain, the Cloudflare tunnel must point that hostname at nginx rather
+than straight at crapi-web:
+
+```yaml
+# cloudflared ConfigMap, namespace cloudflared
+- hostname: crapi-spec-building.levoai.app
+  service: http://nginx.kong:80        # was: http://crapi-web.crapi:80
+```
+
+Reverting is the same one line.
+
 ## What is configured, and why
 
 | Route | Path | Tags | Purpose |
@@ -60,6 +114,11 @@ This cluster reports to **api.dev.levo.ai**, so that is where the labels appear.
 | `regex-assets` | `~/static/.*` | `tier:standard` | **Must be skipped** — a regex path cannot be matched to endpoints |
 | `catch-all` | `/` | `team:platform` | **Must be skipped** — one route must not label the whole inventory |
 | `untagged-health` | `/health` | none | Contributes nothing — and is *not* counted as a skip |
+
+Every route sets `strip_path: false`. Kong strips the matched prefix by default, which would send
+`/api/shop/products` upstream and 404 every call, because crAPI serves the `/workshop` prefix
+itself. It also keeps the path Kong advertises identical to the path Levo discovers — and that
+equality is what makes the labels land on the right endpoints.
 
 The last three are the point of this fixture as much as the first four: they keep Levo's refusal
 logic exercised every time someone verifies the flow. A correct import reports **two** skips —
