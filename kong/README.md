@@ -27,7 +27,6 @@ of this Kong land labels on real, already-discovered endpoints.
 | `02-kong-deployment.yaml` | Kong 3.6.1, DB-less |
 | `03-kong-service.yaml` | `kong` Service — proxy on 8000, admin on 8001, ClusterIP only |
 | `04-nginx.yaml` | nginx config, deployment and Service — the edge in front of Kong |
-| `05-loadgen.yaml` | a small generator that drives the chain continuously |
 
 ## Deploy
 
@@ -81,16 +80,18 @@ This cluster reports to **api.dev.levo.ai**, so that is where the labels appear.
 
 ## Where the traffic comes from
 
-Two sources, deliberately:
+The hourly Locust job: `.github/workflows/generate_load.yml`, job `generate-crapi-load-kong`. It
+drives the chain from outside the cluster through `crapi-spec-building.levoai.app`, reusing the
+same locustfile as the other crAPI load jobs.
 
-**The in-cluster generator** (`05-loadgen.yaml`) runs continuously, one pass every 15 seconds:
-signup, login, then authenticated reads across identity, workshop and community, plus the routes
-Levo is meant to skip. It only ever talks to nginx, so a wrong Kong route shows up as errors in
-that one pod.
+Before locust starts, the job asserts the response carries Kong's `via: kong/<version>` header. A
+200 on its own proves nothing — crAPI answers 200 whether or not the request went through the
+gateway — so without that assertion the job would happily pass while testing the wrong path.
 
-**The hourly Locust job** (`.github/workflows/generate_load.yml`, job
-`generate-crapi-load-through-kong`) drives the same chain from outside the cluster through
-`crapi-spec-building.levoai.app`, reusing the same locustfile as the other crAPI load jobs.
+Afterwards it asserts on the numbers rather than inheriting locust's exit code: hundreds of
+requests must land and under 2% may fail. The crAPI locustfile always produces a few application
+level failures by design, so a job that fails on any error at all reports failure forever and
+tells you nothing.
 
 For that job to traverse the chain, the Cloudflare tunnel must point that hostname at nginx rather
 than straight at crapi-web:
@@ -115,10 +116,17 @@ Reverting is the same one line.
 | `catch-all` | `/` | `team:platform` | **Must be skipped** — one route must not label the whole inventory |
 | `untagged-health` | `/health` | none | Contributes nothing — and is *not* counted as a skip |
 
-Every route sets `strip_path: false`. Kong strips the matched prefix by default, which would send
-`/api/shop/products` upstream and 404 every call, because crAPI serves the `/workshop` prefix
-itself. It also keeps the path Kong advertises identical to the path Levo discovers — and that
-equality is what makes the labels land on the right endpoints.
+**Every route sets `strip_path: false`, including the three web ones.** Kong strips the matched
+prefix by default, and that breaks this setup in two different ways:
+
+- on the API routes, `/workshop/api/shop/products` would arrive as `/api/shop/products` and 404,
+  because crAPI serves the `/workshop` prefix itself
+- on the `~/static/.*` regex route the *whole match* is stripped, so a stylesheet request arrives
+  as `/` and crapi-web answers the SPA index — **HTTP 200, with the homepage in place of the CSS**.
+  Checking status codes alone will not catch it; compare the content type or the body size
+
+It also keeps the path Kong advertises identical to the path Levo discovers, and that equality is
+what makes the labels land on the right endpoints.
 
 The last three are the point of this fixture as much as the first four: they keep Levo's refusal
 logic exercised every time someone verifies the flow. A correct import reports **two** skips —

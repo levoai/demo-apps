@@ -54,21 +54,26 @@ jobs:
           RATE: "1"
           RUNTIME: "10m"
 
-  generate-crapi-load-through-kong:
+  generate-crapi-load-kong:
     name: Generate crAPI load through the Nginx/Kong gateway
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # This host routes through the gateway chain: Cloudflare -> nginx -> Kong -> crAPI. Gate on
-      # it answering first, so a broken Kong route fails the job loudly instead of locust starting
-      # no users, sending nothing, and reporting a green run.
-      - name: Check the gateway is serving
+      # A 200 proves nothing on its own: crAPI answers 200 whether or not the request went through
+      # the gateway, so this job could pass while bypassing nginx and Kong entirely. Kong stamps
+      # `via: kong/<version>` on everything it proxies, so assert on that instead -- if the tunnel
+      # is ever pointed back at crapi-web, this fails loudly rather than testing the wrong path.
+      - name: Check the request actually goes through Kong
         run: |
-          code=$(curl -sk -o /dev/null -w "%{http_code}" -m 20 https://crapi-spec-building.levoai.app/)
-          echo "gateway returned $code"
-          [ "$code" = "200" ] || { echo "::error::gateway is not serving traffic (HTTP $code)"; exit 1; }
+          headers=$(curl -skI -m 20 https://crapi-spec-building.levoai.app/)
+          echo "$headers" | grep -iE '^(HTTP|via|x-kong)' || true
+
+          echo "$headers" | grep -qi '^HTTP/.* 200' \
+            || { echo "::error::gateway is not serving traffic"; exit 1; }
+          echo "$headers" | grep -qi '^via:.*kong' \
+            || { echo "::error::response did not come through Kong -- check the tunnel points at nginx.kong"; exit 1; }
 
       - uses: actions/setup-python@v5
         with:
