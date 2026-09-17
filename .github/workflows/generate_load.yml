@@ -54,7 +54,7 @@ jobs:
           RATE: "1"
           RUNTIME: "10m"
 
-  generate-crapi-load-kong:
+  generate-crapi-load:
     name: Generate crAPI load through the Nginx/Kong gateway
     runs-on: ubuntu-24.04
     steps:
