@@ -9,33 +9,18 @@ on:
   workflow_dispatch:
 
 jobs:
-  generate-crapi-load-prod:
-    name: Generate crAPI load for Prod
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      # This target has been returning 502 to every request; locust's users cannot start,
-      # so the job sends zero requests, reports zero failures and passes. Gate on the
-      # target being reachable so a dead host fails loudly instead of going green.
-      - name: Check the target is reachable
-        run: |
-          code=$(curl -sk -o /dev/null -w "%{http_code}" -m 20 https://crapi-dev-catalog-tests.levoai.app/)
-          echo "target returned $code"
-          [ "$code" = "200" ] || { echo "::error::target is not serving traffic (HTTP $code)"; exit 1; }
-
-      - name: Run Load against prod Demo
-        uses: apardo04/locust-github-action@master
-        with:
-          LOCUSTFILE: "crAPI/services/loadgen/locustfile.py"
-          URL:  "https://crapi-dev-catalog-tests.levoai.app"
-          USERS: "5"
-          RATE: "5"
-          RUNTIME: "3m"
-
+  # The "Prod" job that used to live here targeted https://crapi-dev-catalog-tests.levoai.app
+  # and was removed on 2026-08-19: that cluster has no `crapi` namespace at all, so the
+  # tunnel's `https://crapi-web.crapi:443` route has nothing behind it and returns 502 to
+  # every request. Locust's users could not start, so the job sent zero requests, reported
+  # zero failures and passed -- it had been green while doing nothing for at least ten days.
+  #
+  # Despite the name it never touched production: dev-catalog-tests is the platform twin,
+  # and the catalog tests that exercise crAPI already run against crapi-dev-spec-building.
+  # If a crAPI is ever deployed on that cluster (manifests: crAPI/deploy/k8s), restore the
+  # job rather than pointing this one somewhere else.
   generate-crapi-load-dev:
-    name: Generate crAPI load for Dev
+    name: Generate crAPI load for dev spec-building
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
