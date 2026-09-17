@@ -163,6 +163,49 @@ class TestReversalView(TestCase):
         r = self._reversal(aid)
         self.assertTrue(r.json()['reversal']['hold_released'])
 
+    def _auth_with_fixed_id(self, auth_id, amount=10000):
+        """Create an auth with a caller-supplied auth_id (mass assignment on /auth)."""
+        h = valid_headers()
+        body = auth_body(amount=amount)
+        body['transaction']['auth_id'] = auth_id
+        r = self.client.post('/payments/api/payments/auth', json.dumps(body),
+                             content_type='application/json', **h)
+        self.assertEqual(r.status_code, 200)
+        return r.json()['transaction']['transaction_id']
+
+    def test_reversal_with_colliding_auth_id_does_not_500(self):
+        """Regression: auth_id is not unique, so .get() raised MultipleObjectsReturned."""
+        self._auth_with_fixed_id('AUTH-000000000001')
+        self._auth_with_fixed_id('AUTH-000000000001')
+        self.assertEqual(
+            PaymentTransaction.objects.filter(auth_id='AUTH-000000000001').count(), 2)
+        r = self._reversal('AUTH-000000000001')
+        self.assertEqual(r.status_code, 200)
+
+    def test_reversal_with_colliding_auth_id_targets_most_recent(self):
+        self._auth_with_fixed_id('AUTH-000000000002', amount=1000)
+        newest_id = self._auth_with_fixed_id('AUTH-000000000002', amount=2000)
+        r = self._reversal('AUTH-000000000002')
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.json()['transaction']['original_transaction_id'], newest_id)
+        self.assertEqual(r.json()['reversal']['reversed_amount']['value'], 2000)
+
+    def test_reversal_of_collided_auth_leaves_older_untouched(self):
+        older_id = self._auth_with_fixed_id('AUTH-000000000003')
+        self._auth_with_fixed_id('AUTH-000000000003')
+        self.assertEqual(self._reversal('AUTH-000000000003').status_code, 200)
+        older = PaymentTransaction.objects.get(transaction_id=older_id)
+        self.assertEqual(older.status, TransactionStatus.AUTHORIZED)
+
+    def test_generated_auth_id_space_is_wide(self):
+        """Guards against re-narrowing the auth_id space that caused the collisions."""
+        aid, _ = self._auth()
+        self.assertTrue(aid.startswith('AUTH-'))
+        digits = aid.split('-', 1)[1]
+        self.assertTrue(digits.isdigit())
+        self.assertGreaterEqual(len(digits), 12)
+        self.assertLessEqual(len(aid), 32)  # PaymentTransaction.auth_id max_length
+
 
 @override_settings(**BASE_SETTINGS)
 class TestCaptureView(TestCase):

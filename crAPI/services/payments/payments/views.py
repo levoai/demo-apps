@@ -26,7 +26,10 @@ def _rand_hex(n):
     return ''.join(random.choices('0123456789ABCDEF', k=n))
 
 def _auth_id():
-    return f'AUTH-{_rand_digits(4)}'
+    # 12 digits, not 4: auth_id is the lookup key for /reversal/{auth_id} and carries no
+    # unique constraint, so a 10k-value space made collisions — and therefore reversals
+    # resolving to the wrong transaction — inevitable as the table grew.
+    return f'AUTH-{_rand_digits(12)}'
 
 def _aprv(pfx):
     return f'{pfx}-{_rand_digits(4)}'
@@ -277,10 +280,14 @@ class ReversalView(APIView):
         if err:
             return err
 
-        try:
-            auth_txn = PaymentTransaction.objects.get(
-                auth_id=auth_id, operation=TransactionOperation.AUTH)
-        except PaymentTransaction.DoesNotExist:
+        # auth_id is not unique — there is no DB constraint, and /auth lets the caller set it
+        # directly via mass assignment. Resolve with filter().first(); .get() raised an
+        # unhandled MultipleObjectsReturned (500) on any collision. Most recent auth wins.
+        auth_txn = (PaymentTransaction.objects
+                    .filter(auth_id=auth_id, operation=TransactionOperation.AUTH)
+                    .order_by('-created_at')
+                    .first())
+        if auth_txn is None:
             return JsonResponse(
                 {'error': 'transaction_not_found', 'auth_id': auth_id}, status=404)
 

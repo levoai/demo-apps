@@ -107,7 +107,7 @@
           },
           "auth_id": {
             "type": "string",
-            "example": "AUTH-5042"
+            "example": "AUTH-580421096337"
           },
           "status": {
             "type": "string",
@@ -742,7 +742,7 @@
       "post": {
         "operationId": "OP_PAYMENTS_REVERSAL",
         "summary": "Reverse (void) an authorization",
-        "description": "Cancels an authorized-but-not-captured transaction. `auth_id` (e.g. `AUTH-1234`) goes in the URL path. State guard: auth must be in `authorized` status.",
+        "description": "Cancels an authorized-but-not-captured transaction. `auth_id` (e.g. `AUTH-580421096337`) goes in the URL path. State guard: auth must be in `authorized` status.",
         "tags": [
           "Payments / Transactions"
         ],
@@ -751,10 +751,10 @@
             "name": "auth_id",
             "in": "path",
             "required": true,
-            "description": "Short auth code from the /auth response (e.g. AUTH-1234).",
+            "description": "Short auth code from the /auth response (e.g. AUTH-580421096337).",
             "schema": {
               "type": "string",
-              "example": "AUTH-1234"
+              "example": "AUTH-580421096337"
             }
           },
           {
