@@ -22,6 +22,9 @@ data:
           - service-level:identity
         routes:
           - name: identity
+            # crAPI serves the prefix itself, so stripping it would send /api/... upstream and
+            # every call would 404. It also keeps Kong's path identical to the discovered one.
+            strip_path: false
             paths:
               - /identity
             tags:
@@ -35,6 +38,9 @@ data:
           - service-level:workshop
         routes:
           - name: workshop
+            # crAPI serves the prefix itself, so stripping it would send /api/... upstream and
+            # every call would 404. It also keeps Kong's path identical to the discovered one.
+            strip_path: false
             paths:
               - /workshop
             tags:
@@ -47,6 +53,9 @@ data:
           - service-level:community
         routes:
           - name: community
+            # crAPI serves the prefix itself, so stripping it would send /api/... upstream and
+            # every call would 404. It also keeps Kong's path identical to the discovered one.
+            strip_path: false
             paths:
               - /community
             tags:
@@ -59,6 +68,9 @@ data:
           - service-level:payments
         routes:
           - name: payments
+            # crAPI serves the prefix itself, so stripping it would send /api/... upstream and
+            # every call would 404. It also keeps Kong's path identical to the discovered one.
+            strip_path: false
             paths:
               - /payments
             tags:
@@ -75,17 +87,22 @@ data:
         routes:
           # A regex path cannot be matched against discovered endpoints.
           - name: regex-assets
+            # Without this the whole regex match is stripped and /static/... arrives as /, so
+            # crapi-web answers the homepage with a 200 and the UI silently loses its CSS.
+            strip_path: false
             paths:
               - ~/static/.*
             tags:
               - tier:standard
           # A catch-all would otherwise label the entire inventory from one route.
           - name: catch-all
+            strip_path: false
             paths:
               - /
             tags:
               - team:platform
           # Untagged: nothing to contribute, and must not be counted as skipped either.
           - name: untagged-health
+            strip_path: false
             paths:
               - /health

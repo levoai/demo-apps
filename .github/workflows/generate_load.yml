@@ -53,3 +53,72 @@ jobs:
           USERS: "2"
           RATE: "1"
           RUNTIME: "10m"
+
+  generate-crapi-load:
+    name: Generate crAPI load through the Nginx/Kong gateway
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # A 200 proves nothing on its own: crAPI answers 200 whether or not the request went through
+      # the gateway, so this job could pass while bypassing nginx and Kong entirely. Kong stamps
+      # `via: kong/<version>` on everything it proxies, so assert on that instead -- if the tunnel
+      # is ever pointed back at crapi-web, this fails loudly rather than testing the wrong path.
+      - name: Check the request actually goes through Kong
+        run: |
+          headers=$(curl -skI -m 20 https://crapi-spec-building.levoai.app/)
+          echo "$headers" | grep -iE '^(HTTP|via|x-kong)' || true
+
+          echo "$headers" | grep -qi '^HTTP/.* 200' \
+            || { echo "::error::gateway is not serving traffic"; exit 1; }
+          echo "$headers" | grep -qi '^via:.*kong' \
+            || { echo "::error::response did not come through Kong -- check the tunnel points at nginx.kong"; exit 1; }
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install locust
+        run: pip install --quiet locust
+
+      # Locust directly rather than the action the jobs above use, for one reason: that action
+      # exits with locust's own code, and locust exits non-zero if *any* request failed. The
+      # crAPI locustfile always produces a few by design -- returning an order with insufficient
+      # funds answers 400 -- so those jobs have reported failure on every run since June, and a
+      # real breakage is indistinguishable from the usual noise.
+      #
+      # Paced at 2 users / rate 1 for the reason recorded on the dev job: above that the edge
+      # rate limiter answers 429, users never get a token, and the authenticated endpoints go
+      # unexercised while the run still looks fine.
+      - name: Run Load through the gateway
+        run: |
+          locust -f crAPI/services/loadgen/locustfile.py \
+            --headless \
+            --host https://crapi-spec-building.levoai.app \
+            --users 2 --spawn-rate 1 --run-time 10m \
+            --exit-code-on-error 0 \
+            --csv gateway-load
+
+      # What actually makes this job meaningful: the gateway is healthy when a sensible number of
+      # requests got through and almost none failed. Either the chain is broken (few requests, or
+      # many failures) or it is not.
+      - name: Check the gateway carried the load
+        run: |
+          python3 - <<'CHECK'
+          import csv, sys
+
+          with open("gateway-load_stats.csv") as handle:
+              total = next(r for r in csv.DictReader(handle) if r["Name"] == "Aggregated")
+
+          requests = int(total["Request Count"])
+          failures = int(total["Failure Count"])
+          ratio = failures / requests if requests else 1.0
+
+          print(f"{requests} requests through the gateway, {failures} failed ({ratio:.2%})")
+
+          if requests < 100:
+              sys.exit(f"::error::only {requests} requests reached the gateway; expected hundreds")
+          if ratio > 0.02:
+              sys.exit(f"::error::{ratio:.2%} of requests failed through the gateway")
+          CHECK
