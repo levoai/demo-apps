@@ -29,4 +29,19 @@ urlpatterns = [
     # VULNERABILITY [API9-Improper Inventory]: deprecated v1 — bypasses PaymentsMiddleware
     # (middleware only guards /payments/api/payments/*, v1 path is /payments/api/v1/*)
     path('api/v1/payments/auth',                 views.LegacyAuthView.as_view()),
+
+    # Dual-token OR-auth fixture (AngelOne-style multi-token authN): authenticated
+    # if EITHER `token` or `stepped-up-token` is valid. Outside /api/payments/, so
+    # PaymentsMiddleware's header/replay checks don't apply.
+    path('api/dual-auth/sample-token',                views.DualTokenSampleView.as_view()),
+
+    # Header case
+    path('api/dual-auth/header-check',                views.DualTokenHeaderView.as_view()),
+    path('api/dual-auth/header-check-bearer',          views.DualTokenHeaderBearerView.as_view()),
+    path('api/dual-auth/header-check-sensitive-action', views.DualTokenHeaderSensitiveActionView.as_view()),
+
+    # Cookie case
+    path('api/dual-auth/cookie-check',                views.DualTokenCookieView.as_view()),
+    path('api/dual-auth/cookie-check-noisy',           views.DualTokenCookieNoisyView.as_view()),
+    path('api/dual-auth/cookie-check-cross-transport', views.DualTokenCookieCrossTransportView.as_view()),
 ]
