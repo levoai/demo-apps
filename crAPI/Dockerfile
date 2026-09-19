@@ -80,23 +80,39 @@ ENV GO_SERVICE=localhost:8087 \
     PAYMENTS_SERVICE=localhost:8001 \
     MAILHOG_UI=localhost:8025
 
-# Install runtime dependencies
+# Install runtime dependencies.
+#
+# deb.debian.org/debian-security fronts multiple mirror backends that aren't
+# always in sync: apt-get update can fetch a Packages index from one backend
+# listing a package version that a later apt-get install then 404s on from a
+# different (already-rotated) backend -- e.g. libnss3, openjdk-11-jre and
+# mesa point releases have all 404'd this way. Retrying with a fresh
+# apt-get update re-resolves the mirror and reliably clears it.
 RUN DEBIAN_FRONTEND=noninteractive apt-get update \
-    && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-        ca-certificates \
-        curl \
-        gnupg \
-        gnupg2 \
-        lsb-release \
-        software-properties-common \
-        wget \
-        gettext \
-        gettext-base \
-        openjdk-11-jre \
-        netcat \
-        vim \
-        dumb-init \
-        procps \
+    && installed=0 \
+    && for attempt in 1 2 3; do \
+        if DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+            ca-certificates \
+            curl \
+            gnupg \
+            gnupg2 \
+            lsb-release \
+            software-properties-common \
+            wget \
+            gettext \
+            gettext-base \
+            openjdk-11-jre \
+            netcat \
+            vim \
+            dumb-init \
+            procps; \
+        then installed=1; break; \
+        else echo "apt-get install failed (attempt $attempt/3), retrying against a fresh mirror index..." >&2; \
+             sleep 5; \
+             DEBIAN_FRONTEND=noninteractive apt-get update; \
+        fi; \
+       done \
+    && [ "$installed" = "1" ] \
     && DEBIAN_FRONTEND=noninteractive apt-get autoremove -y \
     && rm -rf /var/lib/apt/lists/*
 
