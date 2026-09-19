@@ -278,6 +278,63 @@
             "type": "integer"
           }
         }
+      },
+      "DualTokenSampleResponse": {
+        "type": "object",
+        "required": [
+          "token",
+          "stepped-up-token"
+        ],
+        "properties": {
+          "token": {
+            "type": "string",
+            "description": "Base access token (JWT, HS256, ~60 min TTL)."
+          },
+          "stepped-up-token": {
+            "type": "string",
+            "description": "Elevated / step-up token (JWT, HS256, ~15 min TTL)."
+          }
+        }
+      },
+      "DualTokenAuthResponse": {
+        "type": "object",
+        "required": [
+          "authenticated",
+          "authenticated_via",
+          "tokens_received"
+        ],
+        "properties": {
+          "authenticated": {
+            "type": "boolean",
+            "example": true
+          },
+          "authenticated_via": {
+            "type": "string",
+            "enum": [
+              "token",
+              "stepped-up-token"
+            ],
+            "description": "Which of the two tokens satisfied auth."
+          },
+          "tokens_received": {
+            "type": "object",
+            "properties": {
+              "token": {
+                "type": "boolean"
+              },
+              "stepped-up-token": {
+                "type": "boolean"
+              }
+            }
+          },
+          "cookies_seen": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "cookie-check only: names of every cookie seen on the request, including unrelated noise cookies."
+          }
+        }
       }
     }
   },
@@ -2049,6 +2106,486 @@
           }
         }
       }
+    },
+    "/payments/api/dual-auth/sample-token": {
+      "get": {
+        "operationId": "OP_DUAL_AUTH_SAMPLE_TOKEN",
+        "summary": "Mint a sample token pair for the dual-auth fixture",
+        "description": "Test-fixture only: issues a matching `token` + `stepped-up-token` JWT pair (HS256, signed with the service JWT_SECRET) for exercising header-check and cookie-check below. Mirrors how a real trading platform issues a base token and a step-up token together at login. Minting requires no auth — anyone can call this.",
+        "tags": [
+          "Payments / Dual-Token Auth"
+        ],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Sample token pair",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DualTokenSampleResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "parameters": []
+    },
+    "/payments/api/dual-auth/header-check": {
+      "get": {
+        "operationId": "OP_DUAL_AUTH_HEADER_CHECK",
+        "summary": "Case 1: dual-token OR-auth via headers",
+        "description": "Reproduces a real trading-platform auth pattern: a request carries a base `token` header and an elevated `stepped-up-token` header, and authenticates if EITHER one is a valid JWT — never both required. Get a token pair from /payments/api/dual-auth/sample-token.",
+        "tags": [
+          "Payments / Dual-Token Auth"
+        ],
+        "security": [],
+        "parameters": [
+          {
+            "name": "token",
+            "in": "header",
+            "required": false,
+            "description": "Base access token (JWT). Either this or stepped-up-token must be valid.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "stepped-up-token",
+            "in": "header",
+            "required": false,
+            "description": "Elevated / step-up token (JWT). Either this or token must be valid.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authenticated via token or stepped-up-token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DualTokenAuthResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Neither header carried a valid token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "parameters": []
+    },
+    "/payments/api/dual-auth/header-check-bearer": {
+      "get": {
+        "operationId": "OP_DUAL_AUTH_HEADER_CHECK_BEARER",
+        "summary": "Header case, variant 2: base token via Authorization: Bearer, step-up via custom header",
+        "description": "Base `token` sent the standard way via `Authorization: Bearer <token>`; elevated `stepped-up-token` sent as a custom header. OR-auth: authenticates if either is valid — mirrors mixing a standard auth convention with a secondary elevated one.",
+        "tags": [
+          "Payments / Dual-Token Auth"
+        ],
+        "security": [],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": false,
+            "description": "`Bearer <token>` — the base access token. Either this or stepped-up-token must be valid.",
+            "schema": {
+              "type": "string",
+              "example": "Bearer eyJhbGciOi..."
+            }
+          },
+          {
+            "name": "stepped-up-token",
+            "in": "header",
+            "required": false,
+            "description": "Elevated / step-up token (JWT). Either this or Authorization must be valid.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authenticated via token or stepped-up-token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DualTokenAuthResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Neither header carried a valid token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "parameters": []
+    },
+    "/payments/api/dual-auth/header-check-sensitive-action": {
+      "post": {
+        "operationId": "OP_DUAL_AUTH_HEADER_CHECK_SENSITIVE_ACTION",
+        "summary": "Header case, variant 3: fund transfer that should require step-up [VULN: API2-Broken Authentication]",
+        "description": "VULNERABILITY: This endpoint mimics a sensitive action (fund transfer) that is supposed to require the elevated `stepped-up-token`. The same OR-auth bug leaks through here too, so a base `token` alone still authorizes the transfer — step-up is not actually enforced.",
+        "tags": [
+          "Payments / Dual-Token Auth"
+        ],
+        "security": [],
+        "parameters": [
+          {
+            "name": "token",
+            "in": "header",
+            "required": false,
+            "description": "Base access token (JWT). VULN: alone, this should NOT be enough to authorize a fund transfer, but it is.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "stepped-up-token",
+            "in": "header",
+            "required": false,
+            "description": "Elevated / step-up token (JWT) — the intended requirement for this action.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "amount": {
+                    "$ref": "#/components/schemas/AmountObject"
+                  },
+                  "to_account": {
+                    "type": "string",
+                    "example": "ACC-999"
+                  }
+                }
+              },
+              "example": {
+                "amount": {
+                  "value": 500000,
+                  "currency": "USD"
+                },
+                "to_account": "ACC-999"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Transfer approved — check `step_up_enforced` to see whether the elevated token was actually used",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "authenticated": {
+                      "type": "boolean"
+                    },
+                    "authenticated_via": {
+                      "type": "string",
+                      "enum": [
+                        "token",
+                        "stepped-up-token"
+                      ]
+                    },
+                    "required_auth": {
+                      "type": "string",
+                      "example": "stepped-up-token"
+                    },
+                    "step_up_enforced": {
+                      "type": "boolean",
+                      "description": "false when a base token alone was accepted for this sensitive action — the vulnerability"
+                    },
+                    "action": {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "example": "fund_transfer"
+                        },
+                        "status": {
+                          "type": "string",
+                          "example": "approved"
+                        },
+                        "amount": {
+                          "$ref": "#/components/schemas/AmountObject"
+                        },
+                        "to_account": {
+                          "type": "string"
+                        },
+                        "approval_code": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Neither header carried a valid token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "parameters": []
+    },
+    "/payments/api/dual-auth/cookie-check": {
+      "get": {
+        "operationId": "OP_DUAL_AUTH_COOKIE_CHECK",
+        "summary": "Case 2: dual-token OR-auth via cookies",
+        "description": "Same OR-auth logic as header-check, but `token` and `stepped-up-token` arrive as cookies in the Cookie header, mixed in among arbitrary unrelated cookies (analytics/tracking, session, etc.). Authenticated if either cookie's token is valid.",
+        "tags": [
+          "Payments / Dual-Token Auth"
+        ],
+        "security": [],
+        "parameters": [
+          {
+            "name": "token",
+            "in": "cookie",
+            "required": false,
+            "description": "Base access token (JWT), sent as a cookie. Either this or stepped-up-token must be valid.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "stepped-up-token",
+            "in": "cookie",
+            "required": false,
+            "description": "Elevated / step-up token (JWT), sent as a cookie. Either this or token must be valid.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authenticated via token or stepped-up-token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DualTokenAuthResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Neither cookie carried a valid token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "parameters": []
+    },
+    "/payments/api/dual-auth/cookie-check-noisy": {
+      "get": {
+        "operationId": "OP_DUAL_AUTH_COOKIE_CHECK_NOISY",
+        "summary": "Cookie case, variant 2: OR-auth amid a large realistic decoy-cookie set",
+        "description": "Same OR-auth logic as cookie-check, exercised against a large/realistic decoy-cookie set (analytics/tracking cookies plus cookies with token-like names) to confirm extraction uses an exact key match and isn't fooled by look-alikes or volume of clutter.",
+        "tags": [
+          "Payments / Dual-Token Auth"
+        ],
+        "security": [],
+        "parameters": [
+          {
+            "name": "token",
+            "in": "cookie",
+            "required": false,
+            "description": "Base access token (JWT), sent as a cookie. Either this or stepped-up-token must be valid.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "stepped-up-token",
+            "in": "cookie",
+            "required": false,
+            "description": "Elevated / step-up token (JWT), sent as a cookie. Either this or token must be valid.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authenticated via token or stepped-up-token, decoys ignored",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/DualTokenAuthResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "look_alike_cookies_ignored": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "description": "Cookie names containing 'token' or 'auth' that were correctly ignored because they don't exactly match `token` / `stepped-up-token`."
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Neither cookie carried a valid token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "parameters": []
+    },
+    "/payments/api/dual-auth/cookie-check-cross-transport": {
+      "get": {
+        "operationId": "OP_DUAL_AUTH_COOKIE_CHECK_CROSS_TRANSPORT",
+        "summary": "Cookie case, variant 3: base token via cookie, step-up via header",
+        "description": "Base `token` sent as a cookie, elevated `stepped-up-token` sent as a header — OR-auth logic spans both channels in the same request.",
+        "tags": [
+          "Payments / Dual-Token Auth"
+        ],
+        "security": [],
+        "parameters": [
+          {
+            "name": "token",
+            "in": "cookie",
+            "required": false,
+            "description": "Base access token (JWT), sent as a cookie. Either this or the stepped-up-token header must be valid.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "stepped-up-token",
+            "in": "header",
+            "required": false,
+            "description": "Elevated / step-up token (JWT), sent as a header. Either this or the token cookie must be valid.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authenticated via token (cookie) or stepped-up-token (header)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "authenticated": {
+                      "type": "boolean"
+                    },
+                    "authenticated_via": {
+                      "type": "string",
+                      "enum": [
+                        "token",
+                        "stepped-up-token"
+                      ]
+                    },
+                    "tokens_received": {
+                      "type": "object",
+                      "properties": {
+                        "token": {
+                          "type": "object",
+                          "properties": {
+                            "present": {
+                              "type": "boolean"
+                            },
+                            "transport": {
+                              "type": "string",
+                              "example": "cookie"
+                            }
+                          }
+                        },
+                        "stepped-up-token": {
+                          "type": "object",
+                          "properties": {
+                            "present": {
+                              "type": "boolean"
+                            },
+                            "transport": {
+                              "type": "string",
+                              "example": "header"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "cookies_seen": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Neither the token cookie nor the stepped-up-token header carried a valid token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "parameters": []
     }
   }
 }
