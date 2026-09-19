@@ -37,15 +37,11 @@ WORKDIR /dist
 RUN cp /build/main .
 
 # Build image for Mailhog.
-# MailHog@v1.0.1 has no pinned deps, so `go install` always resolves the
-# LATEST golang.org/x/crypto at build time -- this keeps ratcheting up its
-# minimum Go requirement (v0.52.0+ needed Go >= 1.25; it has since moved to
-# v0.57.0+, needing Go >= 1.26) and will keep doing so. Bumped again here to
-# 1.27-bookworm (the newest stable at time of writing) for the longest
-# runway before this needs bumping again. Built on bookworm (not bullseye --
-# Go dropped -bullseye images at 1.25) with CGO disabled to produce a fully
-# static binary that still runs on the bullseye-based final image.
-FROM golang:1.27-bookworm AS mailhog-builder
+# MailHog@v1.0.1 has no pinned deps, so `go install` resolves the latest
+# golang.org/x/crypto (v0.52.0+), which requires Go >= 1.25. Go 1.25 no longer
+# ships a -bullseye image, so build on bookworm with CGO disabled to produce a
+# fully static binary that still runs on the bullseye-based final image.
+FROM golang:1.25-bookworm AS mailhog-builder
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
   && rm -rf /var/lib/apt/lists/*
@@ -84,40 +80,23 @@ ENV GO_SERVICE=localhost:8087 \
     PAYMENTS_SERVICE=localhost:8001 \
     MAILHOG_UI=localhost:8025
 
-# Install runtime dependencies.
-#
-# deb.debian.org is fronted by a CDN whose edge cache doesn't always agree with
-# origin: apt-get update can "Hit" a cached Packages index still listing a
-# point-release .deb that the origin pool has already rotated out, so the
-# matching apt-get install 404s -- seen on libnss3, openjdk-11-jre, mesa, vim
-# and python-apt-common. A same-second retry mostly re-hits the same stale
-# edge cache (confirmed: it took a whole retry cycle just to go from 6 stale
-# packages to 3), so this forces a cache-busting re-fetch of the index on
-# every retry and gives it real backoff to let the edge catch up with origin.
-RUN installed=0 \
-    && for attempt in 1 2 3 4 5; do \
-        DEBIAN_FRONTEND=noninteractive apt-get -o Acquire::http::No-Cache=true update \
-        && if DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-            ca-certificates \
-            curl \
-            gnupg \
-            gnupg2 \
-            lsb-release \
-            software-properties-common \
-            wget \
-            gettext \
-            gettext-base \
-            openjdk-11-jre \
-            netcat \
-            vim \
-            dumb-init \
-            procps; \
-        then installed=1; break; \
-        fi; \
-        echo "apt-get install failed (attempt $attempt/5), backing off for the mirror's edge cache to catch up..." >&2; \
-        sleep 20; \
-       done \
-    && [ "$installed" = "1" ] \
+# Install runtime dependencies
+RUN DEBIAN_FRONTEND=noninteractive apt-get update \
+    && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+        ca-certificates \
+        curl \
+        gnupg \
+        gnupg2 \
+        lsb-release \
+        software-properties-common \
+        wget \
+        gettext \
+        gettext-base \
+        openjdk-11-jre \
+        netcat \
+        vim \
+        dumb-init \
+        procps \
     && DEBIAN_FRONTEND=noninteractive apt-get autoremove -y \
     && rm -rf /var/lib/apt/lists/*
 
