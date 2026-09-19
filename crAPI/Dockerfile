@@ -82,16 +82,18 @@ ENV GO_SERVICE=localhost:8087 \
 
 # Install runtime dependencies.
 #
-# deb.debian.org/debian-security fronts multiple mirror backends that aren't
-# always in sync: apt-get update can fetch a Packages index from one backend
-# listing a package version that a later apt-get install then 404s on from a
-# different (already-rotated) backend -- e.g. libnss3, openjdk-11-jre and
-# mesa point releases have all 404'd this way. Retrying with a fresh
-# apt-get update re-resolves the mirror and reliably clears it.
-RUN DEBIAN_FRONTEND=noninteractive apt-get update \
-    && installed=0 \
-    && for attempt in 1 2 3; do \
-        if DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+# deb.debian.org is fronted by a CDN whose edge cache doesn't always agree with
+# origin: apt-get update can "Hit" a cached Packages index still listing a
+# point-release .deb that the origin pool has already rotated out, so the
+# matching apt-get install 404s -- seen on libnss3, openjdk-11-jre, mesa, vim
+# and python-apt-common. A same-second retry mostly re-hits the same stale
+# edge cache (confirmed: it took a whole retry cycle just to go from 6 stale
+# packages to 3), so this forces a cache-busting re-fetch of the index on
+# every retry and gives it real backoff to let the edge catch up with origin.
+RUN installed=0 \
+    && for attempt in 1 2 3 4 5; do \
+        DEBIAN_FRONTEND=noninteractive apt-get -o Acquire::http::No-Cache=true update \
+        && if DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
             ca-certificates \
             curl \
             gnupg \
@@ -107,10 +109,9 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update \
             dumb-init \
             procps; \
         then installed=1; break; \
-        else echo "apt-get install failed (attempt $attempt/3), retrying against a fresh mirror index..." >&2; \
-             sleep 5; \
-             DEBIAN_FRONTEND=noninteractive apt-get update; \
         fi; \
+        echo "apt-get install failed (attempt $attempt/5), backing off for the mirror's edge cache to catch up..." >&2; \
+        sleep 20; \
        done \
     && [ "$installed" = "1" ] \
     && DEBIAN_FRONTEND=noninteractive apt-get autoremove -y \
