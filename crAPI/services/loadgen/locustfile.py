@@ -289,6 +289,88 @@ class QuickstartUser(HttpUser):
             if r.status_code >= 400:
                 r.failure(f"GET transaction failed: {r.status_code}")
 
+    def _dual_auth_pick(self, token, stepped_up_token):
+        """Randomly send `token`, `stepped-up-token`, or both -- exercises every
+        leg of the fixture's OR-auth check across load-gen runs."""
+        choice = random.choice(["token", "stepped-up-token", "both"])
+        return {
+            "token":            token if choice in ("token", "both") else None,
+            "stepped-up-token": stepped_up_token if choice in ("stepped-up-token", "both") else None,
+        }
+
+    @task
+    def payments_dual_auth_fixture(self):
+        """Mint a dual-token pair and exercise every header/cookie OR-auth
+        scenario so the dual-token fixture shows up in traffic."""
+        with self.client.get("/payments/api/dual-auth/sample-token", catch_response=True) as r:
+            if r.status_code >= 400:
+                r.failure(f"sample-token failed: {r.status_code}")
+                return
+            pair = r.json()
+        token, stepped_up = pair.get("token"), pair.get("stepped-up-token")
+
+        # Case 1: token + stepped-up-token as separate headers
+        picked = self._dual_auth_pick(token, stepped_up)
+        with self.client.get("/payments/api/dual-auth/header-check",
+                             headers={k: v for k, v in picked.items() if v},
+                             catch_response=True) as r:
+            if r.status_code >= 400:
+                r.failure(f"header-check failed: {r.status_code}")
+
+        # Case 1b: base token via Authorization: Bearer, step-up via custom header
+        picked = self._dual_auth_pick(token, stepped_up)
+        bearer_headers = {}
+        if picked["token"]:
+            bearer_headers["Authorization"] = f"Bearer {picked['token']}"
+        if picked["stepped-up-token"]:
+            bearer_headers["stepped-up-token"] = picked["stepped-up-token"]
+        with self.client.get("/payments/api/dual-auth/header-check-bearer",
+                             headers=bearer_headers, catch_response=True) as r:
+            if r.status_code >= 400:
+                r.failure(f"header-check-bearer failed: {r.status_code}")
+
+        # Case 1c: sensitive action -- alternates between the vulnerable path (base
+        # token alone approves a fund transfer) and the properly step-up-authenticated one
+        use_stepped_up = random.choice([True, False])
+        sensitive_headers = {"stepped-up-token": stepped_up} if use_stepped_up else {"token": token}
+        with self.client.post("/payments/api/dual-auth/header-check-sensitive-action",
+                              json={"amount": {"value": random.randint(10000, 500000), "currency": "USD"},
+                                    "to_account": f"ACC-{random.randint(100, 999)}"},
+                              headers=sensitive_headers, catch_response=True) as r:
+            if r.status_code >= 400:
+                r.failure(f"header-check-sensitive-action failed: {r.status_code}")
+
+        # Case 2: token + stepped-up-token as cookies, alongside a couple of unrelated ones
+        picked = self._dual_auth_pick(token, stepped_up)
+        cookies = {k: v for k, v in picked.items() if v}
+        cookies.update({"_ga": "GA1.2.123456", "session_junk": "abc"})
+        with self.client.get("/payments/api/dual-auth/cookie-check",
+                             cookies=cookies, catch_response=True) as r:
+            if r.status_code >= 400:
+                r.failure(f"cookie-check failed: {r.status_code}")
+
+        # Case 2b: same, buried in a large realistic decoy-cookie jar (some look-alike names)
+        picked = self._dual_auth_pick(token, stepped_up)
+        noisy_cookies = {k: v for k, v in picked.items() if v}
+        noisy_cookies.update({
+            "_ga": "GA1.2.123456", "_fbp": "fb.1.123", "_gid": "GA1.2.456",
+            "WZRK_G": "abc123def456", "cto_bundle": "blob", "afUserId": "uuid-p",
+            "session_auth_token_old": "decoy1", "sso_token_expired": "decoy2",
+        })
+        with self.client.get("/payments/api/dual-auth/cookie-check-noisy",
+                             cookies=noisy_cookies, catch_response=True) as r:
+            if r.status_code >= 400:
+                r.failure(f"cookie-check-noisy failed: {r.status_code}")
+
+        # Case 2c: cross-transport -- base token via cookie, step-up token via header
+        use_stepped_up = random.choice([True, False])
+        cross_cookies = {} if use_stepped_up else {"token": token}
+        cross_headers = {"stepped-up-token": stepped_up} if use_stepped_up else {}
+        with self.client.get("/payments/api/dual-auth/cookie-check-cross-transport",
+                             cookies=cross_cookies, headers=cross_headers, catch_response=True) as r:
+            if r.status_code >= 400:
+                r.failure(f"cookie-check-cross-transport failed: {r.status_code}")
+
     #initializing user (logging in/applying coupon)
     def on_start(self):
 

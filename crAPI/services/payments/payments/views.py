@@ -5,7 +5,8 @@ import time
 import random
 import string
 import urllib.request as _urllib_req
-from datetime import timezone, timedelta
+import jwt as _jwt
+from datetime import timezone, timedelta, datetime
 
 from django.conf import settings as _django_settings
 from django.db import models as db_models
@@ -825,4 +826,220 @@ class LegacyAuthView(APIView):
             'amount':         {'value': amount_val, 'currency': currency},
             'created_at':     _isodate(txn.created_at),
             '_note':          'v1 API deprecated — migrate to /payments/api/payments/auth',
+        })
+
+
+# ── DUAL-TOKEN OR-AUTH FIXTURE ──────────────────────────────────────────────────
+# Sample endpoints reproducing a real trading-platform pattern: a request carries
+# a base `token` plus an elevated `stepped-up-token`, and authenticates if EITHER
+# one is valid (never both required). Several delivery/scenario variants are
+# demonstrated across two families:
+#   header case:  header-check, header-check-bearer, header-check-sensitive-action
+#   cookie case:  cookie-check, cookie-check-noisy, cookie-check-cross-transport
+# Routed outside _PAYMENTS_PATH so PaymentsMiddleware's header/replay checks don't apply.
+
+_DUAL_JWT_SECRET    = os.environ.get('JWT_SECRET', 'crapi')
+_DUAL_JWT_ALGORITHM = 'HS256'
+
+
+def _dual_token_valid(token):
+    if not token:
+        return False
+    try:
+        _jwt.decode(token, _DUAL_JWT_SECRET, algorithms=[_DUAL_JWT_ALGORITHM])
+        return True
+    except _jwt.PyJWTError:
+        return False
+
+
+def _dual_token_check(base_token, stepped_up_token):
+    """OR auth: authenticated if either token is valid. Returns (ok, via)."""
+    if _dual_token_valid(stepped_up_token):
+        return True, 'stepped-up-token'
+    if _dual_token_valid(base_token):
+        return True, 'token'
+    return False, None
+
+
+class DualTokenSampleView(APIView):
+    """Mints a matching pair of sample tokens for exercising the two views below.
+    Test-fixture only — anyone can mint a token, mirroring how some real-world
+    platforms issue a base and step-up token pair together at login."""
+    def get(self, request):
+        now = datetime.now(tz=timezone.utc)
+
+        def _mint(token_type, ttl_minutes):
+            payload = {
+                'sub': 'dual-token-fixture-user',
+                'token_type': token_type,
+                'iat': now,
+                'exp': now + timedelta(minutes=ttl_minutes),
+            }
+            return _jwt.encode(payload, _DUAL_JWT_SECRET, algorithm=_DUAL_JWT_ALGORITHM)
+
+        return JsonResponse({
+            'token':            _mint('base', 60),
+            'stepped-up-token': _mint('stepped_up', 15),
+        })
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class DualTokenHeaderView(APIView):
+    """Case 1: `token` and `stepped-up-token` sent as separate headers."""
+    def get(self, request):
+        base_token       = request.META.get('HTTP_TOKEN', '')
+        stepped_up_token = request.META.get('HTTP_STEPPED_UP_TOKEN', '')
+        ok, via = _dual_token_check(base_token, stepped_up_token)
+        if not ok:
+            return JsonResponse(
+                {'error': 'unauthorized',
+                 'hint': 'provide a valid `token` or `stepped-up-token` header'},
+                status=401)
+        return JsonResponse({
+            'authenticated':     True,
+            'authenticated_via': via,
+            'tokens_received': {
+                'token':            bool(base_token),
+                'stepped-up-token': bool(stepped_up_token),
+            },
+        })
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class DualTokenCookieView(APIView):
+    """Case 2: `token` and `stepped-up-token` sent as cookies, alongside other
+    unrelated cookies."""
+    def get(self, request):
+        base_token       = request.COOKIES.get('token', '')
+        stepped_up_token = request.COOKIES.get('stepped-up-token', '')
+        ok, via = _dual_token_check(base_token, stepped_up_token)
+        if not ok:
+            return JsonResponse(
+                {'error': 'unauthorized',
+                 'hint': 'provide a valid `token` or `stepped-up-token` cookie'},
+                status=401)
+        return JsonResponse({
+            'authenticated':     True,
+            'authenticated_via': via,
+            'tokens_received': {
+                'token':            bool(base_token),
+                'stepped-up-token': bool(stepped_up_token),
+            },
+            'cookies_seen': list(request.COOKIES.keys()),
+        })
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class DualTokenHeaderBearerView(APIView):
+    """Header case, variant 2: base `token` sent the standard way via
+    `Authorization: Bearer <token>`, elevated token via the custom
+    `stepped-up-token` header — mirrors mixing a standard auth convention
+    with a secondary elevated one."""
+    def get(self, request):
+        auth_header = request.META.get('HTTP_AUTHORIZATION', '')
+        base_token  = auth_header[7:] if auth_header.startswith('Bearer ') else ''
+        stepped_up_token = request.META.get('HTTP_STEPPED_UP_TOKEN', '')
+        ok, via = _dual_token_check(base_token, stepped_up_token)
+        if not ok:
+            return JsonResponse(
+                {'error': 'unauthorized',
+                 'hint': 'provide a valid `Authorization: Bearer <token>` or `stepped-up-token` header'},
+                status=401)
+        return JsonResponse({
+            'authenticated':     True,
+            'authenticated_via': via,
+            'tokens_received': {
+                'token':            bool(base_token),
+                'stepped-up-token': bool(stepped_up_token),
+            },
+        })
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class DualTokenHeaderSensitiveActionView(APIView):
+    """Header case, variant 3: a "sensitive" action (fund transfer) that is
+    supposed to require the elevated `stepped-up-token` — but the same
+    OR-bug leaks through, so a base `token` alone is still accepted.
+    VULNERABILITY [API2-Broken Authentication]: step-up is not actually enforced."""
+    def post(self, request):
+        base_token       = request.META.get('HTTP_TOKEN', '')
+        stepped_up_token = request.META.get('HTTP_STEPPED_UP_TOKEN', '')
+        ok, via = _dual_token_check(base_token, stepped_up_token)
+        if not ok:
+            return JsonResponse(
+                {'error': 'unauthorized',
+                 'hint': 'provide a valid `token` or `stepped-up-token` header'},
+                status=401)
+        body, err = _body(request)
+        if err:
+            return err
+        return JsonResponse({
+            'authenticated':     True,
+            'authenticated_via': via,
+            'required_auth':     'stepped-up-token',
+            'step_up_enforced':  via == 'stepped-up-token',
+            'action': {
+                'type':      'fund_transfer',
+                'status':    'approved',
+                'amount':    body.get('amount', {}),
+                'to_account': body.get('to_account', ''),
+                'approval_code': _aprv('XFER'),
+            },
+        })
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class DualTokenCookieNoisyView(APIView):
+    """Cookie case, variant 2: same OR-auth logic as cookie-check, exercised
+    against a large/realistic decoy-cookie set (analytics/tracking cookies,
+    plus cookies with token-like names) to confirm extraction uses an exact
+    key match and isn't fooled by look-alikes or volume of clutter."""
+    def get(self, request):
+        base_token       = request.COOKIES.get('token', '')
+        stepped_up_token = request.COOKIES.get('stepped-up-token', '')
+        ok, via = _dual_token_check(base_token, stepped_up_token)
+        if not ok:
+            return JsonResponse(
+                {'error': 'unauthorized',
+                 'hint': 'provide a valid `token` or `stepped-up-token` cookie'},
+                status=401)
+        look_alikes = [
+            name for name in request.COOKIES
+            if name not in ('token', 'stepped-up-token')
+            and ('token' in name.lower() or 'auth' in name.lower())
+        ]
+        return JsonResponse({
+            'authenticated':     True,
+            'authenticated_via': via,
+            'tokens_received': {
+                'token':            bool(base_token),
+                'stepped-up-token': bool(stepped_up_token),
+            },
+            'cookies_seen':            list(request.COOKIES.keys()),
+            'look_alike_cookies_ignored': look_alikes,
+        })
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class DualTokenCookieCrossTransportView(APIView):
+    """Cookie case, variant 3: base `token` via cookie, elevated
+    `stepped-up-token` via header — OR-auth logic spans both channels
+    in the same request."""
+    def get(self, request):
+        base_token       = request.COOKIES.get('token', '')
+        stepped_up_token = request.META.get('HTTP_STEPPED_UP_TOKEN', '')
+        ok, via = _dual_token_check(base_token, stepped_up_token)
+        if not ok:
+            return JsonResponse(
+                {'error': 'unauthorized',
+                 'hint': 'provide a valid `token` cookie or `stepped-up-token` header'},
+                status=401)
+        return JsonResponse({
+            'authenticated':     True,
+            'authenticated_via': via,
+            'tokens_received': {
+                'token':            {'present': bool(base_token), 'transport': 'cookie'},
+                'stepped-up-token': {'present': bool(stepped_up_token), 'transport': 'header'},
+            },
+            'cookies_seen': list(request.COOKIES.keys()),
         })
