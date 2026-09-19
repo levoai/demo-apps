@@ -37,11 +37,15 @@ WORKDIR /dist
 RUN cp /build/main .
 
 # Build image for Mailhog.
-# MailHog@v1.0.1 has no pinned deps, so `go install` resolves the latest
-# golang.org/x/crypto (v0.52.0+), which requires Go >= 1.25. Go 1.25 no longer
-# ships a -bullseye image, so build on bookworm with CGO disabled to produce a
-# fully static binary that still runs on the bullseye-based final image.
-FROM golang:1.25-bookworm AS mailhog-builder
+# MailHog@v1.0.1 has no pinned deps, so `go install` always resolves the
+# LATEST golang.org/x/crypto at build time -- this keeps ratcheting up its
+# minimum Go requirement (v0.52.0+ needed Go >= 1.25; it has since moved to
+# v0.57.0+, needing Go >= 1.26) and will keep doing so. Bumped again here to
+# 1.27-bookworm (the newest stable at time of writing) for the longest
+# runway before this needs bumping again. Built on bookworm (not bullseye --
+# Go dropped -bullseye images at 1.25) with CGO disabled to produce a fully
+# static binary that still runs on the bullseye-based final image.
+FROM golang:1.27-bookworm AS mailhog-builder
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
   && rm -rf /var/lib/apt/lists/*
