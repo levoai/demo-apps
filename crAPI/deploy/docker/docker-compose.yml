@@ -149,6 +149,7 @@ services:
       - ALLOWED_HOSTS=*
       - DJANGO_KEY=payments-insecure-dev-key-00001
       - PAYMENTS_ALLOWED_MERCHANT_IDS=merch_7f2a91,merch_4b8c12,merch_0d3e55,merch_load01
+      - WAIT_HOSTS=postgresdb:5432
     depends_on:
       - postgresdb
       - crapi-identity

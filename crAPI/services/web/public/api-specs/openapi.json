@@ -4526,10 +4526,10 @@
           "name": "auth_id",
           "in": "path",
           "required": true,
-          "description": "The auth_id returned by the original /auth response (e.g. AUTH-4291).",
+          "description": "The auth_id returned by the original /auth response (e.g. AUTH-580421096337).",
           "schema": {
             "type": "string",
-            "example": "AUTH-4291"
+            "example": "AUTH-580421096337"
           }
         }
       ],
@@ -6500,7 +6500,7 @@
           },
           "auth_id": {
             "type": "string",
-            "example": "AUTH-4291"
+            "example": "AUTH-580421096337"
           },
           "status": {
             "type": "string",
