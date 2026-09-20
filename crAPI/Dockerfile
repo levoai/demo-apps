@@ -37,11 +37,13 @@ WORKDIR /dist
 RUN cp /build/main .
 
 # Build image for Mailhog.
-# MailHog@v1.0.1 has no pinned deps, so `go install` resolves the latest
-# golang.org/x/crypto (v0.52.0+), which requires Go >= 1.25. Go 1.25 no longer
-# ships a -bullseye image, so build on bookworm with CGO disabled to produce a
-# fully static binary that still runs on the bullseye-based final image.
-FROM golang:1.25-bookworm AS mailhog-builder
+# MailHog@v1.0.1 has no pinned deps, so `go install` always resolves the latest
+# golang.org/x/crypto at build time -- this floor has already moved twice
+# (>=1.25, now >=1.26). Bumped straight to 1.26-bookworm; expect to bump again
+# next time x/crypto raises its floor. Bookworm (not bullseye) because recent Go
+# versions stop shipping -bullseye images; CGO disabled to produce a fully
+# static binary that still runs on the bullseye-based final image.
+FROM golang:1.26-bookworm AS mailhog-builder
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
   && rm -rf /var/lib/apt/lists/*
@@ -79,6 +81,24 @@ ENV GO_SERVICE=localhost:8087 \
     PYTHON_SERVICE=localhost:8000 \
     PAYMENTS_SERVICE=localhost:8001 \
     MAILHOG_UI=localhost:8025
+
+# Pin apt to a fixed snapshot.debian.org date instead of the live deb.debian.org
+# mirror. The live mirror fronts multiple backends that aren't always in sync:
+# apt-get update fetches a Packages index from one backend, then apt-get install
+# 404s fetching a .deb from a different, already-rotated backend -- this has
+# broken this build repeatedly (libnss3, openjdk-11-jre, vim, mesa, ...) with no
+# code change involved. A snapshot is a single frozen, internally-consistent view
+# of the archive, so this class of desync can't happen against it. Every apt-get
+# below this point (runtime deps, MongoDB repo update, python3-dev) picks up this
+# same pinned sources.list since it's one build stage. Check-Valid-Until is
+# disabled because a snapshot's Release file has a short validity window that
+# will always be long past by the time this image is rebuilt.
+RUN printf '%s\n' \
+        'deb http://snapshot.debian.org/archive/debian/20260906T083521Z bullseye main' \
+        'deb http://snapshot.debian.org/archive/debian-security/20260903T220410Z bullseye-security main' \
+        'deb http://snapshot.debian.org/archive/debian/20260906T083521Z bullseye-updates main' \
+        > /etc/apt/sources.list \
+    && printf 'Acquire::Check-Valid-Until "false";\n' > /etc/apt/apt.conf.d/99snapshot
 
 # Install runtime dependencies
 RUN DEBIAN_FRONTEND=noninteractive apt-get update \
