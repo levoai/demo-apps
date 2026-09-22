@@ -6,7 +6,13 @@ metadata:
   labels:
     app: kong
 spec:
-  replicas: 1
+  replicas: 2
+  # A restart must never drop traffic: this hostname is the public crAPI URL and a nightly test
+  # plan runs against it.
+  strategy:
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
   selector:
     matchLabels:
       app: kong
@@ -48,19 +54,26 @@ spec:
               port: admin
             initialDelaySeconds: 5
             periodSeconds: 10
+            timeoutSeconds: 5
           livenessProbe:
             httpGet:
               path: /status
               port: admin
             initialDelaySeconds: 15
             periodSeconds: 30
+            # Explicit, because the default is one second: a busy admin API answering in 1.2s is
+            # not a dead Kong, and killing it on that basis is what produced the restart loop.
+            timeoutSeconds: 5
+            failureThreshold: 3
           resources:
             requests:
               cpu: 100m
-              memory: 256Mi
-            limits:
-              cpu: 500m
               memory: 512Mi
+            limits:
+              # Measured at 441Mi against the old 512Mi ceiling -- 86% -- and climbing over hours
+              # until the admin API stalled. CPU was never the constraint: 6m of 500m in use.
+              cpu: 500m
+              memory: 1Gi
           volumeMounts:
             - name: declarative-config
               mountPath: /kong/declarative
