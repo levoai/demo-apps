@@ -69,6 +69,19 @@ from a pipeline with [levo_push.py](https://docs.levo.ai/scripts/levo_push.py).
 
 This cluster reports to **api.dev.levo.ai**, so that is where the labels appear.
 
+## Why two replicas, and the limits they have
+
+This hostname is the public crAPI URL, and a nightly test plan runs against it, so a Kong restart
+is a visible outage rather than an internal blip. Learned the hard way: a single replica with
+512Mi and the probe's default one-second timeout produced 18 restarts in five days and
+intermittent timeouts on that test.
+
+- **Two replicas** with `maxUnavailable: 0`, so neither a restart nor a rollout drops traffic
+- **1Gi memory**, because Kong sat at 441Mi against the old 512Mi ceiling and climbed over hours
+  until its admin API stalled; CPU was never the constraint at 6m of 500m
+- **`timeoutSeconds: 5` on both probes**, because the default is one second and an admin API
+  answering in 1.2s is not a dead Kong -- killing it on that basis is what caused the loop
+
 ## nginx
 
 `04-nginx.yaml`. A plain reverse proxy: everything to Kong, nothing clever.
